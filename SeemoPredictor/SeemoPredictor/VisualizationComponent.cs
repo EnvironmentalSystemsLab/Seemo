@@ -75,15 +75,18 @@ namespace SeemoPredictor
                         p2.Transform(roccw25);
 
                         //int prediction = (int)Math.Ceiling((r1.PredictedOverallRating + 5) / 10);
-                        double pc = ((r1.PredictedOverallRating + 5) / 10);
-                        int r = (int)Math.Round(221 * (-1 * pc + 1) + 107 * (pc));
-                        int g = (int)Math.Round(62 * (-1 * pc + 1) + 229 * (pc));
-                        int b = (int)Math.Round(84 * (-1 * pc + 1) + 133 * (pc));
-                        if (r < 0) { r = 0; } else if (r > 255) { r = 255; }
-                        if (g < 0) { g = 0; } else if (g > 255) { g = 255; }
-                        if (b < 0) { b = 0; } else if (b > 255) { b = 255; }
-
-                        Color petalColor = Color.FromArgb(r, g, b);
+                        Color overallRatingColor;
+                        double overallRating = r1.PredictedOverallRating;
+                        if((overallRating >= -5) && (overallRating <= 5))
+                        {
+                            double overallRatingP = ColorGenerator.Remap(overallRating, -5, 5, 0, 1);
+                            overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.Gray, Color.Orange, Color.Green);
+                        }
+                        else
+                        {
+                            overallRatingColor = Color.DarkGray;
+                        }
+                        
 
                         Mesh petal = new Mesh();
                         petal.Vertices.Add(viewPoint);
@@ -92,9 +95,9 @@ namespace SeemoPredictor
 
                         petal.Faces.AddFace(0, 1, 2);
 
-                        petal.VertexColors.SetColor(0, petalColor);
-                        petal.VertexColors.SetColor(1, petalColor);
-                        petal.VertexColors.SetColor(2, petalColor);
+                        petal.VertexColors.SetColor(0, overallRatingColor);
+                        petal.VertexColors.SetColor(1, overallRatingColor);
+                        petal.VertexColors.SetColor(2, overallRatingColor);
 
                         petal.Normals.ComputeNormals();
                         //petal.FaceNormals.ComputeFaceNormals();
@@ -106,35 +109,7 @@ namespace SeemoPredictor
                     }
                 }
             }
-            /*
-
-            for (int i = 0; i < 8; i++)
-            {
-                p1.Transform(ro45);
-                p2.Transform(ro45);
-                int prediction = (int)Math.Ceiling((predictions[i] + 5) / 10 * 255);
-                Color petalColor = Color.FromArgb((255 - prediction), prediction, 0);
-
-
-                Mesh petal = new Mesh();
-                petal.Vertices.Add(vvp);
-                petal.Vertices.Add(p1);
-                petal.Vertices.Add(p2);
-
-                petal.Faces.AddFace(0, 1, 2);
-
-                petal.VertexColors.SetColor(0, petalColor);
-                petal.VertexColors.SetColor(1, petalColor);
-                petal.VertexColors.SetColor(2, petalColor);
-
-                petal.Normals.ComputeNormals();
-                petal.FaceNormals.ComputeFaceNormals();
-                petals.Add(petal);
-
-
-            }
-
-            */
+            
             DA.SetDataTree(0, graphs);
 
         }
