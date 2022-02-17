@@ -28,14 +28,14 @@ namespace SeemoPredictor
             pManager.AddBrepParameter("Windows", "Windows", "Window surfaces", GH_ParamAccess.list);
             pManager.AddPointParameter("View Points", "View Points", "View Points", GH_ParamAccess.list);
             pManager.AddVectorParameter("Option_View vectors", "Option_View Vectors", "Option_Normalized view vectors for each view point", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Option_Analyzing Resolution", "Option_Analyzing Resolution", "Option_Analyzing Resolution", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Option_VerticalSceneAngle", "Option_VerticalSceneAngle", "Option_VerticalSceneAngle", GH_ParamAccess.item);
+            //pManager.AddIntegerParameter("Option_Analyzing Resolution", "Option_Analyzing Resolution", "Option_Analyzing Resolution", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("Option_VerticalSceneAngle", "Option_VerticalSceneAngle", "Option_VerticalSceneAngle", GH_ParamAccess.item);
 
             pManager[3].Optional = true;
-            pManager[4].Optional = true;
-            pManager[5].Optional = true;
-            pManager[6].Optional = true;
+            //pManager[4].Optional = true;
+            //pManager[5].Optional = true;
+            //pManager[6].Optional = true;
 
         }
 
@@ -82,9 +82,9 @@ namespace SeemoPredictor
                 }
             }
             
-            DA.GetData(4, ref Resolution);
-            DA.GetData(5, ref HorizontalSceneAngle);
-            DA.GetData(6, ref VerticalSceneAngle);
+            //DA.GetData(4, ref Resolution);
+            //DA.GetData(5, ref HorizontalSceneAngle);
+            //DA.GetData(6, ref VerticalSceneAngle);
 
             RoomSensor roomSensor = new RoomSensor(Room, WindowBreps, ViewPoints, ViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
 
