@@ -1,45 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Rhino.Geometry;
 
 namespace SeemoPredictor
 {
-    public class ViewDir_TD
+
+    public class SeemoResult
     {
-        public Vector3d Dir;
-        public List<ResultDataSet> Results;
+        string TimeStamp { get; set; }
+        string SeemoVersion { get; set; }
+       
+        public List<NodeResult> Results { get; set; } = new List<NodeResult>();
 
-    }
-    public class ViewPoint_TD
-    {
-        public Point3d Pt;
-        public List<ViewDir_TD> Directions;
-
-    }
-    public class Room_TD
-    {
-
-        public List<Mesh> Walls;
-        public List<ViewPoint_TD> Points;
-
-        public List<ResultDataSet> GetAllResults()
-        {
-
-            var dirs = Points.SelectMany(x => x.Directions);
-            var res = dirs.SelectMany(x => x.Results);
-            return res.ToList();
+        public string ToJSON() {
+            return JsonConvert.SerializeObject(this);
         }
 
+        public SeemoResult FromJSON(string txt)
+        {
+            return JsonConvert.DeserializeObject<SeemoResult>(txt);
+        }
+
+        public void ToFile (string path)
+        {
+            File.WriteAllText(path, this.ToJSON());
+        }
+
+        public SeemoResult FromFile(string path)
+        {
+            var txt = File.ReadAllText(path);
+            return JsonConvert.DeserializeObject<SeemoResult>(txt);
+        }
+
+        public override string ToString()
+        {
+            return "Resutls for " + Results.Count + " nodes.";
+        }
 
     }
 
 
+    public class NodeResult
+    {
+        public Point3d Pt { get; set; }
+        public List<ResultDataSet> DirectionsResults { get; set; }
+    }
 
     public class ResultDataSet
     {
+        public Vector3d Dir;
+
         public string ID { get; set; } = "Room1:Point2:Dir1";
         public double ViewPointX { get; set; }
         public double ViewPointY { get; set; }
@@ -121,6 +136,49 @@ namespace SeemoPredictor
             DynamicClosestDist = _DynamicClosestDist;
             
         }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    [Obsolete]
+    public class ViewDir_TD
+    {
+        public Vector3d Dir;
+        public List<ResultDataSet> Results;
+
+    }
+    [Obsolete]
+    public class ViewPoint_TD
+    {
+        public Point3d Pt;
+        public List<ViewDir_TD> Directions;
+
+    }
+    [Obsolete]
+    public class Room_TD
+    {
+
+        public List<Mesh> Walls;
+        public List<ViewPoint_TD> Points;
+
+        public List<ResultDataSet> GetAllResults()
+        {
+
+            var dirs = Points.SelectMany(x => x.Directions);
+            var res = dirs.SelectMany(x => x.Results);
+            return res.ToList();
+        }
+
+
     }
 }
 
