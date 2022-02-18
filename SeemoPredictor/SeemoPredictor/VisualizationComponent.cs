@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using System.IO;
 using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
@@ -26,7 +26,8 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("ViewResult", "ViewResult", "ViewResult", GH_ParamAccess.tree);
+            //  pManager.AddGenericParameter("ViewResult", "ViewResult", "ViewResult", GH_ParamAccess.tree);
+            pManager.AddTextParameter("Path", "Res", "Result file path", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -47,6 +48,21 @@ namespace SeemoPredictor
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            string path = "";
+            if (!DA.GetData(0, ref path)) { return; }
+
+            if ( ! File.Exists(path)) {
+
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Result file does not exsist");
+                return;
+            }
+
+
+            SeemoResult result = SeemoResult.FromFile(path);
+
+
+
+
             GH_Structure<Grasshopper.Kernel.Types.IGH_Goo> dataTree1;
             DataTree<Mesh> overallRatingGraphs = new DataTree<Mesh>();
             DataTree<Mesh> viewContentGraphs = new DataTree<Mesh>();

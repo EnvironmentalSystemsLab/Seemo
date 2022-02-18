@@ -86,7 +86,7 @@ namespace SeemoPredictor
             //DA.GetData(5, ref HorizontalSceneAngle);
             //DA.GetData(6, ref VerticalSceneAngle);
 
-            RoomSensor roomSensor = new RoomSensor(Room, WindowBreps, ViewPoints, ViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
+            SeemoRoom roomSensor = new SeemoRoom(Room, WindowBreps, ViewPoints, ViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
 
             //RoomSensor(Mesh _room, List < Brep > _windows, List < Point3d > _pts, List < Vector3d > _vecs)
 

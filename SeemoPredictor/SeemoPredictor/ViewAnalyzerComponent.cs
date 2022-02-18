@@ -28,6 +28,7 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+
             pManager.AddGenericParameter("Room Sensor", "Room Sensor", "Room Sensor", GH_ParamAccess.list);
             pManager.AddGenericParameter("Environment", "Environment", "Environment", GH_ParamAccess.item);
         }
@@ -51,8 +52,18 @@ namespace SeemoPredictor
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            RoomSensor rs = new RoomSensor();
-            List<RoomSensor> rss = new List<RoomSensor>();
+
+
+
+
+
+
+            var seemo_result = new SeemoResult();
+
+
+
+            SeemoRoom rs = new SeemoRoom();
+            List<SeemoRoom> rooms = new List<SeemoRoom>();
             SEnvironment env = new SEnvironment();
             DataTree<ResultDataSet> dataTree = new DataTree<ResultDataSet>();
             List<double> overallRatings = new List<double>();
@@ -61,12 +72,12 @@ namespace SeemoPredictor
             List<double> privacys = new List<double>();
             List<List<Vector3d>> winRayVectorsT = new List<List<Vector3d>>();
 
-            DA.GetDataList(0, rss);
+            DA.GetDataList(0, rooms);
             DA.GetData(1, ref env);
 
-            for (int k = 0; k < rss.Count; k++)
+            for (int k = 0; k < rooms.Count; k++)
             {
-                rs = rss[k];
+                rs = rooms[k];
                 rs.ComputeRoom();
 
 
@@ -259,6 +270,11 @@ namespace SeemoPredictor
 
             writeCSV(path + @"\ResultData.csv", dataTree.AllData());
 
+
+
+
+
+            seemo_result.ToFile(path + @"\Result.json");
 
         }
         public static void writeCSV<T>(string fp, List<T> records)
