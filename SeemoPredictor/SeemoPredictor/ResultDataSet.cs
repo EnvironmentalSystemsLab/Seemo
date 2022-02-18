@@ -15,7 +15,7 @@ namespace SeemoPredictor
         string TimeStamp { get; set; }
         string SeemoVersion { get; set; }
        
-        public List<NodeResult> Results { get; set; } = new List<NodeResult>();
+        public List<Node> Results { get; set; } = new List<Node>();
 
         public string ToJSON() {
             return JsonConvert.SerializeObject(this);
@@ -45,15 +45,17 @@ namespace SeemoPredictor
     }
 
 
-    public class NodeResult
+    public class Node
     {
         public Point3d Pt { get; set; }
+        public Vector3d[] Dirs { get; set; }
+
         public List<ResultDataSet> DirectionsResults { get; set; }
     }
 
     public class ResultDataSet
     {
-        public Vector3d Dir;
+        public Vector3d Dir { get; set; }
 
         public string ID { get; set; } = "Room1:Point2:Dir1";
         public double ViewPointX { get; set; }
@@ -85,6 +87,8 @@ namespace SeemoPredictor
         public double WaterClosestDist { get; set; } = 0;
         public double DynamicClosestDist { get; set; } = 0;
         public double SkyCondition { get; set; } = 0;
+
+
         public double PredictedOverallRating { get; set; } = 0;
         public double PredictedViewContent { get; set; } = 0;
         public double PredictedViewAccess { get; set; } = 0;
