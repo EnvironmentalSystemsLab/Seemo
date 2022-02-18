@@ -21,7 +21,7 @@ namespace SeemoPredictor
             return JsonConvert.SerializeObject(this);
         }
 
-        public SeemoResult FromJSON(string txt)
+        static public SeemoResult FromJSON(string txt)
         {
             return JsonConvert.DeserializeObject<SeemoResult>(txt);
         }
@@ -31,7 +31,7 @@ namespace SeemoPredictor
             File.WriteAllText(path, this.ToJSON());
         }
 
-        public SeemoResult FromFile(string path)
+       static public SeemoResult FromFile(string path)
         {
             var txt = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<SeemoResult>(txt);
