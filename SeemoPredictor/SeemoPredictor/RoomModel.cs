@@ -14,13 +14,13 @@ namespace SeemoPredictor
 
         public RoomModel() { }
 
-        public RoomSensor roomsensor { get; set; }
+        public SeemoRoom roomsensor { get; set; }
         public SEnvironment env { get; set; }
 
 
 
         //not sure..
-        public RoomModel(RoomSensor _roomsensor, SEnvironment _env)
+        public RoomModel(SeemoRoom _roomsensor, SEnvironment _env)
         {
             roomsensor = _roomsensor;
             env = _env;

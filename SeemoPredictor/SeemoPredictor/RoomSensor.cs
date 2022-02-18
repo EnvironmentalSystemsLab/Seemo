@@ -7,7 +7,7 @@ using Rhino.Geometry;
 
 namespace SeemoPredictor
 {
-    public class RoomSensor
+    public class SeemoRoom
     {
 
         public Mesh Room { get; set; }
@@ -30,11 +30,11 @@ namespace SeemoPredictor
         public ViewResult[,] viewResultsRm { get; set; }
 
 
-        public RoomSensor()
+        public SeemoRoom()
         {
         }
 
-        public RoomSensor(Mesh _room, List<Brep> _windows, List<Point3d> _pts, List<Vector3d> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
+        public SeemoRoom(Mesh _room, List<Brep> _windows, List<Point3d> _pts, List<Vector3d> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
         {
             Room = _room;
             Windows = _windows;
@@ -57,7 +57,7 @@ namespace SeemoPredictor
         {
             //Compute Room and Window Analysis
             Mesh r = Room;
-            RoomSensor vs = new RoomSensor();
+            SeemoRoom vs = new SeemoRoom();
             viewResultsRm = new ViewResult[Pts.Count, Vecs.Length];
 
             //get room and windows
