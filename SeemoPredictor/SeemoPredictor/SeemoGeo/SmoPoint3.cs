@@ -81,7 +81,7 @@ namespace SeemoPredictor.SeemoGeo
         }
 
         /// <summary>
-        /// Determines whether the specified object as a <see cref="Point3" /> is exactly equal to this instance.
+        /// Determines whether the specified object as a <see cref="SmoPoint3" /> is exactly equal to this instance.
         /// </summary>
         /// <remarks>
         /// Due to floating point inaccuracies, this might return false for vectors which are essentially (but not exactly) equal. Use the <see cref="op_Equality"/> to test two points for approximate equality.
@@ -241,9 +241,103 @@ namespace SeemoPredictor.SeemoGeo
         /// </summary>
         /// <param name="a">The first vector.</param>
         /// <param name="b">The second vector.</param>
-        public static SmoPoint3
+        public static SmoPoint3 operator +(SmoPoint3 a, SmoPoint3 b)
+        {
+            return new SmoPoint3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
+
+        /// <summary>
+        /// Subtracts one vector from another.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        public static SmoPoint3 operator -(SmoPoint3 a, SmoPoint3 b)
+        {
+            return new SmoPoint3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        /// <summary>
+        /// Negates a vector.
+        /// </summary>
+        /// <param name="a">The vector.</param>
+        public static SmoPoint3 operator -(SmoPoint3 a)
+        {
+            return new SmoPoint3(-a.X, -a.Y, -a.Z);
+        }
+
+        /// <summary>
+        /// Multiplies a vector by a number.
+        /// </summary>
+        /// <param name="a">The vector.</param>
+        /// <param name="d">The number.</param>
+        public static SmoPoint3 operator *(SmoPoint3 a, float d)
+        {
+            return new SmoPoint3(a.X * d, a.Y * d, a.Z * d);
+        }
+
+        /// <summary>
+        /// Multiplies a vector by a number.
+        /// </summary>
+        /// <param name="d">The number.</param>
+        /// <param name="a">The vector.</param>
+        public static SmoPoint3 operator *(float d, SmoPoint3 a)
+        {
+            return new SmoPoint3(a.X * d, a.Y * d, a.Z * d);
+        }
+
+        /// <summary>
+        /// Divides a vector by a number.
+        /// </summary>
+        /// <param name="a">The vector.</param>
+        /// <param name="d">The number.</param>
+        public static SmoPoint3 operator /(SmoPoint3 a, float d)
+        {
+            return new SmoPoint3(a.X / d, a.Y / d, a.Z / d);
+        }
+
+        /// <summary>
+        /// Determines whether two points are approximately equal.
+        /// </summary>
+        /// <remarks>
+        /// To allow for floating point inaccuracies, the two vectors are considered equal if the magnitude of their difference is less than 1e-5..
+        /// </remarks>
+        /// <param name="a">The first point.</param>
+        /// <param name="b">The second point.</param>
+        public static bool operator ==(SmoPoint3 a, SmoPoint3 b)
+        {
+            return (a - b).SqrMagnitude < 9.99999944E-11f;
+        }
+
+        /// <summary>
+        /// Determines whether two points are different.
+        /// </summary>
+        /// <remarks>
+        /// To allow for floating point inaccuracies, the two vectors are considered equal if the magnitude of their difference is less than 1e-5.
+        /// </remarks>
+        /// <param name="a">The first point.</param>
+        /// <param name="b">The second point.</param>
+        public static bool operator !=(SmoPoint3 a, SmoPoint3 b)
+        {
+            return !(a == b);
+        }
 
 
+        /// <summary>
+        /// Rotates vector around axis using Rodrigues’ rotation formula
+        /// </summary>
+        /// <param name="v">vector to rotate</param>
+        /// <param name="k">rotation axis</param>
+        /// <param name="theta">theta rotation angle[rad]</param>
+        /// <returns>rotated vector</returns>
+        public static SmoPoint3 Rotate(SmoPoint3 v, SmoPoint3 k, float theta)
+        {
+            float ct = (float)Math.Cos(theta);
+            float st = (float)Math.Sin(theta);
+            var khat = k;
+            khat.Normalize();
+            var vrot = v * ct + SmoPoint3.Cross(khat, v) * st + khat * SmoPoint3.Dot(khat, v) * (1.0f - ct);
+            return vrot;
+        }
 
 
 

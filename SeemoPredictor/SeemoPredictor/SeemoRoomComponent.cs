@@ -7,12 +7,12 @@ using Rhino.Geometry;
 
 namespace SeemoPredictor
 {
-    public class RoomWindowComponent : GH_Component
+    public class SeemoRoomComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public RoomWindowComponent()
+        public SeemoRoomComponent()
           : base("Room Snesor", "Room Sensor",
               "Analyzing View Setting : Windows, viewpoints, viewvectors in a room",
               "SeEmo", "1|Sensor")

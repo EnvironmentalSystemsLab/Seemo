@@ -38,7 +38,7 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("ViewResult", "ViewResult", "ViewResult", GH_ParamAccess.tree);
+            pManager.AddTextParameter("Result File Path", "Result File Path", "Result File Path", GH_ParamAccess.item);
             pManager.AddNumberParameter("OverallRatings", "OverallRatings", "OverallRatings", GH_ParamAccess.list);
             pManager.AddNumberParameter("ViewContents", "ViewContents", "ViewContents", GH_ParamAccess.list);
             pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
@@ -55,17 +55,16 @@ namespace SeemoPredictor
 
 
 
-
-
-
             var seemo_result = new SeemoResult();
-
+            List<Node> nodes = new List<Node>();
+            List<ResultDataSet> nodeResult = new List<ResultDataSet>();
+            Vector3d[] dirs;
 
 
             SeemoRoom rs = new SeemoRoom();
             List<SeemoRoom> rooms = new List<SeemoRoom>();
             SEnvironment env = new SEnvironment();
-            DataTree<ResultDataSet> dataTree = new DataTree<ResultDataSet>();
+            
             List<double> overallRatings = new List<double>();
             List<double> viewContents = new List<double>();
             List<double> viewAccesses = new List<double>();
@@ -81,7 +80,7 @@ namespace SeemoPredictor
                 rs.ComputeRoom();
 
 
-                RoomModel rm = new RoomModel(rs, env);
+                SeemoOutdoor rm = new SeemoOutdoor(rs, env);
                 rm.ComputeView();
 
                 //make a datatree and consuem machine learning
@@ -89,9 +88,10 @@ namespace SeemoPredictor
                 for (int i = 0; i < rs.viewResultsRm.GetLength(0); i++)
                 {
                     GH_Path treePath = new GH_Path(i);
+                    
                     for (int j = 0; j < rs.viewResultsRm.GetLength(1); j++)
                     {
-
+                        
                         rs.viewResultsRm[i, j].ResultData.ID = ("Room" + k.ToString() + ":" + "Point" + i.ToString() + ":" + "Dir" + j.ToString());
 
                         //Using trained model and making prediction
@@ -253,30 +253,28 @@ namespace SeemoPredictor
                         rs.viewResultsRm[i, j].ResultData.ViewVectorY = rs.Vecs[j].Y;
                         rs.viewResultsRm[i, j].ResultData.ViewVectorZ = rs.Vecs[j].Z;
 
-                        dataTree.Add(rs.viewResultsRm[i, j].ResultData, treePath);
+                        nodeResult.Add(rs.viewResultsRm[i, j].ResultData, treePath);
                     }
                 }
             }
 
-            DA.SetDataTree(0, dataTree);
+            
+
+
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            
+            //writeCSV(path + @"\ResultData.csv", nodeResult.AllData());
+
+            seemo_result.ToFile(path + @"\Result.json");
+
+            DA.SetData(0, path + @"\Result.json");
             DA.SetDataList(1, overallRatings);
             DA.SetDataList(2, viewContents);
             DA.SetDataList(3, viewAccesses);
             DA.SetDataList(4, privacys);
 
-
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            
-
-            writeCSV(path + @"\ResultData.csv", dataTree.AllData());
-
-
-
-
-
-            seemo_result.ToFile(path + @"\Result.json");
-
         }
+        /*
         public static void writeCSV<T>(string fp, List<T> records)
         {
             if (records.Count == 0) return;
@@ -287,6 +285,7 @@ namespace SeemoPredictor
             }
 
         }
+        */
 
 
         /// <summary>

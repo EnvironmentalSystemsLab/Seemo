@@ -8,11 +8,11 @@ using Rhino.Geometry;
 
 namespace SeemoPredictor
 {
-    public class RoomModel
+    public class SeemoOutdoor
     {
 
 
-        public RoomModel() { }
+        public SeemoOutdoor() { }
 
         public SeemoRoom roomsensor { get; set; }
         public SEnvironment env { get; set; }
@@ -20,7 +20,7 @@ namespace SeemoPredictor
 
 
         //not sure..
-        public RoomModel(SeemoRoom _roomsensor, SEnvironment _env)
+        public SeemoOutdoor(SeemoRoom _roomsensor, SEnvironment _env)
         {
             roomsensor = _roomsensor;
             env = _env;

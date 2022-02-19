@@ -41,7 +41,6 @@ namespace SeemoPredictor
         {
             return "Resutls for " + Results.Count + " nodes.";
         }
-
     }
 
 

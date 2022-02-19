@@ -49,7 +49,7 @@ namespace SeemoPredictor
 
 
         //Compute room and window analysis
-        //RoomModel rm = new RoomModel();
+        //SeemoOutdoor rm = new SeemoOutdoor();
         //List<ViewSensor> vs = new List<ViewSensor>();
 
 
