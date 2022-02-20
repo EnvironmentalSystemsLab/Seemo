@@ -46,15 +46,19 @@ namespace SeemoPredictor
 
     public class Node
     {
+        public int RoomID { get; set; }
+
         public Point3d Pt { get; set; }
+        
         public Vector3d[] Dirs { get; set; }
 
-        public List<ResultDataSet> DirectionsResults { get; set; }
+        public List<ResultDataSet> DirectionsResults { get; set; } = new List<ResultDataSet>();
     }
 
     public class ResultDataSet
     {
         public Vector3d Dir { get; set; }
+        public List<Vector3d> winRayVectors { get; set; }
 
         public string ID { get; set; } = "Room1:Point2:Dir1";
         public double ViewPointX { get; set; }

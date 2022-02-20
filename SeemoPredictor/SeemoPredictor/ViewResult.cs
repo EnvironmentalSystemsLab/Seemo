@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +17,7 @@ namespace SeemoPredictor
         public Vector3d Vec { get; set; }
         //public List<Ray3d> WindowRays { get; set; }
         //public List<Vector3d> WindowRayVectors { get; set; }
-        public ResultDataSet ResultData { get; set; }
+        public SeemoResult ResultData { get; set; }
         //generate class of result data , "reflection"(dictionary) iterate all featrues in clas , "csv helper" 
 
         public ViewResult()
@@ -72,3 +72,4 @@ namespace SeemoPredictor
 
     }
 }
+*/
