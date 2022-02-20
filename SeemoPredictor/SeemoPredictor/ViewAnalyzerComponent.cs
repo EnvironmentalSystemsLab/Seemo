@@ -93,13 +93,12 @@ namespace SeemoPredictor
                     node.RoomID = i;
                     node.Pt = sr.Pts[j];
                     node.Dirs = sr.Vecs;
-                    
 
-                    for(int k = 0; k<sr.Vecs.Length; k++)
+
+                    for (int k = 0; k< sr.Vecs.Length; k++)
                     {
                         //define and get object
-                        ResultDataSet directionResult = new ResultDataSet();
-                        directionResult = sr.ComputeWindowRay(j, k);
+                        ResultDataSet directionResult = sr.ComputeWindowRay(j, k);
                         directionResult.ID = ("Room" + i.ToString() + ":" + "Point" + j.ToString() + ":" + "Dir" + k.ToString());
                         so.ComputeViewMeshray(j, k, directionResult);
 
@@ -235,10 +234,10 @@ namespace SeemoPredictor
                             viewAccesses.Add(viewAccess.ViewAccessB);
                             privacys.Add(privacy.PrivacyB);
 
-                            directionResult.PredictedOverallRating = overallRatings[k];
-                            directionResult.PredictedViewContent = viewContents[k];
-                            directionResult.PredictedViewAccess = viewAccesses[k];
-                            directionResult.PredictedPrivacy = privacys[k];
+                            directionResult.PredictedOverallRating = overallRatings[overallRatings.Count - 1];
+                            directionResult.PredictedViewContent = viewContents[viewContents.Count - 1];
+                            directionResult.PredictedViewAccess = viewAccesses[viewAccesses.Count - 1];
+                            directionResult.PredictedPrivacy = privacys[privacys.Count - 1];
 
 
                             //directionResult.PredictedOverallRating = overallRating.OverallRatingB;

@@ -99,7 +99,7 @@ namespace SeemoPredictor
                     else if((overallRatingV >= -5) && (overallRatingV <= 5))
                     {
                         double overallRatingP = ColorGenerator.Remap(overallRatingV, -5, 5, 0, 1);
-                        overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.Gray, Color.YellowGreen, Color.Navy);
+                        overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.Gray, Color.Yellow, Color.Navy);
                     }
                     else
                     { overallRatingColor = Color.DarkGray; }
@@ -159,7 +159,7 @@ namespace SeemoPredictor
                     else if ((viewAccessV >= -5) && (viewAccessV <= 5))
                     {
                         double viewAccessP = ColorGenerator.Remap(viewAccessV, -5, 5, 0, 1);
-                        viewAccessColor = ColorGenerator.GetTriColour(viewAccessP, Color.Gray, Color.Brown, Color.Beige);
+                        viewAccessColor = ColorGenerator.GetTriColour(viewAccessP, Color.Gray, Color.Beige, Color.Brown);
                     }
                     else
                     { viewAccessColor = Color.DarkGray; }
@@ -188,7 +188,7 @@ namespace SeemoPredictor
                     else if ((privacyV >= -5) && (privacyV <= 5))
                     {
                         double privacyP = ColorGenerator.Remap(privacyV, -5, 5, 0, 1);
-                        privacyColor = ColorGenerator.GetTriColour(privacyP, Color.Navy, Color.BlueViolet, Color.Purple);
+                        privacyColor = ColorGenerator.GetTriColour(privacyP, Color.Navy, Color.Purple, Color.Magenta);
                     }
                     else
                     { privacyColor = Color.DarkGray; }
@@ -212,6 +212,8 @@ namespace SeemoPredictor
 
 
                 }
+
+
             }
 
             
