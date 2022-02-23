@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,7 +58,10 @@ namespace SeemoPredictor
     public class ResultDataSet
     {
         public Vector3d Dir { get; set; }
-        public List<Vector3d> winRayVectors { get; set; }
+        public List<Vector3d> sceneRayVectorsZ1 { get; set; }
+        public List<Vector3d> sceneRayVectorsZ2 { get; set; }
+        public List<Vector3d> sceneRayVectorsZ3 { get; set; }
+        public List<Vector3d> sceneRayVectorsZ4 { get; set; }
 
         public string ID { get; set; } = "Room1:Point2:Dir1";
         public double ViewPointX { get; set; }

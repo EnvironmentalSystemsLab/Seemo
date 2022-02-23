@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 
 
@@ -25,14 +25,13 @@ namespace SeemoPredictor
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddMeshParameter("Room", "Room", "Room box", GH_ParamAccess.item);
-            pManager.AddBrepParameter("Windows", "Windows", "Window surfaces", GH_ParamAccess.list);
             pManager.AddPointParameter("View Points", "View Points", "View Points", GH_ParamAccess.list);
             pManager.AddVectorParameter("Option_View vectors", "Option_View Vectors", "Option_Normalized view vectors for each view point", GH_ParamAccess.list);
             //pManager.AddIntegerParameter("Option_Analyzing Resolution", "Option_Analyzing Resolution", "Option_Analyzing Resolution", GH_ParamAccess.item);
             //pManager.AddNumberParameter("Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", GH_ParamAccess.item);
             //pManager.AddNumberParameter("Option_VerticalSceneAngle", "Option_VerticalSceneAngle", "Option_VerticalSceneAngle", GH_ParamAccess.item);
 
-            pManager[3].Optional = true;
+            pManager[2].Optional = true;
             //pManager[4].Optional = true;
             //pManager[5].Optional = true;
             //pManager[6].Optional = true;
@@ -53,9 +52,8 @@ namespace SeemoPredictor
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            //Mesh Room = new Mesh();
+            
             Mesh Room = new Mesh();
-            List<Brep> WindowBreps = new List<Brep>();
             List<Point3d> ViewPoints = new List<Point3d>();
             List<Vector3d> ViewVectors = new List<Vector3d>();
             int Resolution = 300;
@@ -66,12 +64,10 @@ namespace SeemoPredictor
             
             //rotate vector to clockwise from 12 
             
-            
-
             if (!DA.GetData(0, ref Room)) return;
-            if (!DA.GetDataList(1, WindowBreps)) return;
-            if (!DA.GetDataList(2, ViewPoints)) return;
-            if (!DA.GetDataList(3, ViewVectors)) {
+            //if (!DA.GetDataList(1, WindowBreps)) return;
+            if (!DA.GetDataList(1, ViewPoints)) return;
+            if (!DA.GetDataList(2, ViewVectors)) {
                 
                 for (int i = 0; i < 8; i++)
                 {
@@ -86,12 +82,14 @@ namespace SeemoPredictor
             //DA.GetData(5, ref HorizontalSceneAngle);
             //DA.GetData(6, ref VerticalSceneAngle);
 
-            SeemoRoom roomSensor = new SeemoRoom(Room, WindowBreps, ViewPoints, ViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
+            SeemoRoom roomSensor = new SeemoRoom(Room, ViewPoints, ViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
 
             DA.SetData(0, roomSensor);
             
 
         }
+
+
 
         /// <summary>
         /// Provides an Icon for the component.

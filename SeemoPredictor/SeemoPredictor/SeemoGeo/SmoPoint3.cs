@@ -340,13 +340,5 @@ namespace SeemoPredictor.SeemoGeo
         }
 
 
-
-
-
-
-
-
-
-
     }
 }
