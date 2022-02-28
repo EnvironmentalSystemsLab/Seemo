@@ -2,33 +2,70 @@
 
 namespace SeemoPredictor.SeemoGeo
 {
+    /// <summary>
+    /// Represents an axis aligned bounding box (AABB).
+    /// </summary>
+    /// <remarks>
+    /// This class was inspired by the Bounds type of the Unity Engine and 
+    /// designed with the exact same interface to provide maximum compatibility.
+    /// </remarks>
+    /// 
     public struct SmoBBox
     {
+        /// <summary>
+        /// Gets or sets the center of the bounding box.
+        /// </summary>
         public SmoPoint3 Center { get; set; }
+
+        /// <summary>
+        /// Gets or sets the extents of the bounding box. This is always half of the <see cref="Size"/>.
+        /// </summary>
         public SmoPoint3 Extents { get; set; }
+
+        /// <summary>
+        /// Gets or sets the size of the bounding box. This is always twice as large as the <see cref="Extents"/>.
+        /// </summary>
         public SmoPoint3 Size
         {
             get { return Extents * 2; }
             set { Extents = value * 0.5f; }
         }
 
+        /// <summary>
+        /// Gets or sets the minimal point of the box.
+        /// </summary>
+        /// <remarks>
+        /// This is always equal to <c>center-extents</c>.
+        /// </remarks>
         public SmoPoint3 Min
         {
             get { return Center - Extents; }
             set { SetMinMax(value, Max); }
         }
 
+        /// <summary>
+        /// Gets or sets the maximal point of the box.
+        /// </summary>
+        /// <remarks>
+        /// This is always equal to <c>center+extents</c>.
+        /// </remarks>
         public SmoPoint3 Max
         {
             get { return Center + Extents; }
             set { SetMinMax(Min, value); }
         }
 
+        /// <summary>
+        /// Creates a new bounding box.
+        /// </summary>
+        /// <param name="center">The center of the box.</param>
+        /// <param name="size">The size of the box.</param>
         public SmoBBox(SmoPoint3 center, SmoPoint3 size)
         {
             Center = center;
             Extents = size * 0.5f;
         }
+
 
         public SmoBBox(SmoPoint3[] VertexList)
         {
@@ -40,6 +77,7 @@ namespace SeemoPredictor.SeemoGeo
                 this.Encapsulate(p);
             }
         }
+
 
         /// <summary>
         /// Sets the bounds to the min and max value of the box.
@@ -167,7 +205,6 @@ namespace SeemoPredictor.SeemoGeo
 
             distance = tmin;
             return true;
-
         }
 
         /// <summary>
@@ -197,7 +234,6 @@ namespace SeemoPredictor.SeemoGeo
                 result = (Center.Equals(box.Center) && Extents.Equals(box.Extents));
             }
             return result;
-
         }
 
         /// <summary>
@@ -208,7 +244,7 @@ namespace SeemoPredictor.SeemoGeo
             return String.Format("Center: {0}, Extents: {1}",
                 Center,
                 Extents
-                );
+            );
         }
 
         /// <summary>
@@ -242,7 +278,6 @@ namespace SeemoPredictor.SeemoGeo
         {
             return !(lhs == rhs);
         }
-
-
     }
 }
+

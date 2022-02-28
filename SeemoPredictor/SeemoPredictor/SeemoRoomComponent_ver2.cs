@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
+using SeemoPredictor.SeemoGeo;
 
 namespace SeemoPredictor
 {
@@ -13,8 +12,8 @@ namespace SeemoPredictor
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
         public SeemoRoomComponent()
-          : base("Room Snesor", "Room Sensor",
-              "Analyzing View Setting : Windows, viewpoints, viewvectors in a room",
+          : base("SeemoRoom", "SeemoRoom",
+              "Analyzing View Setting : Room, viewpoints, viewvectors in a room",
               "SeEmo", "1|Sensor")
         {
         }
@@ -56,6 +55,9 @@ namespace SeemoPredictor
             Mesh Room = new Mesh();
             List<Point3d> ViewPoints = new List<Point3d>();
             List<Vector3d> ViewVectors = new List<Vector3d>();
+            List<SmoPoint3> SViewPoints = new List<SmoPoint3>();
+            List<SmoPoint3> SViewVectors = new List<SmoPoint3>();
+            List<SmoFace> RoomSmoFaces = new List<SmoFace>();
             int Resolution = 300;
             double HorizontalSceneAngle = (35.754 * 2);
             double VerticalSceneAngle = (25.641 * 2);
@@ -75,16 +77,37 @@ namespace SeemoPredictor
                     Transform rocw45 = Transform.Rotation(-0.25* i * (Math.PI), vvp);
                     v1.Transform(rocw45);
                     ViewVectors.Add(v1);
+                    
                 }
             }
-            
+
             //DA.GetData(4, ref Resolution);
             //DA.GetData(5, ref HorizontalSceneAngle);
             //DA.GetData(6, ref VerticalSceneAngle);
 
-            SeemoRoom roomSensor = new SeemoRoom(Room, ViewPoints, ViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
 
-            DA.SetData(0, roomSensor);
+            //Convert Mesh to List<SmoFace>
+            RoomSmoFaces = Mesh2SmoFaces.MeshToSmoFaces(Room, SmoFace.SmoFaceType.Room);
+
+
+            //Convert Point3d to SmoPoint3
+            foreach(Point3d p in ViewPoints)
+            {
+                SmoPoint3 sp = new SmoPoint3(p.X, p.Y, p.Z);
+                SViewPoints.Add(sp);
+            }
+
+            //Convert Vector3d to SmoPoint3
+            foreach (Vector3d vt in ViewVectors)
+            {
+                SmoPoint3 sv = new SmoPoint3(vt.X, vt.Y, vt.Z);
+                SViewVectors.Add(sv);
+            }
+
+
+            SeemoInput smoRoom = new SeemoInput(RoomSmoFaces, SViewPoints, SViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
+
+            DA.SetData(0, smoRoom);
             
 
         }

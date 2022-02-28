@@ -1,6 +1,6 @@
 
 
-
+/*
 
 // make octree
 PointOctree<Face> octree = new PointOctree<Face>((float)maxNodeSize, allGeometry[0].Center, (float)minNodeSize);
@@ -43,3 +43,4 @@ internal static bool IsObstructed(PointOctree<Face> octree, Face f, Point3 rayDi
     }
     return false;
 }
+*/

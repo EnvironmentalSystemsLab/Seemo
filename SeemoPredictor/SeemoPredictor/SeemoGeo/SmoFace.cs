@@ -1,18 +1,29 @@
-﻿using System;
+﻿
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
+
 namespace SeemoPredictor.SeemoGeo
 {
+    
     public class SmoFace
+
     {
         public int Id { get; set; }
         public SmoPoint3[] VertexList { get; set; }
         public bool IsQuad { get; set; }
         public SmoPoint3 Normal { get; set; }
         public SmoPoint3 Center { get; set; }
+        public SmoFaceType Material { get; set; } = SmoFaceType._UNSET_;
+
+
+
+
         public SmoBBox BoundingBox { get; set; }
-        public string Material { get; set; }
+
+
+
 
 
         public SmoFace() { }
@@ -88,6 +99,21 @@ namespace SeemoPredictor.SeemoGeo
             Down
         }
 
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum SmoFaceType
+        {
+            _UNSET_,
+            Room,
+            Building,
+            Equipment,
+            Tree,
+            Pavement,
+            Grass,
+            Water,
+            Dynamics,
+            Sky
+
+        }
 
 
     }

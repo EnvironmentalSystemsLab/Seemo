@@ -3,30 +3,54 @@ using System.Runtime.Serialization;
 
 namespace SeemoPredictor.SeemoGeo
 {
-    [DataContract]
+    
+    /// <summary>
+    /// Representation of 3D points and vectors.
+    /// </summary>
+    /// <remarks>
+    /// This class was inspired by the Vector3 type of the Unity Engine and 
+    /// designed with the exact same interface to provide maximum compatibility.
+    /// </remarks>
+[DataContract]
     public struct SmoPoint3
     {
+        /// <summary>
+        /// Gets or sets the X coordinate.
+        /// </summary>
         [DataMember]
         public float X { get; set; }
 
-
+        /// <summary>
+        /// Gets or sets the Y coordinate.
+        /// </summary>
         [DataMember]
         public float Y { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Z coordinate.
+        /// </summary>
         [DataMember]
         public float Z { get; set; }
 
+        /// <summary>
+        /// Gets the length of the vector.
+        /// </summary>
         public float Length
         {
             get { return (float)Math.Sqrt(X*X + Y*Y + Z*Z); }
         }
 
+        /// <summary>
+        /// Gets the squared length of the vector.
+        /// </summary>
         public float SqrMagnitude
         {
             get { return X*X + Y*Y + Z* Z; }    
         }
 
+        /// <summary>
         /// Gets the vector with a magnitude of 1.
+        /// </summary>
         public SmoPoint3 Normalized
         {
             get
@@ -37,6 +61,7 @@ namespace SeemoPredictor.SeemoGeo
             }
         }
 
+        /// <summary>
         /// Creates a new vector with given coordinates.
         /// </summary>
         /// <param name="x">The X coordinate.</param>
@@ -56,7 +81,9 @@ namespace SeemoPredictor.SeemoGeo
             Z = (float)z;
         }
 
+        /// <summary>
         /// Normalizes the vector with a magnitude of 1.
+        /// </summary>
         public void Normalize()
         {
             float num = Length;
@@ -69,7 +96,6 @@ namespace SeemoPredictor.SeemoGeo
                 this = SmoPoint3.Zero;
             }
         }
-
 
         /// <summary>
         /// Returns a hash code for this instance.
@@ -167,6 +193,7 @@ namespace SeemoPredictor.SeemoGeo
         public static SmoPoint3 ZAxis = new SmoPoint3(0f, 0f, 1f);
 
 
+
         /// <summary>
         /// Returns the distance between two points.
         /// </summary>
@@ -201,7 +228,6 @@ namespace SeemoPredictor.SeemoGeo
             return new SmoPoint3(a.Y * b.Z - a.Z * b.Y, a.Z * b.X - a.X * b.Z, a.X * b.Y - a.Y * b.X);
         }
 
-
         /// <summary>
         /// Dot-product of two vectors.
         /// </summary>
@@ -212,7 +238,6 @@ namespace SeemoPredictor.SeemoGeo
         {
             return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
         }
-
 
         /// <summary>
         /// Returns a point that is made from the smallest components of two points.
@@ -338,7 +363,5 @@ namespace SeemoPredictor.SeemoGeo
             var vrot = v * ct + SmoPoint3.Cross(khat, v) * st + khat * SmoPoint3.Dot(khat, v) * (1.0f - ct);
             return vrot;
         }
-
-
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
@@ -31,7 +31,7 @@ namespace SeemoPredictor.SeemoGeo
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("SmoFace", "SmoFace", "SmoFace", GH_ParamAccess.list);
+            pManager.AddGenericParameter("SmoFaces", "SmoFaces", "SmoFaces", GH_ParamAccess.list);
         }
 
         /// <summary>

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Rhino.Geometry;
+using SeemoPredictor.SeemoGeo;
 
 namespace SeemoPredictor
 {
@@ -14,10 +15,11 @@ namespace SeemoPredictor
     {
         string TimeStamp { get; set; }
         string SeemoVersion { get; set; }
-       
+
         public List<Node> Results { get; set; } = new List<Node>();
 
-        public string ToJSON() {
+        public string ToJSON()
+        {
             return JsonConvert.SerializeObject(this);
         }
 
@@ -26,12 +28,12 @@ namespace SeemoPredictor
             return JsonConvert.DeserializeObject<SeemoResult>(txt);
         }
 
-        public void ToFile (string path)
+        public void ToFile(string path)
         {
             File.WriteAllText(path, this.ToJSON());
         }
 
-       static public SeemoResult FromFile(string path)
+        static public SeemoResult FromFile(string path)
         {
             var txt = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<SeemoResult>(txt);
@@ -48,20 +50,20 @@ namespace SeemoPredictor
     {
         public int RoomID { get; set; }
 
-        public Point3d Pt { get; set; }
-        
-        public Vector3d[] Dirs { get; set; }
+        public SmoPoint3 Pt { get; set; }
 
-        public List<ResultDataSet> DirectionsResults { get; set; } = new List<ResultDataSet>();
+        public SmoPoint3[] Dirs { get; set; }
+
+        public List<ResultDataSet_ver2> DirectionsResults { get; set; } = new List<ResultDataSet_ver2>();
     }
 
-    public class ResultDataSet
+    public class ResultDataSet_ver2
     {
-        public Vector3d Dir { get; set; }
-        public List<Vector3d> sceneRayVectorsZ1 { get; set; }
-        public List<Vector3d> sceneRayVectorsZ2 { get; set; }
-        public List<Vector3d> sceneRayVectorsZ3 { get; set; }
-        public List<Vector3d> sceneRayVectorsZ4 { get; set; }
+        public SmoPoint3 Dir { get; set; }
+        public List<SmoPoint3> sceneRayVectorsZ1 { get; set; }
+        public List<SmoPoint3> sceneRayVectorsZ2 { get; set; }
+        public List<SmoPoint3> sceneRayVectorsZ3 { get; set; }
+        public List<SmoPoint3> sceneRayVectorsZ4 { get; set; }
 
         public string ID { get; set; } = "Room1:Point2:Dir1";
         public double ViewPointX { get; set; }
@@ -73,7 +75,7 @@ namespace SeemoPredictor
         public double WindowNumber { get; set; } = 0;
         public double WindowAreaSum { get; set; } = 0;
         public double Z1PtsCountRatio { get; set; } = 0;
-        public double Z2PtCountRatio { get; set; } = 0;
+        public double Z2PtsCountRatio { get; set; } = 0;
         public double Z3PtsCountRatio { get; set; } = 0;
         public double Z4PtsCountRatio { get; set; } = 0;
         public double BuildingPtsCountRatio { get; set; } = 0;
@@ -101,31 +103,28 @@ namespace SeemoPredictor
         public double PredictedPrivacy { get; set; } = 0;
 
 
-
-
-
-        public ResultDataSet()
+        public ResultDataSet_ver2()
         {
 
         }
-        
 
-        public ResultDataSet(double _WindowNumber, double _WindowAreaSum, 
+
+        public ResultDataSet_ver2(double _WindowNumber, double _WindowAreaSum,
             double _Z1PtsCountRatio, double _Z2PtCountRatio,
-            double _Z3PtsCountRatio, double _Z4PtsCountRatio, 
+            double _Z3PtsCountRatio, double _Z4PtsCountRatio,
             double _BuildingPtsCountRatio, double _EquipmentPtsCountRatio, double _TreePtsCountRatio, double _PavementPtsCountRatio, double _GrassPtsCountRatio, double _WaterPtsCountRatio, double _DynamicPtsRatio,
-            double _SkyPtsCountRatio, 
+            double _SkyPtsCountRatio,
             double _ElementNumber, double _FloorHeights, double _BuildingClosestDist, double _EquipmentClosestDist, double _TreeClosestDist,
-            double _GrassClosestDist, double _WaterClosestDist, 
+            double _GrassClosestDist, double _WaterClosestDist,
             double _DynamicClosestDist
             )
         {
             WindowNumber = _WindowNumber;
             WindowAreaSum = _WindowAreaSum;
-            
+
             Z1PtsCountRatio = _Z1PtsCountRatio;
-            Z2PtCountRatio = _Z2PtCountRatio;
-           
+            Z2PtsCountRatio = _Z2PtCountRatio;
+
             Z3PtsCountRatio = _Z3PtsCountRatio;
             Z4PtsCountRatio = _Z4PtsCountRatio;
             BuildingPtsCountRatio = _BuildingPtsCountRatio;
@@ -144,19 +143,17 @@ namespace SeemoPredictor
             GrassClosestDist = _GrassClosestDist;
             WaterClosestDist = _WaterClosestDist;
             DynamicClosestDist = _DynamicClosestDist;
-            
+
         }
     }
 
 
+}
 
 
 
 
-
-
-
-
+    /*
 
 
     [Obsolete]
@@ -190,5 +187,6 @@ namespace SeemoPredictor
 
 
     }
-}
 
+
+    */

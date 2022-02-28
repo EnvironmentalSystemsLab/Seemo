@@ -18,10 +18,8 @@ namespace SeemoPredictor.SeemoGeo
     /// 
     /// </remarks>
     /// <typeparam name="T">The content of the octree can be anything, since the bounds data is supplied separately.</typeparam>
-
     public class SmoPointOctree<T>
     {
-
         /// <summary>
         /// Root node of the octree
         /// </summary>
@@ -66,12 +64,10 @@ namespace SeemoPredictor.SeemoGeo
                     + " Adjusted to: " + initialWorldSize);
                 minNodeSize = initialWorldSize;
             }
-
             Count = 0;
             _initialSize = initialWorldSize;
             _minSize = minNodeSize;
             _rootNode = new SmoNode(_initialSize, _minSize, initialWorldPos);
-
         }
 
         // #### PUBLIC METHODS ####
@@ -97,7 +93,6 @@ namespace SeemoPredictor.SeemoGeo
                 }
             }
             Count++;
-
         }
 
         /// <summary>
@@ -108,12 +103,14 @@ namespace SeemoPredictor.SeemoGeo
         public bool Remove(T obj)
         {
             bool removed = _rootNode.Remove(obj);
+
             //See if we can shrink the octree down now that we've removed the item
             if (removed)
             {
                 Count--;
                 Shrink();
             }
+
             return removed;
         }
 
@@ -216,7 +213,6 @@ namespace SeemoPredictor.SeemoGeo
                             oldRoot.SideLength,
                             _minSize,
                             newCenter + new SmoPoint3(xDirection * half, yDirection * half, zDirection * half));
-
                     }
                 }
 
@@ -232,6 +228,8 @@ namespace SeemoPredictor.SeemoGeo
         {
             _rootNode = _rootNode.ShrinkIfPossible(_initialSize);
         }
+
+
 
 
         private class SmoNode
@@ -287,7 +285,6 @@ namespace SeemoPredictor.SeemoGeo
             /// <summary>
             /// Gets a value indicating whether this node has children
             /// </summary>
-
             private bool HasChildren
             {
                 get { return _children != null; }
@@ -307,7 +304,6 @@ namespace SeemoPredictor.SeemoGeo
                 /// Object position
                 /// </summary>
                 public SmoPoint3 Pos;
-
             }
 
             /// <summary>
@@ -393,7 +389,6 @@ namespace SeemoPredictor.SeemoGeo
                 return SubRemove(obj, objPos);
             }
 
-
             /// <summary>
             /// Return objects that are within <paramref name="maxDistance"/> of the specified ray.
             /// </summary>
@@ -432,7 +427,6 @@ namespace SeemoPredictor.SeemoGeo
                     }
                 }
             }
-
 
             /// <summary>
             /// Return objects that are within <paramref name="maxDistance"/> of the specified position.
@@ -473,7 +467,6 @@ namespace SeemoPredictor.SeemoGeo
                 }
             }
 
-
             /// <summary>
             /// Return all objects in the tree.
             /// </summary>
@@ -507,7 +500,6 @@ namespace SeemoPredictor.SeemoGeo
 
                 _children = childOctrees;
             }
-
 
             /// <summary>
             /// We can shrink the octree if:
@@ -581,7 +573,6 @@ namespace SeemoPredictor.SeemoGeo
 
                 // We have children. Use the appropriate child as the new root node
                 return _children[bestFit];
-
             }
 
             /// <summary>
@@ -624,7 +615,6 @@ namespace SeemoPredictor.SeemoGeo
                 return SmoPoint3.Cross(ray.Direction, point - ray.Origin).SqrMagnitude;
             }
 
-
             //#### PRIVATE METHODS ####
 
             /// <summary>
@@ -655,7 +645,6 @@ namespace SeemoPredictor.SeemoGeo
                 _childBounds[5] = new SmoBBox(Center + new SmoPoint3(quarter, -quarter, -quarter), childActualSize);
                 _childBounds[6] = new SmoBBox(Center + new SmoPoint3(-quarter, -quarter, quarter), childActualSize);
                 _childBounds[7] = new SmoBBox(Center + new SmoPoint3(quarter, -quarter, quarter), childActualSize);
-
             }
 
             /// <summary>
@@ -796,8 +785,6 @@ namespace SeemoPredictor.SeemoGeo
                 return outerBounds.Contains(point);
             }
 
-
-
             /// <summary>
             /// Checks if there are few enough objects in this node and its children that the children should all be merged into this.
             /// </summary>
@@ -820,20 +807,6 @@ namespace SeemoPredictor.SeemoGeo
                 }
                 return totalObjects <= NumObjectsAllowed;
             }
-
-
-
         }
-
-
-
-
     }
-
-
-
-
-
-
-
 }

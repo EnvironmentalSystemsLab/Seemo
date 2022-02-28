@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Grasshopper.Kernel;
 using Rhino.Geometry;
+using SeemoPredictor.SeemoGeo;
 
 namespace SeemoPredictor
 {
@@ -12,7 +13,7 @@ namespace SeemoPredictor
         /// Initializes a new instance of the MyComponent2 class.
         /// </summary>
         public SEnvironmentComponent()
-          : base("EnvironmentComponent", "Environment",
+          : base("Environment", "Environment",
               "Environment obects : Buildings, Nature, Pavement, Green, Dynamics, Sky Sphere",
               "SeEmo", "2|Environment")
         {
@@ -67,7 +68,11 @@ namespace SeemoPredictor
             List<Mesh> grass = new List<Mesh>();
             List<Mesh> water = new List<Mesh>();
             List<Mesh> dynamics = new List<Mesh>();
+            List<Mesh> sky = new List<Mesh>();
             Mesh msky = new Mesh();
+
+            SeemoInput envInput = new SeemoInput();
+
 
             DA.GetDataList(0, buildings);
             DA.GetDataList(1, equipments);
@@ -78,55 +83,103 @@ namespace SeemoPredictor
             DA.GetDataList(6, dynamics);
             DA.GetData(7, ref msky);
 
-            //Method : Joining List<Mesh> into one Mesh
-            Mesh joinMesh(List<Mesh> elementMeshList)
+            sky.Add(msky);
+            List<List<Mesh>> env = new List<List<Mesh>>();
+
+            env.Add(buildings);
+            env.Add(equipments);
+            env.Add(trees);
+            env.Add(pavements);
+            env.Add(grass);
+            env.Add(water);
+            env.Add(dynamics);
+            env.Add(sky);
+
+            
+            //Convert Mesh to SmoFace
+            for(int i = 0; i < env.Count; i++)
             {
-                Mesh elementMesh = new Mesh();
-                foreach (var m in elementMeshList)
+                SmoFace.SmoFaceType p = SmoFace.SmoFaceType._UNSET_;
+                if (i == 0)
                 {
-                    elementMesh.Append(m);
+                    p = SmoFace.SmoFaceType.Building;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.Building.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
                 }
-                elementMesh.Vertices.CullUnused();
-                return elementMesh;
+                else if (i == 1)
+                {
+                    p = SmoFace.SmoFaceType.Equipment;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.Equipment.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
+                }
+                else if (i == 2)
+                {
+                    p = SmoFace.SmoFaceType.Tree;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.Tree.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
+                }
+                else if (i == 3)
+                {
+                    p = SmoFace.SmoFaceType.Pavement;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.Pavement.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
+                }
+                else if (i == 4)
+                {
+                    p = SmoFace.SmoFaceType.Grass;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.Grass.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
+                }
+                else if (i == 5)
+                {
+                    p = SmoFace.SmoFaceType.Water;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.Water.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
+                }
+                else if (i == 6)
+                {
+                    p = SmoFace.SmoFaceType.Dynamics;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.Dynamics.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
+                }
+                else if (i == 7)
+                {
+                    p = SmoFace.SmoFaceType.Sky;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.Sky.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
+                }
+                else
+                {
+                    break;
+                }
+
             }
 
-
-            Mesh buildingMesh = joinMesh(buildings);
-            Mesh equipmentMesh = joinMesh(equipments);
-            Mesh treeMesh = joinMesh(trees);
-            Mesh pavementMesh = joinMesh(pavements);
-            Mesh grassMesh = joinMesh(grass);
-            Mesh waterMesh = joinMesh(water);
-            Mesh dynamicMesh = joinMesh(dynamics);
-
-            Mesh sceneMesh = new Mesh();
-
-            sceneMesh.Append(buildingMesh);
-            sceneMesh.Append(equipmentMesh);
-            sceneMesh.Append(treeMesh);
-            sceneMesh.Append(pavementMesh);
-            sceneMesh.Append(grassMesh);
-            sceneMesh.Append(waterMesh);
-            sceneMesh.Append(dynamicMesh);
-            sceneMesh.Append(msky);
-
-            List<int> faceCnts = new List<int>();
-
-            faceCnts.Add(buildingMesh.Faces.Count);
-            faceCnts.Add(equipmentMesh.Faces.Count);
-            faceCnts.Add(treeMesh.Faces.Count);
-            faceCnts.Add(pavementMesh.Faces.Count);
-            faceCnts.Add(grassMesh.Faces.Count);
-            faceCnts.Add(waterMesh.Faces.Count);
-            faceCnts.Add(dynamicMesh.Faces.Count);
-            faceCnts.Add(msky.Faces.Count);
-
-
-            SEnvironment env = new SEnvironment(sceneMesh, faceCnts, pavements, grass);
-
-
-            DA.SetData(0, env);
-
+            DA.SetData(0, envInput);
         }
 
         /// <summary>
