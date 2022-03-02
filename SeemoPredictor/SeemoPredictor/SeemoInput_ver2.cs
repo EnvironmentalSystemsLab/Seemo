@@ -111,7 +111,7 @@ namespace SeemoPredictor
             SmoPoint3 vdx = vd;
             vdx = SmoPoint3.Rotate(vdx, -vh, (float)((HorizontalSceneAngle * Math.PI / 180) / 2));
             SmoPoint3 _vdx = vd;
-            _vdx = SmoPoint3.Rotate(_vdx, -vh, (float)((HorizontalSceneAngle * Math.PI / 180) / 2));
+            _vdx = SmoPoint3.Rotate(_vdx, -vh, -(float)((HorizontalSceneAngle * Math.PI / 180) / 2));
             SmoPoint3 vdy = vd;
             vdy = SmoPoint3.Rotate(vdy, vr, (float)((VerticalSceneAngle * Math.PI / 180) / 2));
             SmoPoint3 _vdy = vd;
@@ -126,19 +126,19 @@ namespace SeemoPredictor
                     SmoPoint3 sceneVector = (float)(m / Math.Floor(mMax)) * _vdx + (float)(1 - (m / Math.Floor(mMax))) * vdx
                         + (float)(n / Math.Floor(nMax)) * _vdy + (float)(1 - (n / Math.Floor(nMax))) * vdy - vd * ((vd.X * vdx.X + vd.Y * vdx.Y + vd.Z * vdx.Z) );
                     
-                    if(n < (nMax / 3))
+                    if(n > (nMax - (Math.Truncate((nMax + 1) / 3))))
                     {
-                        RayVectors3.Add(sceneVector);
+                        //RayVectors3.Add(sceneVector);
                     }
-                    else if((n >= (nMax /3)) && (n < (nMax * 2 / 3)))
+                    else if(n >= Math.Truncate((nMax + 1) / 3))
                     {
-                        if((m >= (mMax / 3)) && (m < (mMax * 2 / 3)))
+                        if((m < Math.Truncate((mMax+1)/3)) || (m > (mMax - (Math.Truncate((mMax+1)/3)))))
                         {
-                            RayVectors1.Add(sceneVector);
+                            RayVectors2.Add(sceneVector);
                         }
                         else
                         {
-                            RayVectors2.Add(sceneVector);
+                            RayVectors1.Add(sceneVector);
                         }
                     }
                     else

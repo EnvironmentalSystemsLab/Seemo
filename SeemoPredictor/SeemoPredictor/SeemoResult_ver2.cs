@@ -48,7 +48,7 @@ namespace SeemoPredictor
 
     public class Node
     {
-        public int RoomID { get; set; }
+        public int NodeID { get; set; }
 
         public SmoPoint3 Pt { get; set; }
 
@@ -65,7 +65,7 @@ namespace SeemoPredictor
         public List<SmoPoint3> sceneRayVectorsZ3 { get; set; }
         public List<SmoPoint3> sceneRayVectorsZ4 { get; set; }
 
-        public string ID { get; set; } = "Room1:Point2:Dir1";
+        public string ID { get; set; } = "Point2:Dir1";
         public double ViewPointX { get; set; }
         public double ViewPointY { get; set; }
         public double ViewPointZ { get; set; }

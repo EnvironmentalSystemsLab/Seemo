@@ -11,12 +11,16 @@ namespace SeemoPredictor.SeemoGeo
 
         private static double EPSILON = 0.0000001;
 
-        public static void MeshRayResultSave(ref ResultDataSet_ver2 result, SmoPointOctree<SmoFace> octree, SmoPoint3 pt)
+        public static void MeshRayResultSave(ref ResultDataSet_ver2 result, ref List<SmoPoint3> hits, SmoPointOctree<SmoFace> octree, SmoPoint3 pt)
         {
+            
             int z1hit = result.sceneRayVectorsZ1.Count;
             int z2hit = result.sceneRayVectorsZ2.Count;
             int z3hit = result.sceneRayVectorsZ3.Count;
             int z4hit = result.sceneRayVectorsZ4.Count;
+            List<int> zhitList = new List<int> { z1hit, z2hit, z3hit, z4hit };
+
+            List<List<SmoPoint3>> zoneSceneRayVectorsList = new List<List<SmoPoint3>> { result.sceneRayVectorsZ1, result.sceneRayVectorsZ2, result.sceneRayVectorsZ3, result.sceneRayVectorsZ4 };
 
             List<double> buildingDists = new List<double>();
             List<double> equipmentDists = new List<double>();
@@ -26,171 +30,67 @@ namespace SeemoPredictor.SeemoGeo
             List<double> waterDists = new List<double>();
             List<double> dynamicDists = new List<double>();
             List<double> skyDists = new List<double>();
+            
+            //custom setting. If intersection is not accurate, change this value
+            double maxnodesize = 2.0;
 
-
-            //shoot z1 rays
-            foreach (SmoPoint3 ray in result.sceneRayVectorsZ1)
+            //for loop for zone1,2,3,4
+            for(int i = 0; i < 4; i++)
             {
-                SmoPoint3 hit = new SmoPoint3();
-                var type = SmoIntersect.IsObstructed(ref hit, octree, pt, ray, 0.01f);
-                double dist = SmoPoint3.Distance(hit, pt);
-
-                switch (type)
+                foreach (SmoPoint3 ray in zoneSceneRayVectorsList[i])
                 {
-                    case SmoFace.SmoFaceType.Room:
-                        z1hit--;
-                        break;
-                    case SmoFace.SmoFaceType.Building:
-                        buildingDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Equipment:
-                        equipmentDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Tree:
-                        treeDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Pavement:
-                        pavementDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Grass:
-                        grassDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Water:
-                        waterDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Dynamics:
-                        dynamicDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Sky:
-                        skyDists.Add(dist);
-                        break;
-                }
-            }
+                    SmoPoint3 hit = new SmoPoint3();
+                    var type = SmoIntersect.IsObstructed(ref hit, octree, pt, ray, maxnodesize);
+                    double dist = SmoPoint3.Distance(hit, pt);
+                    if (hit != null)
+                    {
+                        hits.Add(hit);
+                    }
 
-            //shoot z2 rays
-            foreach (SmoPoint3 ray in result.sceneRayVectorsZ2)
-            {
-                SmoPoint3 hit = new SmoPoint3();
-                var type = SmoIntersect.IsObstructed(ref hit, octree, pt, ray, 0.01f);
-                double dist = SmoPoint3.Distance(hit, pt);
-
-                switch (type)
-                {
-                    case SmoFace.SmoFaceType.Room:
-                        z2hit--;
-                        break;
-                    case SmoFace.SmoFaceType.Building:
-                        buildingDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Equipment:
-                        equipmentDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Tree:
-                        treeDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Pavement:
-                        pavementDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Grass:
-                        grassDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Water:
-                        waterDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Dynamics:
-                        dynamicDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Sky:
-                        skyDists.Add(dist);
-                        break;
-                }
-            }
-
-            //shoot z3 rays
-            foreach (SmoPoint3 ray in result.sceneRayVectorsZ3)
-            {
-                SmoPoint3 hit = new SmoPoint3();
-                var type = SmoIntersect.IsObstructed(ref hit, octree, pt, ray, 0.01f);
-                double dist = SmoPoint3.Distance(hit, pt);
-
-                switch (type)
-                {
-                    case SmoFace.SmoFaceType.Room:
-                        z3hit--;
-                        break;
-                    case SmoFace.SmoFaceType.Building:
-                        buildingDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Equipment:
-                        equipmentDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Tree:
-                        treeDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Pavement:
-                        pavementDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Grass:
-                        grassDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Water:
-                        waterDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Dynamics:
-                        dynamicDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Sky:
-                        skyDists.Add(dist);
-                        break;
-                }
-            }
-
-            //shoot z4 rays
-            foreach (SmoPoint3 ray in result.sceneRayVectorsZ4)
-            {
-                SmoPoint3 hit = new SmoPoint3();
-                var type = SmoIntersect.IsObstructed(ref hit, octree, pt, ray, 0.01f);
-                double dist = SmoPoint3.Distance(hit, pt);
-
-                switch (type)
-                {
-                    case SmoFace.SmoFaceType.Room:
-                        z4hit--;
-                        break;
-                    case SmoFace.SmoFaceType.Building:
-                        buildingDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Equipment:
-                        equipmentDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Tree:
-                        treeDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Pavement:
-                        pavementDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Grass:
-                        grassDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Water:
-                        waterDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Dynamics:
-                        dynamicDists.Add(dist);
-                        break;
-                    case SmoFace.SmoFaceType.Sky:
-                        skyDists.Add(dist);
-                        break;
+                    switch (type)
+                    {
+                        case SmoFace.SmoFaceType.Room:
+                            zhitList[i]--;
+                            break;
+                        case SmoFace.SmoFaceType.Building:
+                            buildingDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Equipment:
+                            equipmentDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Tree:
+                            treeDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Pavement:
+                            pavementDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Grass:
+                            grassDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Water:
+                            waterDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Dynamics:
+                            dynamicDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Sky:
+                            skyDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType._UNSET_:
+                            skyDists.Add(dist);
+                            break;
+                    }
                 }
             }
 
             //calculate ml inputs
-            int zhitSum = (z1hit + z2hit + z3hit + z4hit);
+            double zhitSum = zhitList.Sum();
             result.WindowAreaSum = (zhitSum / (5288.02083158));
-            result.Z1PtsCountRatio = (z1hit) / zhitSum;
-            result.Z2PtsCountRatio = (z2hit) / zhitSum;
-            result.Z3PtsCountRatio = (z3hit) / zhitSum;
-            result.Z4PtsCountRatio = (z4hit) / zhitSum;
+
+            result.Z1PtsCountRatio = (double)zhitList[0] / zhitSum;
+            result.Z2PtsCountRatio = (double)zhitList[1] / zhitSum;
+            result.Z3PtsCountRatio = (double)zhitList[2] / zhitSum;
+            result.Z4PtsCountRatio = (double)zhitList[3] / zhitSum;
 
             //***********Without WindowMesh How can I count window number???
             ////Previous Method: Count how many window are visible
@@ -217,14 +117,14 @@ namespace SeemoPredictor.SeemoGeo
             result.WindowNumber = 2;
             result.SkyCondition = 1;
 
-            result.BuildingPtsCountRatio = (buildingDists.Count / zhitSum);
-            result.EquipmentPtsCountRatio = (equipmentDists.Count / zhitSum);
-            result.TreePtsCountRatio = (treeDists.Count / zhitSum);
-            result.PavementPtsCountRatio = (pavementDists.Count / zhitSum);
-            result.GrassPtsCountRatio = (grassDists.Count / zhitSum);
-            result.WaterPtsCountRatio = (waterDists.Count / zhitSum);
-            result.DynamicPtsRatio = (dynamicDists.Count / zhitSum);
-            result.SkyPtsCountRatio = (skyDists.Count / zhitSum);
+            result.BuildingPtsCountRatio = ((double)(buildingDists.Count)) / zhitSum;
+            result.EquipmentPtsCountRatio = ((double)(equipmentDists.Count)) / zhitSum;
+            result.TreePtsCountRatio = ((double)(treeDists.Count)) / zhitSum;
+            result.PavementPtsCountRatio = ((double)(pavementDists.Count)) / zhitSum;
+            result.GrassPtsCountRatio = ((double)(grassDists.Count)) / zhitSum;
+            result.WaterPtsCountRatio = ((double)(waterDists.Count)) / zhitSum;
+            result.DynamicPtsRatio = ((double)(dynamicDists.Count)) / zhitSum;
+            result.SkyPtsCountRatio = ((double)(skyDists.Count)) / zhitSum;
 
             //calculate object's closest distance and type
             double ComputeClosestDist(List<double> dists)
@@ -290,13 +190,14 @@ namespace SeemoPredictor.SeemoGeo
                 bool i1 = false;
                 bool i2 = false;
 
-                SmoFace.SmoFaceType type = g.Material;
+                SmoFace.SmoFaceType type;
 
                 i1 = SmoIntersect.RayTriangle_MollerTrumbore(ray, g.VertexList[0], g.VertexList[1], g.VertexList[2], out ipt1);
 
                 if (i1) 
                 {
                     hitPt = ipt1;
+                    type = g.Material;
                     return type; 
                 }
 
@@ -306,6 +207,7 @@ namespace SeemoPredictor.SeemoGeo
                     if (i2) 
                     {
                         hitPt = ipt2;
+                        type = g.Material;
                         return type; 
                     }
                 }

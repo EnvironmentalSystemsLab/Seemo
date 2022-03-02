@@ -45,6 +45,10 @@ namespace SeemoPredictor
                 }
 
                 SmoFace smoFace = new SmoFace(pts);
+                smoFace.ComputeCenter();
+                //smoFace.ComputeNormal();
+                //smoFace.ComputeArea();
+                //smoFace.ComputeAngleToNorth();
 
                 smoFace.Material = type;
                 smoFaces.Add(smoFace);

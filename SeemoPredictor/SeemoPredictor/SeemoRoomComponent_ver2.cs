@@ -91,7 +91,7 @@ namespace SeemoPredictor
 
 
             //Convert Point3d to SmoPoint3
-            foreach(Point3d p in ViewPoints)
+            foreach (Point3d p in ViewPoints)
             {
                 SmoPoint3 sp = new SmoPoint3(p.X, p.Y, p.Z);
                 SViewPoints.Add(sp);
