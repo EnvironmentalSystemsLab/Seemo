@@ -139,7 +139,7 @@ namespace SeemoPredictor
 
                 //generate ray and do machine learning and save data in direction result 
                 //original
-                /*
+                
                 for (int j = 0; j < input.Vecs.Length; j++)
                 {
                     //generateZoneRay and Define ResultDataSet
@@ -316,7 +316,7 @@ namespace SeemoPredictor
                     nodeResult.Add(directionResult);
                 }
             
-                */
+                /*
 
                 //threading try
                 Thread thread1 = new Thread(() =>
@@ -333,46 +333,7 @@ namespace SeemoPredictor
 
                         //Compute octree intersect
                         SmoIntersect.MeshRayResultSave(ref directionResult, ref hits, octree0, node.Pt);
-                        /*
-                        //test output
-                        List<Point3d> rays = new List<Point3d>();
-                        foreach (SmoPoint3 hit in directionResult.sceneRayVectorsZ1)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            rays.Add(hitR);
-                        }
-                        foreach (SmoPoint3 hit in directionResult.sceneRayVectorsZ2)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            rays.Add(hitR);
-                        }
-                        foreach (SmoPoint3 hit in directionResult.sceneRayVectorsZ3)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            rays.Add(hitR);
-                        }
-                        foreach (SmoPoint3 hit in directionResult.sceneRayVectorsZ4)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            rays.Add(hitR);
-                        }
-                        raysList.AddRange(rays);
-
-                        //test output ray
-                        List<Point3d> hitsR = new List<Point3d>();
-                        foreach (SmoPoint3 hit in hits)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            hitsR.Add(hitR);
-                        }
-                        hitsList.AddRange(hitsR);
-
-                        //Run (octree)IsObstructed save data into directionResult 
-
-                        directionResult.FloorHeights = floorheight;
-
-                        */
-
+                        
                         //Generate Model input for prediction
                         ModelInput sampleDataOverallRating = new ModelInput()
                         {
@@ -549,45 +510,7 @@ namespace SeemoPredictor
 
                         //Compute octree intersect
                         SmoIntersect.MeshRayResultSave(ref directionResult, ref hits, octree0, node.Pt);
-                        /*
-                        //test output
-                        List<Point3d> rays = new List<Point3d>();
-                        foreach (SmoPoint3 hit in directionResult.sceneRayVectorsZ1)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            rays.Add(hitR);
-                        }
-                        foreach (SmoPoint3 hit in directionResult.sceneRayVectorsZ2)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            rays.Add(hitR);
-                        }
-                        foreach (SmoPoint3 hit in directionResult.sceneRayVectorsZ3)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            rays.Add(hitR);
-                        }
-                        foreach (SmoPoint3 hit in directionResult.sceneRayVectorsZ4)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            rays.Add(hitR);
-                        }
-                        raysList.AddRange(rays);
-
-                        //test output ray
-                        List<Point3d> hitsR = new List<Point3d>();
-                        foreach (SmoPoint3 hit in hits)
-                        {
-                            Point3d hitR = new Point3d(hit.X, hit.Y, hit.Z);
-                            hitsR.Add(hitR);
-                        }
-                        hitsList.AddRange(hitsR);
-
-                        //Run (octree)IsObstructed save data into directionResult 
-
-                        directionResult.FloorHeights = floorheight;
-
-                        */
+                        
 
                         //Generate Model input for prediction
                         ModelInput sampleDataOverallRating = new ModelInput()
@@ -754,6 +677,9 @@ namespace SeemoPredictor
 
                 thread1.Start();
                 thread2.Start(); 
+
+
+                */
                 node.DirectionsResults = nodeResult;
                 //Save node result
                 nodes.Add(node);
