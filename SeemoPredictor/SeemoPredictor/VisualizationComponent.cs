@@ -73,13 +73,13 @@ namespace SeemoPredictor
             for(int i = 0; i < result.Results.Count; i++)
             {
                 // i is node index
-                Point3d viewPoint = result.Results[i].Pt;
+                Point3d viewPoint = new Point3d(result.Results[i].Pt.X, result.Results[i].Pt.Y, result.Results[i].Pt.Z);
 
 
                 for (int j = 0; j<result.Results[i].DirectionsResults.Count; j++)
                 {
                     //j is vector index
-                    ResultDataSet resultData3 = result.Results[i].DirectionsResults[j];
+                    ResultDataSet_ver2 resultData3 = result.Results[i].DirectionsResults[j];
                     Point3d viewVector = new Point3d(resultData3.ViewVectorX, resultData3.ViewVectorY, resultData3.ViewVectorZ);
                     
                     
@@ -94,7 +94,7 @@ namespace SeemoPredictor
                     //1.overall Rating
                     Color overallRatingColor;
                     double overallRatingV = resultData3.PredictedOverallRating;
-                    if (resultData3.WindowAreaSum == 0)
+                    if (resultData3.WindowAreaSum <= 0.05)
                     { overallRatingColor = Color.DarkGray; }
                     else if((overallRatingV >= -5) && (overallRatingV <= 5))
                     {
@@ -124,7 +124,7 @@ namespace SeemoPredictor
                     //2.viewContent
                     Color viewContentColor;
                     double viewContentV = resultData3.PredictedViewContent;
-                    if (resultData3.WindowAreaSum == 0)
+                    if (resultData3.WindowAreaSum <= 0.05)
                     { viewContentColor = Color.DarkGray; }
                     else if ((viewContentV >= -5) && (viewContentV <= 5))
                     {
@@ -154,7 +154,7 @@ namespace SeemoPredictor
                     //3.viewAccess
                     Color viewAccessColor;
                     double viewAccessV = resultData3.PredictedViewAccess;
-                    if (resultData3.WindowAreaSum == 0)
+                    if (resultData3.WindowAreaSum <= 0.05)
                     { viewAccessColor = Color.DarkGray; }
                     else if ((viewAccessV >= -5) && (viewAccessV <= 5))
                     {
@@ -183,7 +183,7 @@ namespace SeemoPredictor
                     //4.Privacy
                     Color privacyColor;
                     double privacyV = resultData3.PredictedPrivacy;
-                    if (resultData3.WindowAreaSum == 0)
+                    if (resultData3.WindowAreaSum <= 0.05)
                     { privacyColor = Color.DarkGray; }
                     else if ((privacyV >= -5) && (privacyV <= 5))
                     {
