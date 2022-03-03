@@ -17,9 +17,9 @@ namespace SeemoPredictor
 
 
         public ImagePreviewComponent()
-          : base("ImageViewer", "ImageViewer",
+          : base("ImageViewer", "Viewer",
               "Show bitmap",
-            "RCEnergy", "Model")
+            "SeEmo", "5|Environment")
         {
         }
 
