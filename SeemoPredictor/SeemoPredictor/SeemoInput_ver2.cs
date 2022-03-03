@@ -11,30 +11,11 @@ namespace SeemoPredictor
     public class SeemoInput
     {
 
-        public List<SmoFace> AnalyzingBuilding { get; set; } = new List<SmoFace>();
-        public List<SmoFace> Building { get; set; } = new List<SmoFace>();
-        public List<SmoFace> Equipment { get; set; } = new List<SmoFace>();
-        public List<SmoFace> Tree { get; set; } = new List<SmoFace>();
-        public List<SmoFace> Pavement { get; set; } = new List<SmoFace>();
-        public List<SmoFace> Grass { get; set; } = new List<SmoFace>();
-        public List<SmoFace> Water { get; set; } = new List<SmoFace>();
-        public List<SmoFace> Dynamics { get; set; } = new List<SmoFace>();
-        public List<SmoFace> Sky { get; set; } = new List<SmoFace>();
         public List<SmoPoint3> Pts { get; set; } = new List<SmoPoint3>();
         public SmoPoint3[] Vecs { get; set; }
         public int Resolution { get; set; }
         public double HorizontalSceneAngle { get; set; }
         public double VerticalSceneAngle { get; set; }
-
-
-
-        //for debugging - switch to private afterwards
-        //public Mesh zoneMesh;
-        //public List<SmoPoint3> sceneVectors;
-        //public List<SmoPoint3> winPts;
-        //public List<SmoPoint3> winRayVectors;
-
-        //public ViewResult[,] viewResultsRm { get; set; }
 
 
         public SeemoInput()
@@ -50,36 +31,15 @@ namespace SeemoPredictor
             VerticalSceneAngle = _verticalSceneAngle;
         }
 
-        public static SeemoInput Merge2Inputs(SeemoInput roomInput, SeemoInput envInput)
-        {
-            SeemoInput result = new SeemoInput();
-            
-            result.Pts = roomInput.Pts;
-            result.Vecs = roomInput.Vecs;
-            result.Resolution = roomInput.Resolution;
-            result.HorizontalSceneAngle = roomInput.HorizontalSceneAngle;
-            result.VerticalSceneAngle = roomInput.VerticalSceneAngle;
 
-            result.AnalyzingBuilding = envInput.AnalyzingBuilding;
-            result.Building = envInput.Building;
-            result.Equipment = envInput.Equipment;
-            result.Tree = envInput.Tree;
-            result.Pavement = envInput.Pavement;
-            result.Grass = envInput.Grass;
-            result.Water = envInput.Water;
-            result.Dynamics = envInput.Dynamics;
-            result.Sky = envInput.Sky;
-
-            return result; 
-        }
 
         public ResultDataSet_ver2 GenerateZoneRay(int pointIndex, int vectorIndex)
         {
             //compute features for single view point and single view direction
             SmoPoint3 vp = Pts[pointIndex];
             SmoPoint3 vd = Vecs[vectorIndex];
-   
-                    
+
+
             //Define Left, right, up, down vectors to measure room dimension
             SmoPoint3 nvd = vd;
             nvd.Normalize();
@@ -93,10 +53,10 @@ namespace SeemoPredictor
             SmoPoint3 vup = new SmoPoint3(0, 0, 1);
             SmoPoint3 vdn = new SmoPoint3(0, 0, -1);
             SmoPoint3 vf = nvd;
-            SmoPoint3 vh = SmoPoint3.Cross(vr, nvd); 
+            SmoPoint3 vh = SmoPoint3.Cross(vr, nvd);
 
             //visualize view vectors
-            
+
             //Making window directional rays------------------------------------------------------------------------------------
             List<SmoPoint3> RayVectors1 = new List<SmoPoint3>();
             List<SmoPoint3> RayVectors2 = new List<SmoPoint3>();
@@ -125,15 +85,15 @@ namespace SeemoPredictor
                 for (int n = 0; n < nMax; n++)
                 {
                     SmoPoint3 sceneVector = (float)(m / Math.Floor(mMax)) * _vdx + (float)(1 - (m / Math.Floor(mMax))) * vdx
-                        + (float)(n / Math.Floor(nMax)) * _vdy + (float)(1 - (n / Math.Floor(nMax))) * vdy - vd * ((vd.X * vdx.X + vd.Y * vdx.Y + vd.Z * vdx.Z) );
-                    
-                    if(n > (nMax - (Math.Truncate((nMax + 1) / 3))))
+                        + (float)(n / Math.Floor(nMax)) * _vdy + (float)(1 - (n / Math.Floor(nMax))) * vdy - vd * ((vd.X * vdx.X + vd.Y * vdx.Y + vd.Z * vdx.Z));
+
+                    if (n > (nMax - (Math.Truncate((nMax + 1) / 3))))
                     {
                         //RayVectors3.Add(sceneVector);
                     }
-                    else if(n >= Math.Truncate((nMax + 1) / 3))
+                    else if (n >= Math.Truncate((nMax + 1) / 3))
                     {
-                        if((m < Math.Truncate((mMax+1)/3)) || (m > (mMax - (Math.Truncate((mMax+1)/3)))))
+                        if ((m < Math.Truncate((mMax + 1) / 3)) || (m > (mMax - (Math.Truncate((mMax + 1) / 3)))))
                         {
                             RayVectors2.Add(sceneVector);
                         }

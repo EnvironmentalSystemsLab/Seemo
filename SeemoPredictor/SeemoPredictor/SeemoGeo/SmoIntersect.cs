@@ -49,7 +49,7 @@ namespace SeemoPredictor.SeemoGeo
 
                     switch (type)
                     {
-                        case SmoFace.SmoFaceType.AnalyzingBuilding:
+                        case SmoFace.SmoFaceType.Interior:
                             zhitList[i]--;
                             break;
                         case SmoFace.SmoFaceType.Building:
@@ -70,15 +70,15 @@ namespace SeemoPredictor.SeemoGeo
                         case SmoFace.SmoFaceType.Water:
                             waterDists.Add(dist);
                             break;
-                        case SmoFace.SmoFaceType.Dynamics:
+                        case SmoFace.SmoFaceType.Dynamic:
                             dynamicDists.Add(dist);
                             break;
-                        case SmoFace.SmoFaceType.Sky:
-                            skyDists.Add(dist);
-                            break;
-                        case SmoFace.SmoFaceType._UNSET_:
-                            skyDists.Add(dist);
-                            break;
+                        //case SmoFace.SmoFaceType.Sky:
+                        //    skyDists.Add(dist);
+                        //    break;
+                        //case SmoFace.SmoFaceType._UNSET_:
+                        //    skyDists.Add(dist);
+                        //    break;
                     }
                 }
             }

@@ -15,7 +15,7 @@ namespace SeemoPredictor.SeemoGeo
         public bool IsQuad { get; set; }
         public SmoPoint3 Normal { get; set; }
         public SmoPoint3 Center { get; set; }
-        public SmoFaceType Material { get; set; } = SmoFaceType._UNSET_;
+        public SmoFaceType Material { get; set; }
 
 
 
@@ -102,17 +102,15 @@ namespace SeemoPredictor.SeemoGeo
         [JsonConverter(typeof(StringEnumConverter))]
         public enum SmoFaceType
         {
-            _UNSET_,
-            AnalyzingBuilding,
+            Interior,
             Building,
             Equipment,
             Tree,
             Pavement,
             Grass,
             Water,
-            Dynamics,
-            Sky
-
+            Dynamic,
+            _UNSET_
         }
 
 
