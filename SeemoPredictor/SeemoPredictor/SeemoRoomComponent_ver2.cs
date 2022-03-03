@@ -12,8 +12,8 @@ namespace SeemoPredictor
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
         public SeemoRoomComponent()
-          : base("SeemoRoom", "SeemoRoom",
-              "Analyzing View Setting : Room, viewpoints, viewvectors in a room",
+          : base("Sensor", "Sensor",
+              "Analyzing View Setting : viewpoints, viewvectors",
               "SeEmo", "1|Sensor")
         {
         }
@@ -23,14 +23,14 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddMeshParameter("Room", "Room", "Room box", GH_ParamAccess.item);
+            
             pManager.AddPointParameter("View Points", "View Points", "View Points", GH_ParamAccess.list);
             pManager.AddVectorParameter("Option_View vectors", "Option_View Vectors", "Option_Normalized view vectors for each view point", GH_ParamAccess.list);
             //pManager.AddIntegerParameter("Option_Analyzing Resolution", "Option_Analyzing Resolution", "Option_Analyzing Resolution", GH_ParamAccess.item);
             //pManager.AddNumberParameter("Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", GH_ParamAccess.item);
             //pManager.AddNumberParameter("Option_VerticalSceneAngle", "Option_VerticalSceneAngle", "Option_VerticalSceneAngle", GH_ParamAccess.item);
 
-            pManager[2].Optional = true;
+            pManager[1].Optional = true;
             //pManager[4].Optional = true;
             //pManager[5].Optional = true;
             //pManager[6].Optional = true;
@@ -42,7 +42,7 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("Room Sensor", "Room Sensor", "Room Sensor", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Sensor", "Sensor", "Sensor", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -52,12 +52,11 @@ namespace SeemoPredictor
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             
-            Mesh Room = new Mesh();
             List<Point3d> ViewPoints = new List<Point3d>();
             List<Vector3d> ViewVectors = new List<Vector3d>();
             List<SmoPoint3> SViewPoints = new List<SmoPoint3>();
             List<SmoPoint3> SViewVectors = new List<SmoPoint3>();
-            List<SmoFace> RoomSmoFaces = new List<SmoFace>();
+            
             int Resolution = 300;
             double HorizontalSceneAngle = (35.754 * 2);
             double VerticalSceneAngle = (25.641 * 2);
@@ -66,10 +65,8 @@ namespace SeemoPredictor
             
             //rotate vector to clockwise from 12 
             
-            if (!DA.GetData(0, ref Room)) return;
-            //if (!DA.GetDataList(1, WindowBreps)) return;
-            if (!DA.GetDataList(1, ViewPoints)) return;
-            if (!DA.GetDataList(2, ViewVectors)) {
+            if (!DA.GetDataList(0, ViewPoints)) return;
+            if (!DA.GetDataList(1, ViewVectors)) {
                 
                 for (int i = 0; i < 8; i++)
                 {
@@ -85,9 +82,6 @@ namespace SeemoPredictor
             //DA.GetData(5, ref HorizontalSceneAngle);
             //DA.GetData(6, ref VerticalSceneAngle);
 
-
-            //Convert Mesh to List<SmoFace>
-            RoomSmoFaces = Mesh2SmoFaces.MeshToSmoFaces(Room, SmoFace.SmoFaceType.Room);
 
 
             //Convert Point3d to SmoPoint3
@@ -105,9 +99,9 @@ namespace SeemoPredictor
             }
 
 
-            SeemoInput smoRoom = new SeemoInput(RoomSmoFaces, SViewPoints, SViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
+            SeemoInput smoSensor = new SeemoInput(SViewPoints, SViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
 
-            DA.SetData(0, smoRoom);
+            DA.SetData(0, smoSensor);
             
 
         }

@@ -11,7 +11,7 @@ namespace SeemoPredictor
     public class SeemoInput
     {
 
-        public List<SmoFace> Room { get; set; }
+        public List<SmoFace> AnalyzingBuilding { get; set; } = new List<SmoFace>();
         public List<SmoFace> Building { get; set; } = new List<SmoFace>();
         public List<SmoFace> Equipment { get; set; } = new List<SmoFace>();
         public List<SmoFace> Tree { get; set; } = new List<SmoFace>();
@@ -41,9 +41,8 @@ namespace SeemoPredictor
         {
         }
 
-        public SeemoInput(List<SmoFace> _room, List<SmoPoint3> _pts, List<SmoPoint3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
+        public SeemoInput(List<SmoPoint3> _pts, List<SmoPoint3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
         {
-            Room = _room;
             Pts = _pts;
             Vecs = _vecs.ToArray();
             Resolution = _resolution;
@@ -54,12 +53,14 @@ namespace SeemoPredictor
         public static SeemoInput Merge2Inputs(SeemoInput roomInput, SeemoInput envInput)
         {
             SeemoInput result = new SeemoInput();
-            result.Room = roomInput.Room;
+            
             result.Pts = roomInput.Pts;
             result.Vecs = roomInput.Vecs;
             result.Resolution = roomInput.Resolution;
             result.HorizontalSceneAngle = roomInput.HorizontalSceneAngle;
             result.VerticalSceneAngle = roomInput.VerticalSceneAngle;
+
+            result.AnalyzingBuilding = envInput.AnalyzingBuilding;
             result.Building = envInput.Building;
             result.Equipment = envInput.Equipment;
             result.Tree = envInput.Tree;

@@ -11,7 +11,7 @@ namespace SeemoPredictor.SeemoGeo
 
         private static double EPSILON = 0.0000001;
 
-        public static void MeshRayResultSave(ref ResultDataSet_ver2 result, ref List<SmoPoint3> hits, SmoPointOctree<SmoFace> octree, SmoPoint3 pt)
+        public static void MeshRayResultSave(ref ResultDataSet_ver2 result, ref List<SmoPoint3> hits, SmoPointOctree<SmoFace> octree, SmoPoint3 pt, double max)
         {
             
             int z1hit = result.sceneRayVectorsZ1.Count;
@@ -40,7 +40,7 @@ namespace SeemoPredictor.SeemoGeo
                 foreach (SmoPoint3 ray in zoneSceneRayVectorsList[i])
                 {
                     SmoPoint3 hit = new SmoPoint3();
-                    var type = SmoIntersect.IsObstructed(ref hit, octree, pt, ray, maxnodesize);
+                    var type = SmoIntersect.IsObstructed(ref hit, octree, pt, ray, max);
                     double dist = SmoPoint3.Distance(hit, pt);
                     if (hit != null)
                     {
@@ -49,7 +49,7 @@ namespace SeemoPredictor.SeemoGeo
 
                     switch (type)
                     {
-                        case SmoFace.SmoFaceType.Room:
+                        case SmoFace.SmoFaceType.AnalyzingBuilding:
                             zhitList[i]--;
                             break;
                         case SmoFace.SmoFaceType.Building:

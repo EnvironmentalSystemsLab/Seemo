@@ -42,8 +42,8 @@ namespace SeemoPredictor
             pManager.AddNumberParameter("ViewContents", "ViewContents", "ViewContents", GH_ParamAccess.list);
             pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
             pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
-            //pManager.AddGenericParameter("hits", "hits", "hits", GH_ParamAccess.list);
-            //pManager.AddGenericParameter("rays", "rays", "rays", GH_ParamAccess.list);
+            pManager.AddGenericParameter("hits", "hits", "hits", GH_ParamAccess.list);
+            pManager.AddGenericParameter("rays", "rays", "rays", GH_ParamAccess.list);
 
         }
 
@@ -79,7 +79,7 @@ namespace SeemoPredictor
             
             //Generate octree
             List<SmoFace> smofaces = new List<SmoFace>();
-            smofaces.AddRange(input.Room);
+            smofaces.AddRange(input.AnalyzingBuilding);
             smofaces.AddRange(input.Building);
             smofaces.AddRange(input.Equipment);
             smofaces.AddRange(input.Tree);
@@ -88,18 +88,33 @@ namespace SeemoPredictor
             smofaces.AddRange(input.Water);
             smofaces.AddRange(input.Dynamics);
             smofaces.AddRange(input.Sky);
+            
+            //calculate min, max mode size
+            double minNodeSize = double.MaxValue;
+            double maxNodeSize = double.MinValue;
 
-            //create octree
-            SmoPointOctree<SmoFace> octree0 = new SmoPointOctree<SmoFace>(1000.0f, input.Pts[0], 0.05f);
+            for (int i = 0; i < smofaces.Count; i++)
+            {
+                var f = smofaces[i];
+                f.Id = i;
+                var size = f.BoundingBox.Size.Length;
+                if (minNodeSize > size) minNodeSize = size;
+                if (maxNodeSize < size) maxNodeSize = size;
+            }
+
+            // make octree
+            
+            SmoPointOctree<SmoFace> octree0 = new SmoPointOctree<SmoFace>((float)maxNodeSize, input.Pts[0], (float)minNodeSize);
             foreach (SmoFace f in smofaces)
             {
                 octree0.Add(f, f.Center);
+
             }
 
 
             //calculating FloorHeights
             double floorheight;
-            SmoPointOctree<SmoFace> octree1 = new SmoPointOctree<SmoFace>(1000.0f, input.Pts[0], 0.05f);
+            SmoPointOctree<SmoFace> octree1 = new SmoPointOctree<SmoFace>((float)maxNodeSize, input.Pts[0], (float)minNodeSize);
             foreach (SmoFace f in input.Pavement)
                 octree1.Add(f, f.Center);
             foreach (SmoFace f in input.Grass)
@@ -122,21 +137,18 @@ namespace SeemoPredictor
                 node.Dirs = input.Vecs;
 
                 
-                /*
+                
                 SmoPoint3 groundIntersect = new SmoPoint3();
-                var typeG = SmoIntersect.IsObstructed(ref groundIntersect, octree1, node.Pt, new SmoPoint3(0, 0, -1), 10.0f);
+                var typeG = SmoIntersect.IsObstructed(ref groundIntersect, octree1, node.Pt, new SmoPoint3(0, 0, -1), maxNodeSize);
                 if (typeG == SmoFace.SmoFaceType.Pavement || typeG == SmoFace.SmoFaceType.Grass || typeG == SmoFace.SmoFaceType.Water)
                 {
                     floorheight = SmoPoint3.Distance(groundIntersect, node.Pt);
                 }else{
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "There is no ground (pavement, grass, or water) vertically under the view point");
+                    floorheight = 0;
                     return;
                 }
-                */
-                floorheight = node.Pt.Z;
-
-
-
+                
                 //generate ray and do machine learning and save data in direction result 
                 //original
                 
@@ -151,7 +163,7 @@ namespace SeemoPredictor
                     List<SmoPoint3> hits = new List<SmoPoint3>();
 
                     //Compute octree intersect
-                    SmoIntersect.MeshRayResultSave(ref directionResult, ref hits, octree0, node.Pt);
+                    SmoIntersect.MeshRayResultSave(ref directionResult, ref hits, octree0, node.Pt, maxNodeSize);
                     
 
                     //Generate Model input for prediction
@@ -312,374 +324,18 @@ namespace SeemoPredictor
                     directionResult.ViewVectorZ = input.Vecs[j].Z;
 
 
+                    //erase sceneRayVector before exporting JSON
+                    directionResult.sceneRayVectorsZ1.Clear();
+                    directionResult.sceneRayVectorsZ2.Clear();
+                    directionResult.sceneRayVectorsZ3.Clear();
+                    directionResult.sceneRayVectorsZ4.Clear();
+
+                    directionResult.FloorHeights = floorheight;
+
                     //Save direction result
                     nodeResult.Add(directionResult);
                 }
             
-                /*
-
-                //threading try
-                Thread thread1 = new Thread(() =>
-                {
-                    for (int j = 0; j < input.Vecs.Length / 2; j++)
-                    {
-                        //generateZoneRay and Define ResultDataSet
-                        ResultDataSet_ver2 directionResult = input.GenerateZoneRay(i, j);
-                        directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + j.ToString());
-                        directionResult.Dir = input.Vecs[j];
-
-                        //test output
-                        List<SmoPoint3> hits = new List<SmoPoint3>();
-
-                        //Compute octree intersect
-                        SmoIntersect.MeshRayResultSave(ref directionResult, ref hits, octree0, node.Pt);
-                        
-                        //Generate Model input for prediction
-                        ModelInput sampleDataOverallRating = new ModelInput()
-                        {
-
-                            WindowNumber = (float)directionResult.WindowNumber,
-                            WindowAreaSum = (float)directionResult.WindowAreaSum,
-                            Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
-                            Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
-                            Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
-                            Z4PtsCountRatio = (float)directionResult.Z4PtsCountRatio,
-                            BuildingPtsCountRatio = (float)directionResult.BuildingPtsCountRatio,
-                            EquipmentPtsCountRatio = (float)directionResult.EquipmentPtsCountRatio,
-                            TreePtsCountRatio = (float)directionResult.TreePtsCountRatio,
-                            PavementPtsCountRatio = (float)directionResult.PavementPtsCountRatio,
-                            GrassPtsCountRatio = (float)directionResult.GrassPtsCountRatio,
-                            WaterPtsCountRatio = (float)directionResult.WaterPtsCountRatio,
-                            DynamicPtsRatio = (float)directionResult.DynamicPtsRatio,
-                            SkyPtsCountRatio = (float)directionResult.SkyPtsCountRatio,
-                            ElementNumber = (float)directionResult.ElementNumber,
-                            FloorHeights = (float)directionResult.FloorHeights,
-                            BuildingClosestDist = (float)directionResult.BuildingClosestDist,
-                            EquipmentClosestDist = (float)directionResult.EquipmentClosestDist,
-                            TreeClosestDist = (float)directionResult.TreeClosestDist,
-                            GrassClosestDist = (float)directionResult.GrassClosestDist,
-                            WaterClosestDist = (float)directionResult.WaterClosestDist,
-                            DynamicClosestDist = (float)directionResult.DynamicClosestDist,
-                            SkyCondition = (float)directionResult.SkyCondition,
-
-                        };
-                        ModelInputViewContent sampleDataViewContent = new ModelInputViewContent()
-                        {
-
-                            WindowNumber = (float)directionResult.WindowNumber,
-                            WindowAreaSum = (float)directionResult.WindowAreaSum,
-                            Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
-                            Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
-                            Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
-                            Z4PtsCountRatio = (float)directionResult.Z4PtsCountRatio,
-                            BuildingPtsCountRatio = (float)directionResult.BuildingPtsCountRatio,
-                            EquipmentPtsCountRatio = (float)directionResult.EquipmentPtsCountRatio,
-                            TreePtsCountRatio = (float)directionResult.TreePtsCountRatio,
-                            PavementPtsCountRatio = (float)directionResult.PavementPtsCountRatio,
-                            GrassPtsCountRatio = (float)directionResult.GrassPtsCountRatio,
-                            WaterPtsCountRatio = (float)directionResult.WaterPtsCountRatio,
-                            DynamicPtsRatio = (float)directionResult.DynamicPtsRatio,
-                            SkyPtsCountRatio = (float)directionResult.SkyPtsCountRatio,
-                            ElementNumber = (float)directionResult.ElementNumber,
-                            FloorHeights = (float)directionResult.FloorHeights,
-                            BuildingClosestDist = (float)directionResult.BuildingClosestDist,
-                            EquipmentClosestDist = (float)directionResult.EquipmentClosestDist,
-                            TreeClosestDist = (float)directionResult.TreeClosestDist,
-                            GrassClosestDist = (float)directionResult.GrassClosestDist,
-                            WaterClosestDist = (float)directionResult.WaterClosestDist,
-                            DynamicClosestDist = (float)directionResult.DynamicClosestDist,
-                            SkyCondition = (float)directionResult.SkyCondition,
-
-                        };
-                        ModelInputViewAccess sampleDataViewAccess = new ModelInputViewAccess()
-                        {
-
-                            WindowNumber = (float)directionResult.WindowNumber,
-                            WindowAreaSum = (float)directionResult.WindowAreaSum,
-                            Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
-                            Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
-                            Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
-                            Z4PtsCountRatio = (float)directionResult.Z4PtsCountRatio,
-                            BuildingPtsCountRatio = (float)directionResult.BuildingPtsCountRatio,
-                            EquipmentPtsCountRatio = (float)directionResult.EquipmentPtsCountRatio,
-                            TreePtsCountRatio = (float)directionResult.TreePtsCountRatio,
-                            PavementPtsCountRatio = (float)directionResult.PavementPtsCountRatio,
-                            GrassPtsCountRatio = (float)directionResult.GrassPtsCountRatio,
-                            WaterPtsCountRatio = (float)directionResult.WaterPtsCountRatio,
-                            DynamicPtsRatio = (float)directionResult.DynamicPtsRatio,
-                            SkyPtsCountRatio = (float)directionResult.SkyPtsCountRatio,
-                            ElementNumber = (float)directionResult.ElementNumber,
-                            FloorHeights = (float)directionResult.FloorHeights,
-                            BuildingClosestDist = (float)directionResult.BuildingClosestDist,
-                            EquipmentClosestDist = (float)directionResult.EquipmentClosestDist,
-                            TreeClosestDist = (float)directionResult.TreeClosestDist,
-                            GrassClosestDist = (float)directionResult.GrassClosestDist,
-                            WaterClosestDist = (float)directionResult.WaterClosestDist,
-                            DynamicClosestDist = (float)directionResult.DynamicClosestDist,
-                            SkyCondition = (float)directionResult.SkyCondition,
-
-                        };
-                        ModelInputPrivacy sampleDataPrivacy = new ModelInputPrivacy()
-                        {
-
-                            WindowNumber = (float)directionResult.WindowNumber,
-                            WindowAreaSum = (float)directionResult.WindowAreaSum,
-                            Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
-                            Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
-                            Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
-                            Z4PtsCountRatio = (float)directionResult.Z4PtsCountRatio,
-                            BuildingPtsCountRatio = (float)directionResult.BuildingPtsCountRatio,
-                            EquipmentPtsCountRatio = (float)directionResult.EquipmentPtsCountRatio,
-                            TreePtsCountRatio = (float)directionResult.TreePtsCountRatio,
-                            PavementPtsCountRatio = (float)directionResult.PavementPtsCountRatio,
-                            GrassPtsCountRatio = (float)directionResult.GrassPtsCountRatio,
-                            WaterPtsCountRatio = (float)directionResult.WaterPtsCountRatio,
-                            DynamicPtsRatio = (float)directionResult.DynamicPtsRatio,
-                            SkyPtsCountRatio = (float)directionResult.SkyPtsCountRatio,
-                            ElementNumber = (float)directionResult.ElementNumber,
-                            FloorHeights = (float)directionResult.FloorHeights,
-                            BuildingClosestDist = (float)directionResult.BuildingClosestDist,
-                            EquipmentClosestDist = (float)directionResult.EquipmentClosestDist,
-                            TreeClosestDist = (float)directionResult.TreeClosestDist,
-                            GrassClosestDist = (float)directionResult.GrassClosestDist,
-                            WaterClosestDist = (float)directionResult.WaterClosestDist,
-                            DynamicClosestDist = (float)directionResult.DynamicClosestDist,
-                            SkyCondition = (float)directionResult.SkyCondition,
-
-                        };
-
-                        // Make a single prediction on the sample data and print results
-                        var overallRating = ConsumeOverallRating.Predict(sampleDataOverallRating);
-                        var viewContent = ConsumeViewContent.Predict(sampleDataViewContent);
-                        var viewAccess = ConsumeViewAccess.Predict(sampleDataViewAccess);
-                        var privacy = ConsumePrivacy.Predict(sampleDataPrivacy);
-
-                        //max:43259, min: 17892
-                        //(directionResult.WindowAreaSum * 5288.02083158) > 17892) && ((directionResult.WindowAreaSum * 5288.02083158) < 43259)
-                        if (directionResult.WindowAreaSum > 0)
-                        {
-
-                            overallRatings.Add(overallRating.OverallRatingB);
-                            viewContents.Add(viewContent.ViewContentB);
-                            viewAccesses.Add(viewAccess.ViewAccessB);
-                            privacys.Add(privacy.PrivacyB);
-
-                            directionResult.PredictedOverallRating = overallRatings[overallRatings.Count - 1];
-                            directionResult.PredictedViewContent = viewContents[viewContents.Count - 1];
-                            directionResult.PredictedViewAccess = viewAccesses[viewAccesses.Count - 1];
-                            directionResult.PredictedPrivacy = privacys[privacys.Count - 1];
-
-                        }
-                        else
-                        {
-                            overallRatings.Add(double.NaN);
-                            viewContents.Add(double.NaN);
-                            viewAccesses.Add(double.NaN);
-                            privacys.Add(double.NaN);
-
-                            directionResult.PredictedOverallRating = double.NaN;
-                            directionResult.PredictedViewContent = double.NaN;
-                            directionResult.PredictedOverallRating = double.NaN;
-                            directionResult.PredictedViewContent = double.NaN;
-                        }
-
-
-                        directionResult.ViewPointX = input.Pts[i].X;
-                        directionResult.ViewPointY = input.Pts[i].Y;
-                        directionResult.ViewPointZ = input.Pts[i].Z;
-                        directionResult.ViewVectorX = input.Vecs[j].X;
-                        directionResult.ViewVectorY = input.Vecs[j].Y;
-                        directionResult.ViewVectorZ = input.Vecs[j].Z;
-
-
-                        //Save direction result
-                        nodeResult.Add(directionResult);
-                    }
-                });
-                Thread thread2 = new Thread(() =>
-                {
-                    for (int k = (int)Math.Ceiling((double)(input.Vecs.Length) / 2); k < input.Vecs.Length; k++)
-                    {
-                        //generateZoneRay and Define ResultDataSet
-                        ResultDataSet_ver2 directionResult = input.GenerateZoneRay(i, k);
-                        directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + k.ToString());
-                        directionResult.Dir = input.Vecs[k];
-
-                        //test output
-                        List<SmoPoint3> hits = new List<SmoPoint3>();
-
-                        //Compute octree intersect
-                        SmoIntersect.MeshRayResultSave(ref directionResult, ref hits, octree0, node.Pt);
-                        
-
-                        //Generate Model input for prediction
-                        ModelInput sampleDataOverallRating = new ModelInput()
-                        {
-
-                            WindowNumber = (float)directionResult.WindowNumber,
-                            WindowAreaSum = (float)directionResult.WindowAreaSum,
-                            Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
-                            Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
-                            Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
-                            Z4PtsCountRatio = (float)directionResult.Z4PtsCountRatio,
-                            BuildingPtsCountRatio = (float)directionResult.BuildingPtsCountRatio,
-                            EquipmentPtsCountRatio = (float)directionResult.EquipmentPtsCountRatio,
-                            TreePtsCountRatio = (float)directionResult.TreePtsCountRatio,
-                            PavementPtsCountRatio = (float)directionResult.PavementPtsCountRatio,
-                            GrassPtsCountRatio = (float)directionResult.GrassPtsCountRatio,
-                            WaterPtsCountRatio = (float)directionResult.WaterPtsCountRatio,
-                            DynamicPtsRatio = (float)directionResult.DynamicPtsRatio,
-                            SkyPtsCountRatio = (float)directionResult.SkyPtsCountRatio,
-                            ElementNumber = (float)directionResult.ElementNumber,
-                            FloorHeights = (float)directionResult.FloorHeights,
-                            BuildingClosestDist = (float)directionResult.BuildingClosestDist,
-                            EquipmentClosestDist = (float)directionResult.EquipmentClosestDist,
-                            TreeClosestDist = (float)directionResult.TreeClosestDist,
-                            GrassClosestDist = (float)directionResult.GrassClosestDist,
-                            WaterClosestDist = (float)directionResult.WaterClosestDist,
-                            DynamicClosestDist = (float)directionResult.DynamicClosestDist,
-                            SkyCondition = (float)directionResult.SkyCondition,
-
-                        };
-                        ModelInputViewContent sampleDataViewContent = new ModelInputViewContent()
-                        {
-
-                            WindowNumber = (float)directionResult.WindowNumber,
-                            WindowAreaSum = (float)directionResult.WindowAreaSum,
-                            Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
-                            Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
-                            Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
-                            Z4PtsCountRatio = (float)directionResult.Z4PtsCountRatio,
-                            BuildingPtsCountRatio = (float)directionResult.BuildingPtsCountRatio,
-                            EquipmentPtsCountRatio = (float)directionResult.EquipmentPtsCountRatio,
-                            TreePtsCountRatio = (float)directionResult.TreePtsCountRatio,
-                            PavementPtsCountRatio = (float)directionResult.PavementPtsCountRatio,
-                            GrassPtsCountRatio = (float)directionResult.GrassPtsCountRatio,
-                            WaterPtsCountRatio = (float)directionResult.WaterPtsCountRatio,
-                            DynamicPtsRatio = (float)directionResult.DynamicPtsRatio,
-                            SkyPtsCountRatio = (float)directionResult.SkyPtsCountRatio,
-                            ElementNumber = (float)directionResult.ElementNumber,
-                            FloorHeights = (float)directionResult.FloorHeights,
-                            BuildingClosestDist = (float)directionResult.BuildingClosestDist,
-                            EquipmentClosestDist = (float)directionResult.EquipmentClosestDist,
-                            TreeClosestDist = (float)directionResult.TreeClosestDist,
-                            GrassClosestDist = (float)directionResult.GrassClosestDist,
-                            WaterClosestDist = (float)directionResult.WaterClosestDist,
-                            DynamicClosestDist = (float)directionResult.DynamicClosestDist,
-                            SkyCondition = (float)directionResult.SkyCondition,
-
-                        };
-                        ModelInputViewAccess sampleDataViewAccess = new ModelInputViewAccess()
-                        {
-
-                            WindowNumber = (float)directionResult.WindowNumber,
-                            WindowAreaSum = (float)directionResult.WindowAreaSum,
-                            Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
-                            Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
-                            Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
-                            Z4PtsCountRatio = (float)directionResult.Z4PtsCountRatio,
-                            BuildingPtsCountRatio = (float)directionResult.BuildingPtsCountRatio,
-                            EquipmentPtsCountRatio = (float)directionResult.EquipmentPtsCountRatio,
-                            TreePtsCountRatio = (float)directionResult.TreePtsCountRatio,
-                            PavementPtsCountRatio = (float)directionResult.PavementPtsCountRatio,
-                            GrassPtsCountRatio = (float)directionResult.GrassPtsCountRatio,
-                            WaterPtsCountRatio = (float)directionResult.WaterPtsCountRatio,
-                            DynamicPtsRatio = (float)directionResult.DynamicPtsRatio,
-                            SkyPtsCountRatio = (float)directionResult.SkyPtsCountRatio,
-                            ElementNumber = (float)directionResult.ElementNumber,
-                            FloorHeights = (float)directionResult.FloorHeights,
-                            BuildingClosestDist = (float)directionResult.BuildingClosestDist,
-                            EquipmentClosestDist = (float)directionResult.EquipmentClosestDist,
-                            TreeClosestDist = (float)directionResult.TreeClosestDist,
-                            GrassClosestDist = (float)directionResult.GrassClosestDist,
-                            WaterClosestDist = (float)directionResult.WaterClosestDist,
-                            DynamicClosestDist = (float)directionResult.DynamicClosestDist,
-                            SkyCondition = (float)directionResult.SkyCondition,
-
-                        };
-                        ModelInputPrivacy sampleDataPrivacy = new ModelInputPrivacy()
-                        {
-
-                            WindowNumber = (float)directionResult.WindowNumber,
-                            WindowAreaSum = (float)directionResult.WindowAreaSum,
-                            Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
-                            Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
-                            Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
-                            Z4PtsCountRatio = (float)directionResult.Z4PtsCountRatio,
-                            BuildingPtsCountRatio = (float)directionResult.BuildingPtsCountRatio,
-                            EquipmentPtsCountRatio = (float)directionResult.EquipmentPtsCountRatio,
-                            TreePtsCountRatio = (float)directionResult.TreePtsCountRatio,
-                            PavementPtsCountRatio = (float)directionResult.PavementPtsCountRatio,
-                            GrassPtsCountRatio = (float)directionResult.GrassPtsCountRatio,
-                            WaterPtsCountRatio = (float)directionResult.WaterPtsCountRatio,
-                            DynamicPtsRatio = (float)directionResult.DynamicPtsRatio,
-                            SkyPtsCountRatio = (float)directionResult.SkyPtsCountRatio,
-                            ElementNumber = (float)directionResult.ElementNumber,
-                            FloorHeights = (float)directionResult.FloorHeights,
-                            BuildingClosestDist = (float)directionResult.BuildingClosestDist,
-                            EquipmentClosestDist = (float)directionResult.EquipmentClosestDist,
-                            TreeClosestDist = (float)directionResult.TreeClosestDist,
-                            GrassClosestDist = (float)directionResult.GrassClosestDist,
-                            WaterClosestDist = (float)directionResult.WaterClosestDist,
-                            DynamicClosestDist = (float)directionResult.DynamicClosestDist,
-                            SkyCondition = (float)directionResult.SkyCondition,
-
-                        };
-
-                        // Make a single prediction on the sample data and print results
-                        var overallRating = ConsumeOverallRating.Predict(sampleDataOverallRating);
-                        var viewContent = ConsumeViewContent.Predict(sampleDataViewContent);
-                        var viewAccess = ConsumeViewAccess.Predict(sampleDataViewAccess);
-                        var privacy = ConsumePrivacy.Predict(sampleDataPrivacy);
-
-                        //max:43259, min: 17892
-                        //(directionResult.WindowAreaSum * 5288.02083158) > 17892) && ((directionResult.WindowAreaSum * 5288.02083158) < 43259)
-                        if (directionResult.WindowAreaSum > 0)
-                        {
-
-                            overallRatings.Add(overallRating.OverallRatingB);
-                            viewContents.Add(viewContent.ViewContentB);
-                            viewAccesses.Add(viewAccess.ViewAccessB);
-                            privacys.Add(privacy.PrivacyB);
-
-                            directionResult.PredictedOverallRating = overallRatings[overallRatings.Count - 1];
-                            directionResult.PredictedViewContent = viewContents[viewContents.Count - 1];
-                            directionResult.PredictedViewAccess = viewAccesses[viewAccesses.Count - 1];
-                            directionResult.PredictedPrivacy = privacys[privacys.Count - 1];
-
-                        }
-                        else
-                        {
-                            overallRatings.Add(double.NaN);
-                            viewContents.Add(double.NaN);
-                            viewAccesses.Add(double.NaN);
-                            privacys.Add(double.NaN);
-
-                            directionResult.PredictedOverallRating = double.NaN;
-                            directionResult.PredictedViewContent = double.NaN;
-                            directionResult.PredictedOverallRating = double.NaN;
-                            directionResult.PredictedViewContent = double.NaN;
-                        }
-
-
-                        directionResult.ViewPointX = input.Pts[i].X;
-                        directionResult.ViewPointY = input.Pts[i].Y;
-                        directionResult.ViewPointZ = input.Pts[i].Z;
-                        directionResult.ViewVectorX = input.Vecs[k].X;
-                        directionResult.ViewVectorY = input.Vecs[k].Y;
-                        directionResult.ViewVectorZ = input.Vecs[k].Z;
-
-
-                        //Save direction result
-                        nodeResult.Add(directionResult);
-                    }
-                });
-
-                thread1.Start();
-                thread2.Start(); 
-
-
-                */
                 node.DirectionsResults = nodeResult;
                 //Save node result
                 nodes.Add(node);
@@ -698,8 +354,8 @@ namespace SeemoPredictor
             DA.SetDataList(3, viewAccesses);
             DA.SetDataList(4, privacys);
 
-            //DA.SetDataList(5, hitsList);
-            //DA.SetDataList(6, raysList);
+            DA.SetDataList(5, hitsList);
+            DA.SetDataList(6, raysList);
         }
         
 

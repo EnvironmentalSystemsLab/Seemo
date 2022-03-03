@@ -24,7 +24,8 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddMeshParameter("Buildings", "Buildings", "Artificial Object Meshes", GH_ParamAccess.list);
+            pManager.AddMeshParameter("Analyzing Building", "Analyzing Building", "Analyzing Building Meshes", GH_ParamAccess.list);
+            pManager.AddMeshParameter("Neighbor Buildings", "Neighbor Buildings", "Artificial Object Meshes", GH_ParamAccess.list);
             pManager.AddMeshParameter("Equipment", "Equipment", "Equipment Object Meshes", GH_ParamAccess.list);
             pManager.AddMeshParameter("Nature", "Nature", "Nature Object Meshes(Trees, Bushes, Mountains)", GH_ParamAccess.list);
             pManager.AddMeshParameter("Man-made Ground", "Man-made Ground", "Artificial Ground Meshes", GH_ParamAccess.list);
@@ -41,6 +42,7 @@ namespace SeemoPredictor
             pManager[5].Optional = true;
             pManager[6].Optional = true;
             pManager[7].Optional = true;
+            pManager[8].Optional = true;
 
         }
 
@@ -61,6 +63,7 @@ namespace SeemoPredictor
         {
             //Analyzing Objects' view areas from the number of meshray points-------------------------------------------------------
             //Calculating Distance to each Object type and find closest object type and distance
+            List<Mesh> analyzingBuildings = new List<Mesh>();
             List<Mesh> buildings = new List<Mesh>();
             List<Mesh> equipments = new List<Mesh>();
             List<Mesh> trees = new List<Mesh>();
@@ -73,19 +76,20 @@ namespace SeemoPredictor
 
             SeemoInput envInput = new SeemoInput();
 
-
-            DA.GetDataList(0, buildings);
-            DA.GetDataList(1, equipments);
-            DA.GetDataList(2, trees);
-            DA.GetDataList(3, pavements);
-            DA.GetDataList(4, grass);
-            DA.GetDataList(5, water);
-            DA.GetDataList(6, dynamics);
-            DA.GetData(7, ref msky);
+            DA.GetDataList(0, analyzingBuildings);
+            DA.GetDataList(1, buildings);
+            DA.GetDataList(2, equipments);
+            DA.GetDataList(3, trees);
+            DA.GetDataList(4, pavements);
+            DA.GetDataList(5, grass);
+            DA.GetDataList(6, water);
+            DA.GetDataList(7, dynamics);
+            DA.GetData(8, ref msky);
 
             sky.Add(msky);
             List<List<Mesh>> env = new List<List<Mesh>>();
-
+            
+            env.Add(analyzingBuildings);
             env.Add(buildings);
             env.Add(equipments);
             env.Add(trees);
@@ -102,6 +106,15 @@ namespace SeemoPredictor
                 SmoFace.SmoFaceType p = SmoFace.SmoFaceType._UNSET_;
                 if (i == 0)
                 {
+                    p = SmoFace.SmoFaceType.AnalyzingBuilding;
+                    for (int j = 0; j < env[i].Count; j++)
+                    {
+                        Mesh m = env[i][j];
+                        envInput.AnalyzingBuilding.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
+                    }
+                }
+                else if (i == 1)
+                {
                     p = SmoFace.SmoFaceType.Building;
                     for (int j = 0; j < env[i].Count; j++)
                     {
@@ -109,7 +122,7 @@ namespace SeemoPredictor
                         envInput.Building.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
                     }
                 }
-                else if (i == 1)
+                else if (i == 2)
                 {
                     p = SmoFace.SmoFaceType.Equipment;
                     for (int j = 0; j < env[i].Count; j++)
@@ -118,7 +131,7 @@ namespace SeemoPredictor
                         envInput.Equipment.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
                     }
                 }
-                else if (i == 2)
+                else if (i == 3)
                 {
                     p = SmoFace.SmoFaceType.Tree;
                     for (int j = 0; j < env[i].Count; j++)
@@ -127,7 +140,7 @@ namespace SeemoPredictor
                         envInput.Tree.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
                     }
                 }
-                else if (i == 3)
+                else if (i == 4)
                 {
                     p = SmoFace.SmoFaceType.Pavement;
                     for (int j = 0; j < env[i].Count; j++)
@@ -136,7 +149,7 @@ namespace SeemoPredictor
                         envInput.Pavement.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
                     }
                 }
-                else if (i == 4)
+                else if (i == 5)
                 {
                     p = SmoFace.SmoFaceType.Grass;
                     for (int j = 0; j < env[i].Count; j++)
@@ -145,7 +158,7 @@ namespace SeemoPredictor
                         envInput.Grass.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
                     }
                 }
-                else if (i == 5)
+                else if (i == 6)
                 {
                     p = SmoFace.SmoFaceType.Water;
                     for (int j = 0; j < env[i].Count; j++)
@@ -154,7 +167,7 @@ namespace SeemoPredictor
                         envInput.Water.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
                     }
                 }
-                else if (i == 6)
+                else if (i == 7)
                 {
                     p = SmoFace.SmoFaceType.Dynamics;
                     for (int j = 0; j < env[i].Count; j++)
@@ -163,7 +176,7 @@ namespace SeemoPredictor
                         envInput.Dynamics.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, p));
                     }
                 }
-                else if (i == 7)
+                else if (i == 8)
                 {
                     p = SmoFace.SmoFaceType.Sky;
                     for (int j = 0; j < env[i].Count; j++)

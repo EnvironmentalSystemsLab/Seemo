@@ -1,12 +1,12 @@
 ﻿
-using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
 
 
 namespace SeemoPredictor.SeemoGeo
 {
-    
+
     public class SmoFace
 
     {
@@ -103,7 +103,7 @@ namespace SeemoPredictor.SeemoGeo
         public enum SmoFaceType
         {
             _UNSET_,
-            Room,
+            AnalyzingBuilding,
             Building,
             Equipment,
             Tree,
