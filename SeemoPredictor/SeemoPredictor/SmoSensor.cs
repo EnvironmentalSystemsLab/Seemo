@@ -89,7 +89,7 @@ namespace SeemoPredictor
 
                     if (n > (nMax - (Math.Truncate((nMax + 1) / 3))))
                     {
-                        //RayVectors3.Add(sceneVector);
+                        RayVectors3.Add(sceneVector);
                     }
                     else if (n >= Math.Truncate((nMax + 1) / 3))
                     {
