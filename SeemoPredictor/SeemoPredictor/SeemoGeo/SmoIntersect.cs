@@ -11,9 +11,10 @@ namespace SeemoPredictor.SeemoGeo
 
         private static double EPSILON = 0.0000001;
 
-        public static void MeshRayResultSave(ref DirectionResult result,  SmoPointOctree<SmoFace> octree, SmoPoint3 pt, double max)
+
+        public static void MeshRayResultSave_OLD(ref DirectionResult result, SmoPointOctree<SmoFace> octree, SmoPoint3 pt, double max)
         {
-            
+
             int z1hit = result.sceneRayVectorsZ1.Count;
             int z2hit = result.sceneRayVectorsZ2.Count;
             int z3hit = result.sceneRayVectorsZ3.Count;
@@ -30,22 +31,22 @@ namespace SeemoPredictor.SeemoGeo
             List<double> waterDists = new List<double>();
             List<double> dynamicDists = new List<double>();
             List<double> skyDists = new List<double>();
-            
+
 
             //for loop for zone1,2,3,4
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 foreach (SmoPoint3 ray in zoneSceneRayVectorsList[i])
                 {
                     SmoPoint3 hit;
-                    var face = SmoIntersect.IsVisible( octree, pt, ray, max, out hit);
+                    var face = SmoIntersect.IsVisible(octree, pt, ray, max, out hit);
 
-                    if(face == null) continue;
+                    if (face == null) continue;
 
 
                     double dist = SmoPoint3.Distance(hit, pt);
                     result.RayCastHits.Add(hit);
-                     
+
 
                     switch (face.ViewContentType)
                     {
@@ -73,12 +74,12 @@ namespace SeemoPredictor.SeemoGeo
                         case SmoFace.SmoFaceType.Dynamic:
                             dynamicDists.Add(dist);
                             break;
-                        //case SmoFace.SmoFaceType.Sky:
-                        //    skyDists.Add(dist);
-                        //    break;
-                        //case SmoFace.SmoFaceType._UNSET_:
-                        //    skyDists.Add(dist);
-                        //    break;
+                            //case SmoFace.SmoFaceType.Sky:
+                            //    skyDists.Add(dist);
+                            //    break;
+                            //case SmoFace.SmoFaceType._UNSET_:
+                            //    skyDists.Add(dist);
+                            //    break;
                     }
                 }
             }
@@ -163,7 +164,7 @@ namespace SeemoPredictor.SeemoGeo
 
             //calculate visible element types count
             List<int> elementPts = new List<int> { buildingDists.Count, equipmentDists.Count, treeDists.Count, pavementDists.Count, grassDists.Count, waterDists.Count, dynamicDists.Count, skyDists.Count };
-            
+
             int elementNumber = 0;
             for (int i = 0; i < elementPts.Count; i++)
             {
@@ -195,19 +196,19 @@ namespace SeemoPredictor.SeemoGeo
 
                 i1 = SmoIntersect.RayTriangle_MollerTrumbore(ray, g.VertexList[0], g.VertexList[1], g.VertexList[2], out ipt1);
 
-                if (i1) 
+                if (i1)
                 {
                     hitPt = ipt1;
-                    return g; 
+                    return g;
                 }
 
                 if (g.IsQuad)
                 {
                     i2 = SmoIntersect.RayTriangle_MollerTrumbore(ray, g.VertexList[0], g.VertexList[2], g.VertexList[3], out ipt2);
-                    if (i2) 
+                    if (i2)
                     {
                         hitPt = ipt2;
-                        return g; 
+                        return g;
                     }
                 }
             }
@@ -215,8 +216,8 @@ namespace SeemoPredictor.SeemoGeo
             return null;
         }
 
-        
-        public static bool RayTriangle_MollerTrumbore(SmoRay ray,SmoPoint3 vertex0, SmoPoint3 vertex1, SmoPoint3 vertex2, out SmoPoint3 outIntersectionPoint)
+
+        public static bool RayTriangle_MollerTrumbore(SmoRay ray, SmoPoint3 vertex0, SmoPoint3 vertex1, SmoPoint3 vertex2, out SmoPoint3 outIntersectionPoint)
         {
             SmoPoint3 rayOrigin = ray.Origin;
             SmoPoint3 rayVector = ray.Direction;
@@ -229,7 +230,7 @@ namespace SeemoPredictor.SeemoGeo
 
             double a = SmoPoint3.Dot(edge1, h); // dot product
 
-            if(a > -EPSILON && a < EPSILON)
+            if (a > -EPSILON && a < EPSILON)
             {
                 outIntersectionPoint = new SmoPoint3();
                 return false;  //This ray in parallel to this triangle.
@@ -237,14 +238,14 @@ namespace SeemoPredictor.SeemoGeo
             f = 1.0 / a;
             SmoPoint3 s = rayOrigin - vertex0;
             u = f * SmoPoint3.Dot(s, h);
-            if(u < 0.0 || u > 1.0)
+            if (u < 0.0 || u > 1.0)
             {
                 outIntersectionPoint = new SmoPoint3();
                 return false;
             }
             q = SmoPoint3.Cross(s, edge1);
             v = f * SmoPoint3.Dot(rayVector, q);
-            if ( v < 0.0 || u + v > 1.0)
+            if (v < 0.0 || u + v > 1.0)
             {
                 outIntersectionPoint = new SmoPoint3();
                 return false;

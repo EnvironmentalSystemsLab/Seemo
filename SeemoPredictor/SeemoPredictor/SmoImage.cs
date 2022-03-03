@@ -23,7 +23,6 @@ namespace SeemoPredictor
 
         //raycast input
         public SmoPoint3[][] ImageRays { get; set; }
-
         public SmoPoint3[] ImageRaysFlat
         {
             get { 
@@ -36,17 +35,45 @@ namespace SeemoPredictor
 
         //raycast output
         public SmoPoint3[][] Hits { get; set; }
+        public SmoPoint3[] HitsFlat
+        {
+            get
+            {
+                if (Hits == null) return null;
+                return Hits.SelectMany(a => a).ToArray();
+            }
+        }
+
         //raycast output
         public double[][] DepthMap { get; set; }
+        public double[] DepthMapFlat
+        {
+            get
+            {
+                if (DepthMap == null) return null;
+                return DepthMap.SelectMany(a => a).ToArray();
+            }
+        }
+
         //raycast output
         public SmoFace.SmoFaceType[][] LabelMap { get; set; }
+        public string[] LabelMapFlat
+        {
+            get
+            {
+                if (LabelMap == null) return null;
+                var arr = LabelMap.SelectMany(a => a).ToArray();
+                return arr.Select(a=>a.ToString()).ToArray();
+            }
+        }
 
-
-        public SmoImage(SmoPoint3 Pt, SmoPoint3 Dir, int Resolution, double horizontalViewAngle, double verticalViewAngle) {
+        public SmoImage(SmoPoint3 Pt, SmoPoint3 dir, int Resolution, double horizontalViewAngle, double verticalViewAngle) {
              
             //Define Left, right, up, down vectors to measure room dimension
-            SmoPoint3 nvd = Dir;
+            SmoPoint3 nvd = dir;
             nvd.Normalize();
+            Dir = nvd;
+
             SmoPoint3 vup = new SmoPoint3(0, 0, 1);
 
              xAxis = SmoPoint3.Cross(nvd, vup);
@@ -119,5 +146,32 @@ namespace SeemoPredictor
 
 
         }
+
+
+
+        public void ComputeImage(  SmoPointOctree<SmoFace> octree, double max)
+        {
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var pt = this.Pt;
+                    var ray = this.ImageRays[x][y];
+
+                    SmoPoint3 hit;
+                    var face = SmoIntersect.IsVisible(octree, pt, ray, max, out hit);
+
+                    if (face == null) continue;
+
+                    double dist = SmoPoint3.Distance(hit, pt);
+                    this.Hits[x][y] = hit;
+                    this.DepthMap[x][y] = (hit - pt).Length;
+                    this.LabelMap[x][y] = face.ViewContentType;
+
+                }
+            }
+        }
+
     }
 }

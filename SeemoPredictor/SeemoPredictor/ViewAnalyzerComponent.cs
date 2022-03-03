@@ -155,22 +155,32 @@ namespace SeemoPredictor
 
                 for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
                 {
-
-
-
                     //generateZoneRay and Define ResultDataSet
                     DirectionResult directionResult = sensors[i].GenerateZoneRay( j);
                     directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + j.ToString());
                     directionResult.Dir = sensors[i].ViewDirections[j];
 
-
-
                     directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
+
+                    // raycasting process
+                    directionResult.Image.ComputeImage(octree0, maxNodeSize);
+
+
+
+
+
+
+                    // @ JAEHA -- TODO:
+                    // compute the ML model inputs from the SmoImage class here
+                    // .....
+
+
+
 
 
 
                     //Compute octree intersect
-                    SmoIntersect.MeshRayResultSave(ref directionResult, octree0, node.Pt, maxNodeSize);
+                    SmoIntersect.MeshRayResultSave_OLD(ref directionResult, octree0, node.Pt, maxNodeSize);
 
 
                     //Generate Model input for prediction
