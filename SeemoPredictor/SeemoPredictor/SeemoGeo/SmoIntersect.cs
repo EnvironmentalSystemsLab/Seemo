@@ -132,7 +132,7 @@ namespace SeemoPredictor.SeemoGeo
                 double closeDistance = 0;
                 if (dists.Count == 0)
                 {
-                    return 50000; //50000에서 바꿈 //double.NaN
+                    return 50000;
                 }
                 else
                 {
@@ -149,7 +149,6 @@ namespace SeemoPredictor.SeemoGeo
             double buildingClosestDist = ComputeClosestDist(buildingDists);
             double equipmentClosestDist = ComputeClosestDist(equipmentDists);
             double treeClosestDist = ComputeClosestDist(treeDists);
-            //double pavementClosestDist = ComputeClosestDist(pavementDists);
             double grassClosestDist = ComputeClosestDist(grassDists);
             double waterClosestDist = ComputeClosestDist(waterDists);
             double dynamicClosestDist = ComputeClosestDist(dynamicDists);
