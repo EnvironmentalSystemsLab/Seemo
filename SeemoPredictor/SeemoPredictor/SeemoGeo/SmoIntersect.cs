@@ -179,8 +179,55 @@ namespace SeemoPredictor.SeemoGeo
         }
 
 
-
         public static SmoFace IsVisible(SmoPointOctree<SmoFace> octree, SmoPoint3 pt, SmoPoint3 raydir, double maxNodeSize, out SmoPoint3 hitPt)
+        {
+            var ray = new SmoRay(pt, raydir);
+            var testGeo = octree.GetNearby(ray, (float)maxNodeSize);
+
+            SmoFace returnFace = null;
+            hitPt = SmoPoint3.Zero;
+            double closestdist = double.MaxValue;
+            
+
+            foreach (var g in testGeo)
+            {
+                SmoPoint3 ipt1;
+                SmoPoint3 ipt2;
+                bool i1 = false;
+                bool i2 = false;
+
+                SmoFace.SmoFaceType type;
+                i1 = SmoIntersect.RayTriangle_MollerTrumbore(ray, g.VertexList[0], g.VertexList[1], g.VertexList[2], out ipt1);
+
+                if (i1)
+                {
+                   
+                    var dist = (ipt1 - pt).Length;
+                    if (dist < closestdist) {
+                        hitPt = ipt1;
+                        closestdist = dist; 
+                        returnFace = g; 
+                    }
+                    
+                }
+                else if (g.IsQuad)
+                {
+                    i2 = SmoIntersect.RayTriangle_MollerTrumbore(ray, g.VertexList[0], g.VertexList[2], g.VertexList[3], out ipt2);
+                    if (i2)
+                    {
+                        var dist = (ipt2 - pt).Length;
+                        if (dist < closestdist)
+                        {
+                            hitPt = ipt2;
+                            closestdist = dist;
+                            returnFace = g;
+                        }
+                    }
+                }
+            }
+            return returnFace;
+        }
+        public static SmoFace IsVisible_Old(SmoPointOctree<SmoFace> octree, SmoPoint3 pt, SmoPoint3 raydir, double maxNodeSize, out SmoPoint3 hitPt)
         {
             var ray = new SmoRay(pt, raydir);
             var testGeo = octree.GetNearby(ray, (float)maxNodeSize);

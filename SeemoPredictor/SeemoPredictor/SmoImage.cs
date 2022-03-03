@@ -200,7 +200,7 @@ namespace SeemoPredictor
                     var remap = ColorGenerator.Remap(val, min, max, 0, 1);
                     var pixColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
 
-                    bitmap.SetPixel(x, y, pixColor);    
+                    bitmap.SetPixel(x, this.yres-y-1, pixColor);    
 
                 }
             }
@@ -225,7 +225,7 @@ namespace SeemoPredictor
                     var remap = ColorGenerator.Remap(val, min, max, 0, 1);
                     var pixColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
 
-                    bitmap.SetPixel(x, y, pixColor);
+                    bitmap.SetPixel(x, this.yres-y-1, pixColor);
 
                 }
             }

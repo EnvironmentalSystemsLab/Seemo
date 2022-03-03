@@ -10,7 +10,7 @@ namespace SeemoPredictor
     {
 
         // fields
-        internal int PlotterWidth = 600;
+        internal int PlotterWidth = 500;
         internal int PlotterHeight = 300;
         public Bitmap Bitmap;
 
