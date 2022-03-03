@@ -57,7 +57,7 @@ namespace SeemoPredictor
 
             
             //current img to be shown
-            this.Bitmap = new Bitmap(500, 500);
+            this.Bitmap = results.Image.GetDepthBitmap();
 
  
  
