@@ -50,7 +50,7 @@ namespace SeemoPredictor
                 //smoFace.ComputeArea();
                 //smoFace.ComputeAngleToNorth();
 
-                smoFace.Material = type;
+                smoFace.ViewContentType = type;
                 smoFaces.Add(smoFace);
             }
             return smoFaces;

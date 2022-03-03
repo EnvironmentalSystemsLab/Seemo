@@ -10,12 +10,12 @@ using System.Threading;
 
 namespace SeemoPredictor
 {
-    public class ViewAnalyzerComponent_ver2 : GH_Component
+    public class ViewAnalyzerComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the ViewAnalyzerComponent_ver2 class.
         /// </summary>
-        public ViewAnalyzerComponent_ver2()
+        public ViewAnalyzerComponent()
           : base("ViewAnalyzer", "ViewAnalyzer",
               "ViewAnalyzer",
               "SeEmo", "3|Analyzer")
@@ -27,9 +27,11 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            
-            pManager.AddGenericParameter("SeemoRoom", "SeemoRoom", "SeemoRoom", GH_ParamAccess.item);
-            pManager.AddGenericParameter("Environment", "Environment", "Environment", GH_ParamAccess.item);
+
+            pManager.AddGenericParameter("Sensors", "S", "View Sensors", GH_ParamAccess.list);
+            pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
+            //pManager.AddGenericParameter("Windows", "W", "Windows", GH_ParamAccess.list);
+
         }
 
         /// <summary>
@@ -42,8 +44,7 @@ namespace SeemoPredictor
             pManager.AddNumberParameter("ViewContents", "ViewContents", "ViewContents", GH_ParamAccess.list);
             pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
             pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
-            pManager.AddGenericParameter("hits", "hits", "hits", GH_ParamAccess.list);
-            pManager.AddGenericParameter("rays", "rays", "rays", GH_ParamAccess.list);
+            pManager.AddGenericParameter("Result", "Res", "Result", GH_ParamAccess.item);
 
         }
 
@@ -53,6 +54,40 @@ namespace SeemoPredictor
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            var floorheight = 3;
+
+
+            //input objects
+            List<SmoSensor> sensors = new List<SmoSensor>();
+            List<SmoFace> faces = new List<SmoFace>();
+
+            DA.GetDataList(0, sensors);
+            DA.GetDataList(1, faces);
+
+
+
+            //calculate min, max mode size
+            double minNodeSize = double.MaxValue;
+            double maxNodeSize = double.MinValue;
+
+            for (int i = 0; i < faces.Count; i++)
+            {
+                var f = faces[i];
+                f.Id = i;
+                var size = f.BoundingBox.Size.Length;
+                if (minNodeSize > size) minNodeSize = size;
+                if (maxNodeSize < size) maxNodeSize = size;
+            }
+
+            // make octree
+            SmoPointOctree<SmoFace> octree0 = new SmoPointOctree<SmoFace>((float)maxNodeSize, sensors[0].Pt, (float)minNodeSize);
+            foreach (SmoFace f in faces)
+            {
+                octree0.Add(f, f.Center);
+            }
+
+
+
             List<double> overallRatings = new List<double>();
             List<double> viewContents = new List<double>();
             List<double> viewAccesses = new List<double>();
@@ -62,109 +97,91 @@ namespace SeemoPredictor
 
             //output objects
             var seemoResult = new SeemoResult();
-            List<Node> nodes = new List<Node>();
+            List<SmoSensorWithResults> resultNodes = new List<SmoSensorWithResults>();
             //output test
             List<Point3d> hitsList = new List<Point3d>();
             List<Point3d> raysList = new List<Point3d>();
 
-            //input objects
-            SeemoInput room = new SeemoInput();
-            SeemoInput env = new SeemoInput();
+
+
             
 
-            DA.GetData(0, ref room);
-            DA.GetData(1, ref env);
 
-            SeemoInput input = SeemoInput.Merge2Inputs(room, env);
-            
-            //Generate octree
-            List<SmoFace> smofaces = new List<SmoFace>();
-            smofaces.AddRange(input.AnalyzingBuilding);
-            smofaces.AddRange(input.Building);
-            smofaces.AddRange(input.Equipment);
-            smofaces.AddRange(input.Tree);
-            smofaces.AddRange(input.Pavement);
-            smofaces.AddRange(input.Grass);
-            smofaces.AddRange(input.Water);
-            smofaces.AddRange(input.Dynamics);
-            smofaces.AddRange(input.Sky);
-            
-            //calculate min, max mode size
-            double minNodeSize = double.MaxValue;
-            double maxNodeSize = double.MinValue;
-
-            for (int i = 0; i < smofaces.Count; i++)
-            {
-                var f = smofaces[i];
-                f.Id = i;
-                var size = f.BoundingBox.Size.Length;
-                if (minNodeSize > size) minNodeSize = size;
-                if (maxNodeSize < size) maxNodeSize = size;
-            }
-
-            // make octree
-            
-            SmoPointOctree<SmoFace> octree0 = new SmoPointOctree<SmoFace>((float)maxNodeSize, input.Pts[0], (float)minNodeSize);
-            foreach (SmoFace f in smofaces)
-            {
-                octree0.Add(f, f.Center);
-
-            }
+            ////calculating FloorHeights
+            //double floorheight;
+            //SmoPointOctree<SmoFace> octree1 = new SmoPointOctree<SmoFace>((float)maxNodeSize, input.Pts[0], (float)minNodeSize);
+            //foreach (SmoFace f in input.Pavement)
+            //    octree1.Add(f, f.Center);
+            //foreach (SmoFace f in input.Grass)
+            //    octree1.Add(f, f.Center);
+            //foreach (SmoFace f in input.Water)
+            //    octree1.Add(f, f.Center);
 
 
-            //calculating FloorHeights
-            double floorheight;
-            SmoPointOctree<SmoFace> octree1 = new SmoPointOctree<SmoFace>((float)maxNodeSize, input.Pts[0], (float)minNodeSize);
-            foreach (SmoFace f in input.Pavement)
-                octree1.Add(f, f.Center);
-            foreach (SmoFace f in input.Grass)
-                octree1.Add(f, f.Center);
-            foreach (SmoFace f in input.Water)
-                octree1.Add(f, f.Center);
+
 
             //compute every view points and directions stored in seemoRoom
-            
-            for (int i = 0; i < input.Pts.Count; i++)
+            for (int i = 0; i < sensors.Count; i++)
             {
-                List<ResultDataSet_ver2> nodeResult = new List<ResultDataSet_ver2>();
+                List<DirectionResult> nodeResult = new List<DirectionResult>();
 
-                //List<List<Vector3d>> winRayVectorsT = new List<List<Vector3d>>();
-
+ 
                 //define and get object
-                Node node = new Node();
+                SmoSensorWithResults node = new SmoSensorWithResults();
                 node.NodeID = i;
-                node.Pt = input.Pts[i];
-                node.Dirs = input.Vecs;
+                node.Pt = sensors[i].Pt;
+                node.Dirs = sensors[i].ViewDirections;
 
-                
-                
-                SmoPoint3 groundIntersect = new SmoPoint3();
-                var typeG = SmoIntersect.IsObstructed(ref groundIntersect, octree1, node.Pt, new SmoPoint3(0, 0, -1), maxNodeSize);
-                if (typeG == SmoFace.SmoFaceType.Pavement || typeG == SmoFace.SmoFaceType.Grass || typeG == SmoFace.SmoFaceType.Water)
-                {
-                    floorheight = SmoPoint3.Distance(groundIntersect, node.Pt);
-                }else{
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "There is no ground (pavement, grass, or water) vertically under the view point");
-                    floorheight = 0;
-                    return;
-                }
-                
+
+                //SmoPoint3 groundIntersect = new SmoPoint3();
+                //var typeG = SmoIntersect.IsObstructed(ref groundIntersect, octree1, node.Pt, new SmoPoint3(0, 0, -1), maxNodeSize);
+                //if (typeG == SmoFace.SmoFaceType.Pavement || typeG == SmoFace.SmoFaceType.Grass || typeG == SmoFace.SmoFaceType.Water)
+                //{
+                //    floorheight = SmoPoint3.Distance(groundIntersect, node.Pt);
+                //}
+                //else
+                //{
+                //    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "There is no ground (pavement, grass, or water) vertically under the view point");
+                //    floorheight = 0;
+                //    return;
+                //}
+
+
+
+
+
                 //generate ray and do machine learning and save data in direction result 
                 //original
-                
-                for (int j = 0; j < input.Vecs.Length; j++)
+
+                for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
                 {
                     //generateZoneRay and Define ResultDataSet
-                    ResultDataSet_ver2 directionResult = input.GenerateZoneRay(i, j);
+                    DirectionResult directionResult = sensors[i].GenerateZoneRay( j);
                     directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + j.ToString());
-                    directionResult.Dir = input.Vecs[j];
+                    directionResult.Dir = sensors[i].ViewDirections[j];
 
-                    //test output
-                    List<SmoPoint3> hits = new List<SmoPoint3>();
+                    directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
+
+                    // raycasting process
+                    directionResult.Image.ComputeImage(octree0, maxNodeSize);
+
+
+
+
+
+
+                    // @ JAEHA -- TODO:
+                    // compute the ML model inputs from the SmoImage class here
+                    // .....
+
+
+
+
+
 
                     //Compute octree intersect
-                    SmoIntersect.MeshRayResultSave(ref directionResult, ref hits, octree0, node.Pt, maxNodeSize);
-                    
+                    SmoIntersect.MeshRayResultSave_OLD(ref directionResult, octree0, node.Pt, maxNodeSize);
+
 
                     //Generate Model input for prediction
                     ModelInput sampleDataOverallRating = new ModelInput()
@@ -316,31 +333,31 @@ namespace SeemoPredictor
                     }
 
 
-                    directionResult.ViewPointX = input.Pts[i].X;
-                    directionResult.ViewPointY = input.Pts[i].Y;
-                    directionResult.ViewPointZ = input.Pts[i].Z;
-                    directionResult.ViewVectorX = input.Vecs[j].X;
-                    directionResult.ViewVectorY = input.Vecs[j].Y;
-                    directionResult.ViewVectorZ = input.Vecs[j].Z;
+                    directionResult.ViewPointX = sensors[i].Pt.X;
+                    directionResult.ViewPointY = sensors[i].Pt.Y;
+                    directionResult.ViewPointZ = sensors[i].Pt.Z;
+                    directionResult.ViewVectorX = sensors[i].ViewDirections[j].X;
+                    directionResult.ViewVectorY = sensors[i].ViewDirections[j].Y;
+                    directionResult.ViewVectorZ = sensors[i].ViewDirections[j].Z;
 
 
-                    //erase sceneRayVector before exporting JSON
-                    directionResult.sceneRayVectorsZ1.Clear();
-                    directionResult.sceneRayVectorsZ2.Clear();
-                    directionResult.sceneRayVectorsZ3.Clear();
-                    directionResult.sceneRayVectorsZ4.Clear();
+                    ////erase sceneRayVector before exporting JSON
+                    //directionResult.sceneRayVectorsZ1.Clear();
+                    //directionResult.sceneRayVectorsZ2.Clear();
+                    //directionResult.sceneRayVectorsZ3.Clear();
+                    //directionResult.sceneRayVectorsZ4.Clear();
 
                     directionResult.FloorHeights = floorheight;
 
                     //Save direction result
                     nodeResult.Add(directionResult);
                 }
-            
+
                 node.DirectionsResults = nodeResult;
                 //Save node result
-                nodes.Add(node);
+                resultNodes.Add(node);
             }
-            seemoResult.Results = nodes;
+            seemoResult.Results = resultNodes;
 
             //save all results to json file
             string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -354,10 +371,10 @@ namespace SeemoPredictor
             DA.SetDataList(3, viewAccesses);
             DA.SetDataList(4, privacys);
 
-            DA.SetDataList(5, hitsList);
-            DA.SetDataList(6, raysList);
+            DA.SetData(5, seemoResult);
+ 
         }
-        
+
 
 
         /// <summary>

@@ -15,7 +15,7 @@ namespace SeemoPredictor.SeemoGeo
         public bool IsQuad { get; set; }
         public SmoPoint3 Normal { get; set; }
         public SmoPoint3 Center { get; set; }
-        public SmoFaceType Material { get; set; } = SmoFaceType._UNSET_;
+        public SmoFaceType ViewContentType { get; set; }
 
 
 
@@ -33,9 +33,10 @@ namespace SeemoPredictor.SeemoGeo
             VertexList = points;
             if (VertexList.Length == 4) IsQuad = true;
             Normal = ComputeNormal();
+            BoundingBox = GetBoundingBox();
         }
 
-        internal SmoBBox GetGroundingBox(){
+        internal SmoBBox GetBoundingBox(){
             return new SmoBBox(VertexList);
         }
 
@@ -102,17 +103,15 @@ namespace SeemoPredictor.SeemoGeo
         [JsonConverter(typeof(StringEnumConverter))]
         public enum SmoFaceType
         {
-            _UNSET_,
-            AnalyzingBuilding,
+            Interior,
             Building,
             Equipment,
             Tree,
             Pavement,
             Grass,
             Water,
-            Dynamics,
-            Sky
-
+            Dynamic,
+            _UNSET_
         }
 
 
