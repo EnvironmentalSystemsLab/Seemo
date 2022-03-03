@@ -11,7 +11,7 @@ namespace SeemoPredictor.SeemoGeo
 
         private static double EPSILON = 0.0000001;
 
-        public static void MeshRayResultSave(ref ResultDataSet_ver2 result, ref List<SmoPoint3> hits, SmoPointOctree<SmoFace> octree, SmoPoint3 pt, double max)
+        public static void MeshRayResultSave(ref DirectionResult result, ref List<SmoPoint3> hits, SmoPointOctree<SmoFace> octree, SmoPoint3 pt, double max)
         {
             
             int z1hit = result.sceneRayVectorsZ1.Count;
@@ -31,23 +31,23 @@ namespace SeemoPredictor.SeemoGeo
             List<double> dynamicDists = new List<double>();
             List<double> skyDists = new List<double>();
             
-            //custom setting. If intersection is not accurate, change this value
-            double maxnodesize = 2.0;
 
             //for loop for zone1,2,3,4
             for(int i = 0; i < 4; i++)
             {
                 foreach (SmoPoint3 ray in zoneSceneRayVectorsList[i])
                 {
-                    SmoPoint3 hit = new SmoPoint3();
-                    var type = SmoIntersect.IsObstructed(ref hit, octree, pt, ray, max);
-                    double dist = SmoPoint3.Distance(hit, pt);
-                    if (hit != null)
-                    {
-                        hits.Add(hit);
-                    }
+                    SmoPoint3 hit;
+                    var face = SmoIntersect.IsVisible( octree, pt, ray, max, out hit);
 
-                    switch (type)
+                    if(face == null) continue;
+
+
+                    double dist = SmoPoint3.Distance(hit, pt);
+                    hits.Add(hit);
+                     
+
+                    switch (face.ViewContentType)
                     {
                         case SmoFace.SmoFaceType.Interior:
                             zhitList[i]--;
@@ -178,9 +178,11 @@ namespace SeemoPredictor.SeemoGeo
 
         }
 
-        public static SmoFace.SmoFaceType IsObstructed(ref SmoPoint3 hitPt, SmoPointOctree<SmoFace> octree, SmoPoint3 pt, SmoPoint3 raySmoPoint3, double maxNodeSize)
+
+
+        public static SmoFace IsVisible(SmoPointOctree<SmoFace> octree, SmoPoint3 pt, SmoPoint3 raydir, double maxNodeSize, out SmoPoint3 hitPt)
         {
-            var ray = new SmoRay(pt, raySmoPoint3);
+            var ray = new SmoRay(pt, raydir);
             var testGeo = octree.GetNearby(ray, (float)maxNodeSize);
 
             foreach (var g in testGeo)
@@ -197,8 +199,7 @@ namespace SeemoPredictor.SeemoGeo
                 if (i1) 
                 {
                     hitPt = ipt1;
-                    type = g.Material;
-                    return type; 
+                    return g; 
                 }
 
                 if (g.IsQuad)
@@ -207,42 +208,15 @@ namespace SeemoPredictor.SeemoGeo
                     if (i2) 
                     {
                         hitPt = ipt2;
-                        type = g.Material;
-                        return type; 
+                        return g; 
                     }
                 }
             }
-            return SmoFace.SmoFaceType._UNSET_;
+            hitPt = SmoPoint3.Zero;
+            return null;
         }
 
-        public static bool IsObstructedBool(SmoPointOctree<SmoFace> octree, SmoPoint3 pt, SmoPoint3 vd, double maxNodeSize)
-        {
-            var ray = new SmoRay(pt, vd);
-            var testGeo = octree.GetNearby(ray, (float)maxNodeSize);
-
-            foreach (var g in testGeo)
-            {
-
-                SmoPoint3 ipt1;
-                SmoPoint3 ipt2;
-                bool i1 = false;
-                bool i2 = false;
-
-                i1 = SmoIntersect.RayTriangle_MollerTrumbore(ray, g.VertexList[0], g.VertexList[1], g.VertexList[2], out ipt1);
-
-                if (i1) { return i1; }
-
-                if (g.IsQuad)
-                {
-                    i2 = SmoIntersect.RayTriangle_MollerTrumbore(ray, g.VertexList[0], g.VertexList[2], g.VertexList[3], out ipt2);
-                    if (i2) { return i2; }
-                }
-
-                SmoFace.SmoFaceType type = g.Material;
-            }
-            return false;
-        }
-
+        
         public static bool RayTriangle_MollerTrumbore(SmoRay ray,SmoPoint3 vertex0, SmoPoint3 vertex1, SmoPoint3 vertex2, out SmoPoint3 outIntersectionPoint)
         {
             SmoPoint3 rayOrigin = ray.Origin;

@@ -6,12 +6,12 @@ using SeemoPredictor.SeemoGeo;
 
 namespace SeemoPredictor
 {
-    public class SeemoRoomComponent : GH_Component
+    public class SmoSensorComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public SeemoRoomComponent()
+        public SmoSensorComponent()
           : base("Sensor", "Sensor",
               "Analyzing View Setting : viewpoints, viewvectors",
               "SeEmo", "1|Sensor")
@@ -24,7 +24,7 @@ namespace SeemoPredictor
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             
-            pManager.AddPointParameter("View Points", "View Points", "View Points", GH_ParamAccess.list);
+            pManager.AddPointParameter("View Point", "View Point", "View Point", GH_ParamAccess.item);
             pManager.AddVectorParameter("Option_View vectors", "Option_View Vectors", "Option_Normalized view vectors for each view point", GH_ParamAccess.list);
             //pManager.AddIntegerParameter("Option_Analyzing Resolution", "Option_Analyzing Resolution", "Option_Analyzing Resolution", GH_ParamAccess.item);
             //pManager.AddNumberParameter("Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", GH_ParamAccess.item);
@@ -52,7 +52,7 @@ namespace SeemoPredictor
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             
-            List<Point3d> ViewPoints = new List<Point3d>();
+           Point3d ViewPoint = Point3d.Origin;
             List<Vector3d> ViewVectors = new List<Vector3d>();
             List<SmoPoint3> SViewPoints = new List<SmoPoint3>();
             List<SmoPoint3> SViewVectors = new List<SmoPoint3>();
@@ -65,7 +65,7 @@ namespace SeemoPredictor
             
             //rotate vector to clockwise from 12 
             
-            if (!DA.GetDataList(0, ViewPoints)) return;
+            if (!DA.GetData(0, ref ViewPoint)) return;
             if (!DA.GetDataList(1, ViewVectors)) {
                 
                 for (int i = 0; i < 8; i++)
@@ -83,13 +83,9 @@ namespace SeemoPredictor
             //DA.GetData(6, ref VerticalSceneAngle);
 
 
-
-            //Convert Point3d to SmoPoint3
-            foreach (Point3d p in ViewPoints)
-            {
-                SmoPoint3 sp = new SmoPoint3(p.X, p.Y, p.Z);
-                SViewPoints.Add(sp);
-            }
+ 
+                SmoPoint3 sp = new SmoPoint3(ViewPoint.X, ViewPoint.Y, ViewPoint.Z);
+             
 
             //Convert Vector3d to SmoPoint3
             foreach (Vector3d vt in ViewVectors)
@@ -99,7 +95,7 @@ namespace SeemoPredictor
             }
 
 
-            SeemoInput smoSensor = new SeemoInput(SViewPoints, SViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
+            SmoSensor smoSensor = new SmoSensor(sp, SViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
 
             DA.SetData(0, smoSensor);
             

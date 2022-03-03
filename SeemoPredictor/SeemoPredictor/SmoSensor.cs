@@ -8,24 +8,24 @@ using SeemoPredictor.SeemoGeo;
 
 namespace SeemoPredictor
 {
-    public class SeemoInput
+    public class SmoSensor
     {
 
-        public List<SmoPoint3> Pts { get; set; } = new List<SmoPoint3>();
-        public SmoPoint3[] Vecs { get; set; }
+        public  SmoPoint3 Pt { get; set; }
+        public SmoPoint3[] ViewDirections { get; set; }
         public int Resolution { get; set; }
         public double HorizontalSceneAngle { get; set; }
         public double VerticalSceneAngle { get; set; }
 
 
-        public SeemoInput()
+        public SmoSensor()
         {
         }
 
-        public SeemoInput(List<SmoPoint3> _pts, List<SmoPoint3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
+        public SmoSensor(SmoPoint3  _pt, List<SmoPoint3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
         {
-            Pts = _pts;
-            Vecs = _vecs.ToArray();
+            Pt = _pt;
+            ViewDirections = _vecs.ToArray();
             Resolution = _resolution;
             HorizontalSceneAngle = _horizontalSceneAngle;
             VerticalSceneAngle = _verticalSceneAngle;
@@ -33,11 +33,11 @@ namespace SeemoPredictor
 
 
 
-        public ResultDataSet_ver2 GenerateZoneRay(int pointIndex, int vectorIndex)
+        public DirectionResult GenerateZoneRay( int vectorIndex)
         {
             //compute features for single view point and single view direction
-            SmoPoint3 vp = Pts[pointIndex];
-            SmoPoint3 vd = Vecs[vectorIndex];
+            SmoPoint3 vp = Pt;
+            SmoPoint3 vd = ViewDirections[vectorIndex];
 
 
             //Define Left, right, up, down vectors to measure room dimension
@@ -64,7 +64,7 @@ namespace SeemoPredictor
             List<SmoPoint3> RayVectors4 = new List<SmoPoint3>();
 
 
-            //<1st Way to generate rays> pixcel based
+            //<1st Way to generate rays> pixel based
             //making scene rays: make into point 2d cordination plane vdx, _vdx, vdy, _vdy (vectors from (0,0,0))
             //point[k], viewvector[j], window[i]
 
@@ -110,7 +110,7 @@ namespace SeemoPredictor
             }
 
 
-            ResultDataSet_ver2 resultData1 = new ResultDataSet_ver2();
+            DirectionResult resultData1 = new DirectionResult();
 
             resultData1.sceneRayVectorsZ1 = RayVectors1;
             resultData1.sceneRayVectorsZ2 = RayVectors2;

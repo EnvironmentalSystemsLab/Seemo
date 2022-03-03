@@ -1,52 +1,14 @@
-﻿using System;
+﻿using SeemoPredictor.SeemoGeo;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Rhino.Geometry;
-using SeemoPredictor.SeemoGeo;
 
 namespace SeemoPredictor
 {
 
-    public class SeemoResult
-    {
-        string TimeStamp { get; set; }
-        string SeemoVersion { get; set; }
-
-        public List<Node> Results { get; set; } = new List<Node>();
-
-        public string ToJSON()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-
-        static public SeemoResult FromJSON(string txt)
-        {
-            return JsonConvert.DeserializeObject<SeemoResult>(txt);
-        }
-
-        public void ToFile(string path)
-        {
-            File.WriteAllText(path, this.ToJSON());
-        }
-
-        static public SeemoResult FromFile(string path)
-        {
-            var txt = File.ReadAllText(path);
-            return JsonConvert.DeserializeObject<SeemoResult>(txt);
-        }
-
-        public override string ToString()
-        {
-            return "Resutls for " + Results.Count + " nodes.";
-        }
-    }
-
-
-    public class Node
+    public class SmoSensorWithResults
     {
         public int NodeID { get; set; }
 
@@ -54,10 +16,10 @@ namespace SeemoPredictor
 
         public SmoPoint3[] Dirs { get; set; }
 
-        public List<ResultDataSet_ver2> DirectionsResults { get; set; } = new List<ResultDataSet_ver2>();
+        public List<DirectionResult> DirectionsResults { get; set; } = new List<DirectionResult>();
     }
 
-    public class ResultDataSet_ver2
+    public class DirectionResult
     {
         public SmoPoint3 Dir { get; set; }
         public List<SmoPoint3> sceneRayVectorsZ1 { get; set; }
@@ -103,13 +65,13 @@ namespace SeemoPredictor
         public double PredictedPrivacy { get; set; } = 0;
 
 
-        public ResultDataSet_ver2()
+        public DirectionResult()
         {
 
         }
 
 
-        public ResultDataSet_ver2(double _WindowNumber, double _WindowAreaSum,
+        public DirectionResult(double _WindowNumber, double _WindowAreaSum,
             double _Z1PtsCountRatio, double _Z2PtCountRatio,
             double _Z3PtsCountRatio, double _Z4PtsCountRatio,
             double _BuildingPtsCountRatio, double _EquipmentPtsCountRatio, double _TreePtsCountRatio, double _PavementPtsCountRatio, double _GrassPtsCountRatio, double _WaterPtsCountRatio, double _DynamicPtsRatio,
@@ -147,46 +109,4 @@ namespace SeemoPredictor
         }
     }
 
-
 }
-
-
-
-
-    /*
-
-
-    [Obsolete]
-    public class ViewDir_TD
-    {
-        public Vector3d Dir;
-        public List<ResultDataSet> Results;
-
-    }
-    [Obsolete]
-    public class ViewPoint_TD
-    {
-        public Point3d Pt;
-        public List<ViewDir_TD> Directions;
-
-    }
-    [Obsolete]
-    public class Room_TD
-    {
-
-        public List<Mesh> Walls;
-        public List<ViewPoint_TD> Points;
-
-        public List<ResultDataSet> GetAllResults()
-        {
-
-            var dirs = Points.SelectMany(x => x.Directions);
-            var res = dirs.SelectMany(x => x.Results);
-            return res.ToList();
-        }
-
-
-    }
-
-
-    */

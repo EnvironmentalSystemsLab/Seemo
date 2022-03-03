@@ -15,7 +15,7 @@ namespace SeemoPredictor.SeemoGeo
         public bool IsQuad { get; set; }
         public SmoPoint3 Normal { get; set; }
         public SmoPoint3 Center { get; set; }
-        public SmoFaceType Material { get; set; }
+        public SmoFaceType ViewContentType { get; set; }
 
 
 

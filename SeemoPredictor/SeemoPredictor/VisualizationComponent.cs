@@ -79,7 +79,7 @@ namespace SeemoPredictor
                 for (int j = 0; j<result.Results[i].DirectionsResults.Count; j++)
                 {
                     //j is vector index
-                    ResultDataSet_ver2 resultData3 = result.Results[i].DirectionsResults[j];
+                    DirectionResult resultData3 = result.Results[i].DirectionsResults[j];
                     Point3d viewVector = new Point3d(resultData3.ViewVectorX, resultData3.ViewVectorY, resultData3.ViewVectorZ);
                     
                     
