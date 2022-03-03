@@ -85,7 +85,7 @@ namespace SeemoPredictor
 
         public override Guid ComponentGuid
         {
-            get { return new Guid("b38f7530-5933-4ccf-96c9-57e7151056ec"); }
+            get { return new Guid("{7DC2729B-43EF-4B01-B9A0-607B4633760B}"); }
         }
 
 
