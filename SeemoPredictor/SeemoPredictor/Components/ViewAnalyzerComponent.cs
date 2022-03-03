@@ -180,7 +180,7 @@ namespace SeemoPredictor
 
 
                     //Compute octree intersect
-                    SmoIntersect.MeshRayResultSave_OLD(ref directionResult, octree0, node.Pt, maxNodeSize);
+                   // SmoIntersect.MeshRayResultSave_OLD(ref directionResult, octree0, node.Pt, maxNodeSize);
 
 
                     //Generate Model input for prediction
