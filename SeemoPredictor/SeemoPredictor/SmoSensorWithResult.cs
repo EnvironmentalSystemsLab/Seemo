@@ -25,6 +25,12 @@ namespace SeemoPredictor
         public SmoPoint3 Dir { get; set; }
 
         [JsonIgnore]
+        public SmoImage Image { get; set; }
+
+
+
+
+        [JsonIgnore]
         public List<SmoPoint3> RayCastHits { get; set; } = new List<SmoPoint3>();
         [JsonIgnore]
         public List<SmoPoint3> sceneRayVectorsZ1 { get; set; }
@@ -34,6 +40,9 @@ namespace SeemoPredictor
         public List<SmoPoint3> sceneRayVectorsZ3 { get; set; }
         [JsonIgnore]
         public List<SmoPoint3> sceneRayVectorsZ4 { get; set; }
+
+
+
 
         public string ID { get; set; }
         public double ViewPointX { get; set; }

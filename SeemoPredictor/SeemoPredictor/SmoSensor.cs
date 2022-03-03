@@ -13,9 +13,11 @@ namespace SeemoPredictor
 
         public  SmoPoint3 Pt { get; set; }
         public SmoPoint3[] ViewDirections { get; set; }
-        public int Resolution { get; set; }
-        public double HorizontalSceneAngle { get; set; }
-        public double VerticalSceneAngle { get; set; }
+
+        public int Resolution { get; set; } = 1024;
+        public double HorizontalViewAngle { get; set; } = (35.754 * 2);
+        public double VerticalViewAngle { get; set; } = (25.641 * 2);
+
 
 
         public SmoSensor()
@@ -27,13 +29,25 @@ namespace SeemoPredictor
             Pt = _pt;
             ViewDirections = _vecs.ToArray();
             Resolution = _resolution;
-            HorizontalSceneAngle = _horizontalSceneAngle;
-            VerticalSceneAngle = _verticalSceneAngle;
+            HorizontalViewAngle = _horizontalSceneAngle;
+            VerticalViewAngle = _verticalSceneAngle;
         }
 
 
 
-        public DirectionResult GenerateZoneRay( int vectorIndex)
+        public SmoImage GenerateImagePlane(SmoPoint3 viewDirection)
+        {
+            //compute features for single view point and single view direction
+            SmoPoint3 vp = Pt;
+            SmoPoint3 vd = viewDirection;
+
+            SmoImage image = new SmoImage(Pt, viewDirection, Resolution, HorizontalViewAngle, VerticalViewAngle);
+
+            return image;
+        }
+
+
+        public DirectionResult GenerateZoneRay(int vectorIndex)
         {
             //compute features for single view point and single view direction
             SmoPoint3 vp = Pt;
@@ -70,16 +84,16 @@ namespace SeemoPredictor
 
 
             SmoPoint3 vdx = vd;
-            vdx = SmoPoint3.Rotate(vdx, -vh, (float)((HorizontalSceneAngle * Math.PI / 180) / 2));
+            vdx = SmoPoint3.Rotate(vdx, -vh, (float)((HorizontalViewAngle * Math.PI / 180) / 2));
             SmoPoint3 _vdx = vd;
-            _vdx = SmoPoint3.Rotate(_vdx, -vh, -(float)((HorizontalSceneAngle * Math.PI / 180) / 2));
+            _vdx = SmoPoint3.Rotate(_vdx, -vh, -(float)((HorizontalViewAngle * Math.PI / 180) / 2));
             SmoPoint3 vdy = vd;
-            vdy = SmoPoint3.Rotate(vdy, vr, (float)((VerticalSceneAngle * Math.PI / 180) / 2));
+            vdy = SmoPoint3.Rotate(vdy, vr, (float)((VerticalViewAngle * Math.PI / 180) / 2));
             SmoPoint3 _vdy = vd;
-            _vdy = SmoPoint3.Rotate(_vdy, vr, -(float)((VerticalSceneAngle * Math.PI / 180) / 2));
+            _vdy = SmoPoint3.Rotate(_vdy, vr, -(float)((VerticalViewAngle * Math.PI / 180) / 2));
 
-            double mMax = (Resolution * HorizontalSceneAngle * Math.PI / 180);
-            double nMax = (Resolution * VerticalSceneAngle * Math.PI / 180);
+            double mMax = (Resolution * HorizontalViewAngle * Math.PI / 180);
+            double nMax = (Resolution * VerticalViewAngle * Math.PI / 180);
             for (int m = 0; m < mMax; m++)
             {
                 for (int n = 0; n < nMax; n++)

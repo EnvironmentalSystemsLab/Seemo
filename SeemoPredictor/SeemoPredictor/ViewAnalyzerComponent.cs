@@ -30,6 +30,8 @@ namespace SeemoPredictor
 
             pManager.AddGenericParameter("Sensors", "S", "View Sensors", GH_ParamAccess.list);
             pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
+            //pManager.AddGenericParameter("Windows", "W", "Windows", GH_ParamAccess.list);
+
         }
 
         /// <summary>
@@ -153,12 +155,19 @@ namespace SeemoPredictor
 
                 for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
                 {
+
+
+
                     //generateZoneRay and Define ResultDataSet
                     DirectionResult directionResult = sensors[i].GenerateZoneRay( j);
                     directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + j.ToString());
                     directionResult.Dir = sensors[i].ViewDirections[j];
 
-                   
+
+
+                    directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
+
+
 
                     //Compute octree intersect
                     SmoIntersect.MeshRayResultSave(ref directionResult, octree0, node.Pt, maxNodeSize);

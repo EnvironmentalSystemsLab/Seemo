@@ -24,9 +24,9 @@ namespace SeemoPredictor
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             
-            pManager.AddPointParameter("View Point", "View Point", "View Point", GH_ParamAccess.item);
-            pManager.AddVectorParameter("Option_View vectors", "Option_View Vectors", "Option_Normalized view vectors for each view point", GH_ParamAccess.list);
-            //pManager.AddIntegerParameter("Option_Analyzing Resolution", "Option_Analyzing Resolution", "Option_Analyzing Resolution", GH_ParamAccess.item);
+            pManager.AddPointParameter("Point", "Pt", "View Point", GH_ParamAccess.item);
+            pManager.AddVectorParameter("Vectors", "Vec", "Optional view vectors", GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Resolution", "Res", "View Resolution in pixels along z", GH_ParamAccess.item , 300);
             //pManager.AddNumberParameter("Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", GH_ParamAccess.item);
             //pManager.AddNumberParameter("Option_VerticalSceneAngle", "Option_VerticalSceneAngle", "Option_VerticalSceneAngle", GH_ParamAccess.item);
 
@@ -57,9 +57,7 @@ namespace SeemoPredictor
             List<SmoPoint3> SViewPoints = new List<SmoPoint3>();
             List<SmoPoint3> SViewVectors = new List<SmoPoint3>();
             
-            int Resolution = 300;
-            double HorizontalSceneAngle = (35.754 * 2);
-            double VerticalSceneAngle = (25.641 * 2);
+           
             Point3d vvp = new Point3d(0, 0, 0);
 
             
@@ -78,7 +76,6 @@ namespace SeemoPredictor
                 }
             }
 
-            //DA.GetData(4, ref Resolution);
             //DA.GetData(5, ref HorizontalSceneAngle);
             //DA.GetData(6, ref VerticalSceneAngle);
 
@@ -95,7 +92,13 @@ namespace SeemoPredictor
             }
 
 
-            SmoSensor smoSensor = new SmoSensor(sp, SViewVectors, Resolution, HorizontalSceneAngle, VerticalSceneAngle);
+            int xResolution = 300;
+            DA.GetData(2, ref xResolution);
+
+            double HorizontalSceneAngle = (35.754 * 2);
+            double VerticalSceneAngle = (25.641 * 2);
+
+            SmoSensor smoSensor = new SmoSensor(sp, SViewVectors, xResolution, HorizontalSceneAngle, VerticalSceneAngle);
 
             DA.SetData(0, smoSensor);
             
