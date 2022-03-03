@@ -10,12 +10,12 @@ using System.Threading;
 
 namespace SeemoPredictor
 {
-    public class ViewAnalyzerComponent_ver2 : GH_Component
+    public class ViewAnalyzerComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the ViewAnalyzerComponent_ver2 class.
         /// </summary>
-        public ViewAnalyzerComponent_ver2()
+        public ViewAnalyzerComponent()
           : base("ViewAnalyzer", "ViewAnalyzer",
               "ViewAnalyzer",
               "SeEmo", "3|Analyzer")
@@ -42,8 +42,7 @@ namespace SeemoPredictor
             pManager.AddNumberParameter("ViewContents", "ViewContents", "ViewContents", GH_ParamAccess.list);
             pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
             pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
-            pManager.AddGenericParameter("hits", "hits", "hits", GH_ParamAccess.list);
-            pManager.AddGenericParameter("rays", "rays", "rays", GH_ParamAccess.list);
+            pManager.AddGenericParameter("Result", "Res", "Result", GH_ParamAccess.item);
 
         }
 
@@ -96,7 +95,7 @@ namespace SeemoPredictor
 
             //output objects
             var seemoResult = new SeemoResult();
-            List<SmoSensorWithResults> nodes = new List<SmoSensorWithResults>();
+            List<SmoSensorWithResults> resultNodes = new List<SmoSensorWithResults>();
             //output test
             List<Point3d> hitsList = new List<Point3d>();
             List<Point3d> raysList = new List<Point3d>();
@@ -159,11 +158,10 @@ namespace SeemoPredictor
                     directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + j.ToString());
                     directionResult.Dir = sensors[i].ViewDirections[j];
 
-                    //test output
-                    List<SmoPoint3> hits = new List<SmoPoint3>();
+                   
 
                     //Compute octree intersect
-                    SmoIntersect.MeshRayResultSave(ref directionResult, ref hits, octree0, node.Pt, maxNodeSize);
+                    SmoIntersect.MeshRayResultSave(ref directionResult, octree0, node.Pt, maxNodeSize);
 
 
                     //Generate Model input for prediction
@@ -324,11 +322,11 @@ namespace SeemoPredictor
                     directionResult.ViewVectorZ = sensors[i].ViewDirections[j].Z;
 
 
-                    //erase sceneRayVector before exporting JSON
-                    directionResult.sceneRayVectorsZ1.Clear();
-                    directionResult.sceneRayVectorsZ2.Clear();
-                    directionResult.sceneRayVectorsZ3.Clear();
-                    directionResult.sceneRayVectorsZ4.Clear();
+                    ////erase sceneRayVector before exporting JSON
+                    //directionResult.sceneRayVectorsZ1.Clear();
+                    //directionResult.sceneRayVectorsZ2.Clear();
+                    //directionResult.sceneRayVectorsZ3.Clear();
+                    //directionResult.sceneRayVectorsZ4.Clear();
 
                     directionResult.FloorHeights = floorheight;
 
@@ -338,9 +336,9 @@ namespace SeemoPredictor
 
                 node.DirectionsResults = nodeResult;
                 //Save node result
-                nodes.Add(node);
+                resultNodes.Add(node);
             }
-            seemoResult.Results = nodes;
+            seemoResult.Results = resultNodes;
 
             //save all results to json file
             string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -354,8 +352,8 @@ namespace SeemoPredictor
             DA.SetDataList(3, viewAccesses);
             DA.SetDataList(4, privacys);
 
-            DA.SetDataList(5, hitsList);
-            DA.SetDataList(6, raysList);
+            DA.SetData(5, seemoResult);
+ 
         }
 
 

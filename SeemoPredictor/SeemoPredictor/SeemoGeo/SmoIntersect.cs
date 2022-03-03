@@ -11,7 +11,7 @@ namespace SeemoPredictor.SeemoGeo
 
         private static double EPSILON = 0.0000001;
 
-        public static void MeshRayResultSave(ref DirectionResult result, ref List<SmoPoint3> hits, SmoPointOctree<SmoFace> octree, SmoPoint3 pt, double max)
+        public static void MeshRayResultSave(ref DirectionResult result,  SmoPointOctree<SmoFace> octree, SmoPoint3 pt, double max)
         {
             
             int z1hit = result.sceneRayVectorsZ1.Count;
@@ -44,7 +44,7 @@ namespace SeemoPredictor.SeemoGeo
 
 
                     double dist = SmoPoint3.Distance(hit, pt);
-                    hits.Add(hit);
+                    result.RayCastHits.Add(hit);
                      
 
                     switch (face.ViewContentType)

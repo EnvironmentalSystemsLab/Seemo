@@ -1,4 +1,5 @@
-﻿using SeemoPredictor.SeemoGeo;
+﻿using Newtonsoft.Json;
+using SeemoPredictor.SeemoGeo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +23,19 @@ namespace SeemoPredictor
     public class DirectionResult
     {
         public SmoPoint3 Dir { get; set; }
+
+        [JsonIgnore]
+        public List<SmoPoint3> RayCastHits { get; set; } = new List<SmoPoint3>();
+        [JsonIgnore]
         public List<SmoPoint3> sceneRayVectorsZ1 { get; set; }
+        [JsonIgnore]
         public List<SmoPoint3> sceneRayVectorsZ2 { get; set; }
+        [JsonIgnore]
         public List<SmoPoint3> sceneRayVectorsZ3 { get; set; }
+        [JsonIgnore]
         public List<SmoPoint3> sceneRayVectorsZ4 { get; set; }
 
-        public string ID { get; set; } = "Point2:Dir1";
+        public string ID { get; set; }
         public double ViewPointX { get; set; }
         public double ViewPointY { get; set; }
         public double ViewPointZ { get; set; }
