@@ -33,9 +33,10 @@ namespace SeemoPredictor.SeemoGeo
             VertexList = points;
             if (VertexList.Length == 4) IsQuad = true;
             Normal = ComputeNormal();
+            BoundingBox = GetBoundingBox();
         }
 
-        internal SmoBBox GetGroundingBox(){
+        internal SmoBBox GetBoundingBox(){
             return new SmoBBox(VertexList);
         }
 
