@@ -29,10 +29,10 @@ namespace SeemoPredictor
 
 
 
-
+/*
         [JsonIgnore]
         public List<SmoPoint3> RayCastHits { get; set; } = new List<SmoPoint3>();
-        /*
+        
         [JsonIgnore]
         public List<SmoPoint3> sceneRayVectorsZ1 { get; set; }
         [JsonIgnore]
