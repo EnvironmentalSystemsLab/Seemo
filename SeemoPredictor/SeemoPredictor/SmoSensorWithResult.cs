@@ -160,6 +160,7 @@ namespace SeemoPredictor
                 {
                     SmoFace.SmoFaceType type = Image.LabelMap[x][y];
                     double dist = Image.DepthMap[x][y];
+                    SmoPoint3 ray = Image.ImageRays[x][y];
 
                     switch (type)
                     {
