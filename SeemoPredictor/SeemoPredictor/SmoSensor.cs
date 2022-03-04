@@ -38,9 +38,7 @@ namespace SeemoPredictor
         public SmoImage GenerateImagePlane(SmoPoint3 viewDirection)
         {
             //compute features for single view point and single view direction
-            SmoPoint3 vp = Pt;
-            SmoPoint3 vd = viewDirection;
-
+  
             SmoImage image = new SmoImage(Pt, viewDirection, Resolution, HorizontalViewAngle, VerticalViewAngle);
 
             return image;
