@@ -118,19 +118,22 @@ namespace SeemoPredictor
                 }
             }
 
-            report.Append("Setup raycasting worklist: " + sp.ElapsedMilliseconds/1000 +"[s]");
+            report.AppendLine("Setup raycasting worklist: " + sp.ElapsedMilliseconds/1000 +"[s]");
             sp.Restart();
 
             // -------------------------
             // raycasting process
             // -------------------------
             SmoImage[] imageArray = images.ToArray();
-            for (int i = 0; i < imageArray.Length; i++)
+
+
+            //    for (int i = 0; i < imageArray.Length; i++)
+            Parallel.For(0, imageArray.Length, i =>
             {
                 imageArray[i].ComputeImage(octree0, maxNodeSize);
-            }
+            }); // Parallel.For
 
-            report.Append("Computing view images: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            report.AppendLine("Computing view images: " + sp.ElapsedMilliseconds / 1000 + "[s]");
             sp.Restart();
 
 
@@ -342,7 +345,7 @@ namespace SeemoPredictor
 
 
 
-            report.Append("Computing predictions: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            report.AppendLine("Computing predictions: " + sp.ElapsedMilliseconds / 1000 + "[s]");
             sp.Restart();
 
 
@@ -354,7 +357,7 @@ namespace SeemoPredictor
 
 
 
-            report.Append("Saving result: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            report.AppendLine("Saving result: " + sp.ElapsedMilliseconds / 1000 + "[s]");
             sp.Restart();
 
 
