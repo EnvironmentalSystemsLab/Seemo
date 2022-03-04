@@ -7,6 +7,8 @@ using Rhino.Geometry;
 using SeemoPredictor.SeemoGeo;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics;
+using System.Text;
 
 namespace SeemoPredictor
 {
@@ -39,12 +41,13 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Result File Path", "Result File Path", "Result File Path", GH_ParamAccess.item);
-            pManager.AddNumberParameter("OverallRatings", "OverallRatings", "OverallRatings", GH_ParamAccess.list);
-            pManager.AddNumberParameter("ViewContents", "ViewContents", "ViewContents", GH_ParamAccess.list);
-            pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
-            pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
+            pManager.AddTextParameter("Report", "Out", "Console log of simulation", GH_ParamAccess.item);
             pManager.AddGenericParameter("Result", "Res", "Result", GH_ParamAccess.item);
+            pManager.AddTextParameter("Result File Path", "File", "Result File Path", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("OverallRatings", "OverallRatings", "OverallRatings", GH_ParamAccess.list);
+            //pManager.AddNumberParameter("ViewContents", "ViewContents", "ViewContents", GH_ParamAccess.list);
+            //pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
+            //pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
 
         }
 
@@ -97,63 +100,57 @@ namespace SeemoPredictor
             //output objects
             var seemoResult = new SeemoResult();
             List<SmoSensorWithResults> resultNodes = new List<SmoSensorWithResults>();
-            
+
+            StringBuilder report = new StringBuilder();
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
+
+            // -------------------------
+            // setup raycasting worklist
+            // -------------------------
+            List<SmoImage> images = new List<SmoImage>();
+            for (int i = 0; i < sensors.Count; i++)
+            {
+                for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
+                {
+                    var image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
+                    images.Add(image);
+                }
+            }
+
+            report.Append("Setup raycasting worklist: " + sp.ElapsedMilliseconds/1000 +"[s]");
+            sp.Restart();
+
+            // -------------------------
+            // raycasting process
+            // -------------------------
+            SmoImage[] imageArray = images.ToArray();
+            for (int i = 0; i < imageArray.Length; i++)
+            {
+                imageArray[i].ComputeImage(octree0, maxNodeSize);
+            }
+
+            report.Append("Computing view images: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            sp.Restart();
 
 
-            
 
 
-            ////calculating FloorHeights
-            //double floorheight;
-            //SmoPointOctree<SmoFace> octree1 = new SmoPointOctree<SmoFace>((float)maxNodeSize, input.Pts[0], (float)minNodeSize);
-            //foreach (SmoFace f in input.Pavement)
-            //    octree1.Add(f, f.Center);
-            //foreach (SmoFace f in input.Grass)
-            //    octree1.Add(f, f.Center);
-            //foreach (SmoFace f in input.Water)
-            //    octree1.Add(f, f.Center);
-
-
-
-
-            //compute every view points and directions stored in sensors
+            // -------------------------
+            // execute ML model and create result output classes
+            // -------------------------
+            int imgIndex = 0;
             for (int i = 0; i < sensors.Count; i++)
             {
                 List<DirectionResult> nodeResult = new List<DirectionResult>();
-
- 
-                //define and get object
                 SmoSensorWithResults node = new SmoSensorWithResults();
                 node.NodeID = i;
                 node.Pt = sensors[i].Pt;
                 node.Dirs = sensors[i].ViewDirections;
 
 
-                //SmoPoint3 groundIntersect = new SmoPoint3();
-                //var typeG = SmoIntersect.IsObstructed(ref groundIntersect, octree1, node.Pt, new SmoPoint3(0, 0, -1), maxNodeSize);
-                //if (typeG == SmoFace.SmoFaceType.Pavement || typeG == SmoFace.SmoFaceType.Grass || typeG == SmoFace.SmoFaceType.Water)
-                //{
-                //    floorheight = SmoPoint3.Distance(groundIntersect, node.Pt);
-                //}
-                //else
-                //{
-                //    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "There is no ground (pavement, grass, or water) vertically under the view point");
-                //    floorheight = 0;
-                //    return;
-                //}
-
-
-
-
-
-                //generate ray and do machine learning and save data in direction result 
-                //original
-
                 for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
                 {
-                    //generateZoneRay and Define ResultDataSet
-                    //DirectionResult directionResult = sensors[i].GenerateZoneRay( j);
-
                     DirectionResult directionResult = new DirectionResult();
                     directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + j.ToString());
                     directionResult.Dir = sensors[i].ViewDirections[j];
@@ -165,10 +162,14 @@ namespace SeemoPredictor
                     directionResult.ViewVectorY = sensors[i].ViewDirections[j].Y;
                     directionResult.ViewVectorZ = sensors[i].ViewDirections[j].Z;
 
-                    directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
 
-                    // raycasting process
-                    directionResult.Image.ComputeImage(octree0, maxNodeSize);
+
+                    directionResult.Image = imageArray[imgIndex];
+                    imgIndex++;
+
+
+                    //directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
+                    //directionResult.Image.ComputeImage(octree0, maxNodeSize);
 
 
 
@@ -176,13 +177,6 @@ namespace SeemoPredictor
                     // compute the ML model inputs from the SmoImage class here
                     directionResult.ComputeFeatures();
 
-
-
-
-
-
-                    //Compute octree intersect
-                   // SmoIntersect.MeshRayResultSave_OLD(ref directionResult, octree0, node.Pt, maxNodeSize);
 
 
                     //Generate Model input for prediction
@@ -346,19 +340,40 @@ namespace SeemoPredictor
             }
             seemoResult.Results = resultNodes;
 
-            //save all results to json file
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-            //writeCSV(path + @"\ResultData.csv", nodeResult.AllData());
+
+            report.Append("Computing predictions: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            sp.Restart();
+
+
+            // -------------------------
+            //save all results to json file
+            // -------------------------
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             seemoResult.ToFile(path + @"\Result.json");
 
-            DA.SetData(0, path + @"\Result.json");
-            DA.SetDataList(1, overallRatings);
-            DA.SetDataList(2, viewContents);
-            DA.SetDataList(3, viewAccesses);
-            DA.SetDataList(4, privacys);
 
-            DA.SetData(5, seemoResult);
+
+            report.Append("Saving result: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            sp.Restart();
+
+
+
+
+
+
+
+
+            DA.SetData(0, report.ToString());
+            DA.SetData(1, seemoResult);
+            DA.SetData(2, path + @"\Result.json");
+
+
+            //DA.SetDataList(1, overallRatings);
+            //DA.SetDataList(2, viewContents);
+            //DA.SetDataList(3, viewAccesses);
+            //DA.SetDataList(4, privacys);
+
  
         }
 
