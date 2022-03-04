@@ -68,8 +68,11 @@ namespace SeemoPredictor
             }
         }
 
-        public SmoImage(SmoPoint3 Pt, SmoPoint3 dir, int Resolution, double horizontalViewAngle, double verticalViewAngle) {
-             
+        public SmoImage(SmoPoint3 pt, SmoPoint3 dir, int Resolution, double horizontalViewAngle, double verticalViewAngle) {
+
+            this.Pt = pt;
+            this.Dir = dir;
+
             //Define Left, right, up, down vectors to measure room dimension
             SmoPoint3 nvd = dir;
             nvd.Normalize();
@@ -88,8 +91,7 @@ namespace SeemoPredictor
             angleStep = horizontalViewAngle / xres;
             yres = ((int)(verticalViewAngle / (double)angleStep) / 2) * 2;
 
-            Pt = Pt;
-            Dir = Dir;
+          
 
             ImageRays = new SmoPoint3[xres][];
 
@@ -200,7 +202,7 @@ namespace SeemoPredictor
                     var remap = ColorGenerator.Remap(val, min, max, 0, 1);
                     var pixColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
 
-                    bitmap.SetPixel(x, this.yres-y-1, pixColor);    
+                    bitmap.SetPixel(this.xres -x-1 , this.yres-y-1, pixColor);    
 
                 }
             }
@@ -225,7 +227,7 @@ namespace SeemoPredictor
                     var remap = ColorGenerator.Remap(val, min, max, 0, 1);
                     var pixColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
 
-                    bitmap.SetPixel(x, this.yres-y-1, pixColor);
+                    bitmap.SetPixel(this.xres - x - 1, this.yres-y-1, pixColor);
 
                 }
             }
