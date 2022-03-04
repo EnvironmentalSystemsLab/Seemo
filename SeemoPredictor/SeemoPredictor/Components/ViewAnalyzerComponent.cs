@@ -54,8 +54,7 @@ namespace SeemoPredictor
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var floorheight = 3;
-
+            
 
             //input objects
             List<SmoSensor> sensors = new List<SmoSensor>();
@@ -98,12 +97,7 @@ namespace SeemoPredictor
             //output objects
             var seemoResult = new SeemoResult();
             List<SmoSensorWithResults> resultNodes = new List<SmoSensorWithResults>();
-            //output test
-            List<Point3d> hitsList = new List<Point3d>();
-            List<Point3d> raysList = new List<Point3d>();
-
-
-
+            
             
 
 
@@ -120,7 +114,7 @@ namespace SeemoPredictor
 
 
 
-            //compute every view points and directions stored in seemoRoom
+            //compute every view points and directions stored in sensors
             for (int i = 0; i < sensors.Count; i++)
             {
                 List<DirectionResult> nodeResult = new List<DirectionResult>();
@@ -148,17 +142,24 @@ namespace SeemoPredictor
 
 
 
-
-
                 //generate ray and do machine learning and save data in direction result 
                 //original
 
                 for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
                 {
                     //generateZoneRay and Define ResultDataSet
-                    DirectionResult directionResult = sensors[i].GenerateZoneRay( j);
+                    //DirectionResult directionResult = sensors[i].GenerateZoneRay( j);
+
+                    DirectionResult directionResult = new DirectionResult();
                     directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + j.ToString());
                     directionResult.Dir = sensors[i].ViewDirections[j];
+
+                    directionResult.ViewPointX = sensors[i].Pt.X;
+                    directionResult.ViewPointY = sensors[i].Pt.Y;
+                    directionResult.ViewPointZ = sensors[i].Pt.Z;
+                    directionResult.ViewVectorX = sensors[i].ViewDirections[j].X;
+                    directionResult.ViewVectorY = sensors[i].ViewDirections[j].Y;
+                    directionResult.ViewVectorZ = sensors[i].ViewDirections[j].Z;
 
                     directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
 
@@ -168,20 +169,8 @@ namespace SeemoPredictor
 
 
 
-
-
-                    // @ JAEHA -- TODO:
                     // compute the ML model inputs from the SmoImage class here
-                    // .....
-
-
-
-
-
-
-                    //Compute octree intersect
-                   // SmoIntersect.MeshRayResultSave_OLD(ref directionResult, octree0, node.Pt, maxNodeSize);
-
+                    directionResult.ComputeFeatures();
 
                     //Generate Model input for prediction
                     ModelInput sampleDataOverallRating = new ModelInput()
@@ -332,22 +321,6 @@ namespace SeemoPredictor
                         directionResult.PredictedViewContent = double.NaN;
                     }
 
-
-                    directionResult.ViewPointX = sensors[i].Pt.X;
-                    directionResult.ViewPointY = sensors[i].Pt.Y;
-                    directionResult.ViewPointZ = sensors[i].Pt.Z;
-                    directionResult.ViewVectorX = sensors[i].ViewDirections[j].X;
-                    directionResult.ViewVectorY = sensors[i].ViewDirections[j].Y;
-                    directionResult.ViewVectorZ = sensors[i].ViewDirections[j].Z;
-
-
-                    ////erase sceneRayVector before exporting JSON
-                    //directionResult.sceneRayVectorsZ1.Clear();
-                    //directionResult.sceneRayVectorsZ2.Clear();
-                    //directionResult.sceneRayVectorsZ3.Clear();
-                    //directionResult.sceneRayVectorsZ4.Clear();
-
-                    directionResult.FloorHeights = floorheight;
 
                     //Save direction result
                     nodeResult.Add(directionResult);

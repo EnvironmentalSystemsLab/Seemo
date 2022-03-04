@@ -11,7 +11,9 @@ namespace SeemoPredictor.SeemoGeo
 
         private static double EPSILON = 0.0000001;
 
+        
 
+        /*
         public static void MeshRayResultSave_OLD(ref DirectionResult result, SmoPointOctree<SmoFace> octree, SmoPoint3 pt, double max)
         {
 
@@ -177,6 +179,7 @@ namespace SeemoPredictor.SeemoGeo
             result.ElementNumber = elementNumber;
 
         }
+        */
 
 
         public static SmoFace IsVisible(SmoPointOctree<SmoFace> octree, SmoPoint3 pt, SmoPoint3 raydir, double maxNodeSize, out SmoPoint3 hitPt)

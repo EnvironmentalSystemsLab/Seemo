@@ -30,7 +30,6 @@ namespace SeemoPredictor
             
                 if(ImageRays == null)return null;
                 return ImageRays.SelectMany(a => a).ToArray();
-
             }
         }
 
@@ -139,13 +138,6 @@ namespace SeemoPredictor
 
                 }
             }
-
-
-             
-
-
-
-
         }
 
 
@@ -163,7 +155,7 @@ namespace SeemoPredictor
                     SmoPoint3 hit;
                     var face = SmoIntersect.IsVisible(octree, pt, ray, max, out hit);
 
-                    if (face == null) continue;
+                    if (face == null) this.LabelMap[x][y] = SmoFace.SmoFaceType._UNSET_; continue;
 
                     double dist = SmoPoint3.Distance(hit, pt);
                     this.Hits[x][y] = hit;
