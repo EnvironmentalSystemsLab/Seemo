@@ -1,4 +1,4 @@
-﻿using SeemoPredictor.SeemoGeo;
+﻿using SeemoPredictor.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,16 +15,16 @@ namespace SeemoPredictor
 
         double angleStep { get; set; }  
 
-        public SmoPoint3 Pt { get; set; }
-        public SmoPoint3 Dir { get; set; }
-        public SmoPoint3 TopCorner { get; set; }
-        public SmoPoint3 xAxis { get; set; }
-        public SmoPoint3 yAxis { get; set; }
+        public Point3 Pt { get; set; }
+        public Point3 Dir { get; set; }
+        public Point3 TopCorner { get; set; }
+        public Point3 xAxis { get; set; }
+        public Point3 yAxis { get; set; }
 
 
         //raycast input
-        public SmoPoint3[][] ImageRays { get; set; }
-        public SmoPoint3[] ImageRaysFlat
+        public Point3[][] ImageRays { get; set; }
+        public Point3[] ImageRaysFlat
         {
             get { 
             
@@ -35,8 +35,8 @@ namespace SeemoPredictor
         }
 
         //raycast output
-        public SmoPoint3[][] Hits { get; set; }
-        public SmoPoint3[] HitsFlat
+        public Point3[][] Hits { get; set; }
+        public Point3[] HitsFlat
         {
             get
             {
@@ -68,22 +68,22 @@ namespace SeemoPredictor
             }
         }
 
-        public SmoImage(SmoPoint3 pt, SmoPoint3 dir, int Resolution, double horizontalViewAngle, double verticalViewAngle) {
+        public SmoImage(Point3 pt, Point3 dir, int Resolution, double horizontalViewAngle, double verticalViewAngle) {
 
             this.Pt = pt;
             this.Dir = dir;
 
             //Define Left, right, up, down vectors to measure room dimension
-            SmoPoint3 nvd = dir;
+            Point3 nvd = dir;
             nvd.Normalize();
             Dir = nvd;
 
-            SmoPoint3 vup = new SmoPoint3(0, 0, 1);
+            Point3 vup = new Point3(0, 0, 1);
 
-             xAxis = SmoPoint3.Cross(nvd, vup);
+             xAxis = Point3.Cross(nvd, vup);
             xAxis.Normalize();
 
-             yAxis = SmoPoint3.Cross(nvd, -xAxis);
+             yAxis = Point3.Cross(nvd, -xAxis);
             yAxis.Normalize();
 
 
@@ -93,17 +93,17 @@ namespace SeemoPredictor
 
           
 
-            ImageRays = new SmoPoint3[xres][];
+            ImageRays = new Point3[xres][];
 
 
-            Hits = new SmoPoint3[xres][];
+            Hits = new Point3[xres][];
             DepthMap = new double[xres][];
             LabelMap = new SmoFace.SmoFaceType[xres][];
 
             for (int i = 0; i < xres; i++) {
-                ImageRays[i] = new SmoPoint3[yres];
+                ImageRays[i] = new Point3[yres];
 
-                Hits[i] = new SmoPoint3[yres];
+                Hits[i] = new Point3[yres];
                 DepthMap[i] = new double[yres];
                 LabelMap[i] = new SmoFace.SmoFaceType[yres];
             }
@@ -117,8 +117,8 @@ namespace SeemoPredictor
             //        rotate to the top edge     
             var _yrot = (angleStep * yres / 2.0);
 
-            var _vdy = SmoPoint3.Rotate(nvd, xAxis, (float)(_yrot * Math.PI / 180));
-            var _vdx = SmoPoint3.Rotate(_vdy, yAxis, (float)(_xrot * Math.PI / 180));
+            var _vdy = Point3.Rotate(nvd, xAxis, (float)(_yrot * Math.PI / 180));
+            var _vdx = Point3.Rotate(_vdy, yAxis, (float)(_xrot * Math.PI / 180));
 
             TopCorner = _vdx;
 
@@ -133,9 +133,9 @@ namespace SeemoPredictor
                     var yrot =  - ( yres - y ) * angleStep;
 
 
-                    var vdx = SmoPoint3.Rotate(TopCorner, yAxis, (float)(xrot * Math.PI / 180));
+                    var vdx = Point3.Rotate(TopCorner, yAxis, (float)(xrot * Math.PI / 180));
 
-                    var vdy = SmoPoint3.Rotate(vdx, xAxis, (float)(yrot * Math.PI / 180));
+                    var vdy = Point3.Rotate(vdx, xAxis, (float)(yrot * Math.PI / 180));
 
                     ImageRays[x][y] = vdy;
 
@@ -152,7 +152,7 @@ namespace SeemoPredictor
 
 
 
-        public void ComputeImage(  SmoPointOctree<SmoFace> octree, double max)
+        public void ComputeImage(  PointOctree<SmoFace> octree, double max)
         {
 
             for (int x = 0; x < this.xres; x++)
@@ -162,7 +162,7 @@ namespace SeemoPredictor
                     var pt = this.Pt;
                     var ray = this.ImageRays[x][y];
 
-                    SmoPoint3 hit;
+                    Point3 hit;
                     var face = SmoIntersect.IsVisible(octree, pt, ray, max, out hit);
 
                     if (face == null)
@@ -171,7 +171,7 @@ namespace SeemoPredictor
                         continue;
                     }
 
-                    double dist = SmoPoint3.Distance(hit, pt);
+                    double dist = Point3.Distance(hit, pt);
                     this.Hits[x][y] = hit;
                     this.DepthMap[x][y] = (hit - pt).Length;
                     this.LabelMap[x][y] = face.ViewContentType;

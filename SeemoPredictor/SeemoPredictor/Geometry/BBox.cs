@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SeemoPredictor.Octree
+namespace SeemoPredictor.Geometry
 {
     /// <summary>
     /// Represents an axis aligned bounding box (AABB).
@@ -9,7 +9,7 @@ namespace SeemoPredictor.Octree
     /// This class was inspired by the Bounds type of the Unity Engine and 
     /// designed with the exact same interface to provide maximum compatibility.
     /// </remarks>
-
+    /// 
     public struct BBox
     {
         /// <summary>
@@ -72,7 +72,7 @@ namespace SeemoPredictor.Octree
             Center = VertexList[0];
             Extents = Point3.Zero;
 
-            foreach (var p in VertexList)
+            foreach(var p in VertexList)
             {
                 this.Encapsulate(p);
             }
@@ -135,9 +135,9 @@ namespace SeemoPredictor.Octree
         /// <returns><c>true</c> if the box contains the point; otherwise, <c>false</c>.</returns>
         public bool Contains(Point3 point)
         {
-            return 
-                Min.X <= point.X && Max.X >= point.X && 
-                Min.Y <= point.Y && Max.Y >= point.Y && 
+            return
+                Min.X <= point.X && Max.X >= point.X &&
+                Min.Y <= point.Y && Max.Y >= point.Y &&
                 Min.Z <= point.Z && Max.Z >= point.Z;
         }
 
@@ -148,9 +148,9 @@ namespace SeemoPredictor.Octree
         /// <returns><c>true</c> if the bounding box intersects with another box, <c>false</c> otherwise.</returns>
         public bool Intersects(BBox box)
         {
-            return 
-                Min.X <= box.Max.X && Max.X >= box.Min.X && 
-                Min.Y <= box.Max.Y && Max.Y >= box.Min.Y && 
+            return
+                Min.X <= box.Max.X && Max.X >= box.Min.X &&
+                Min.Y <= box.Max.Y && Max.Y >= box.Min.Y &&
                 Min.Z <= box.Max.Z && Max.Z >= box.Min.Z;
         }
 
@@ -177,7 +177,7 @@ namespace SeemoPredictor.Octree
                 1f / ray.Direction.X,
                 1f / ray.Direction.Y,
                 1f / ray.Direction.Z
-            );
+                );
 
             float t1 = (Min.X - ray.Origin.X) * dirFrac.X;
             float t2 = (Max.X - ray.Origin.X) * dirFrac.X;
@@ -196,8 +196,8 @@ namespace SeemoPredictor.Octree
                 return false;
             }
 
-            // if tmin > tmax, ray doesn't intersect AABB
-            if (tmin > tmax)
+            //if tmin > tmax, ray doesn't intersect AABB
+            if(tmin > tmax)
             {
                 distance = tmax;
                 return false;
@@ -224,7 +224,7 @@ namespace SeemoPredictor.Octree
         public override bool Equals(object other)
         {
             bool result;
-            if (!(other is BBox))
+            if(!(other is BBox))
             {
                 result = false;
             }
@@ -241,8 +241,8 @@ namespace SeemoPredictor.Octree
         /// </summary>
         public override string ToString()
         {
-            return String.Format("Center: {0}, Extents: {1}", 
-                Center, 
+            return String.Format("Center: {0}, Extents: {1}",
+                Center,
                 Extents
             );
         }
@@ -256,7 +256,7 @@ namespace SeemoPredictor.Octree
             return String.Format("Center: {0}, Extents: {1}",
                 Center.ToString(format),
                 Extents.ToString(format)
-            );
+                );
         }
 
         /// <summary>

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace SeemoPredictor.Octree
-{ 
-
+namespace SeemoPredictor.Geometry
+{
+    
     /// <summary>
     /// Representation of 3D points and vectors.
     /// </summary>
@@ -37,7 +37,7 @@ namespace SeemoPredictor.Octree
         /// </summary>
         public float Length
         {
-            get { return (float)Math.Sqrt(X * X + Y * Y + Z * Z); }
+            get { return (float)Math.Sqrt(X*X + Y*Y + Z*Z); }
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace SeemoPredictor.Octree
         /// </summary>
         public float SqrMagnitude
         {
-            get { return X * X + Y * Y + Z * Z; }
+            get { return X*X + Y*Y + Z* Z; }    
         }
 
         /// <summary>
@@ -56,8 +56,8 @@ namespace SeemoPredictor.Octree
             get
             {
                 Point3 copy = this;
-	            copy.Normalize();
-				return copy;
+                copy.Normalize();
+                return copy;
             }
         }
 
@@ -87,7 +87,7 @@ namespace SeemoPredictor.Octree
         public void Normalize()
         {
             float num = Length;
-            if (num > 1E-05f)
+            if(num > 1E-05f)
             {
                 this /= num;
             }
@@ -202,7 +202,7 @@ namespace SeemoPredictor.Octree
         /// <returns>The distance.</returns>
         public static float Distance(Point3 a, Point3 b)
         {
-            Point3 vector = new Point3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+            Point3 vector = new Point3(a.X - b.X, a.Y -b.Y, a.Z - b.Z);
             return (float)Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z);
         }
 
@@ -355,12 +355,12 @@ namespace SeemoPredictor.Octree
         /// <param name="theta">theta rotation angle[rad]</param>
         /// <returns>rotated vector</returns>
         public static Point3 Rotate(Point3 v, Point3 k, float theta)
-        {        
+        {
             float ct = (float)Math.Cos(theta);
             float st = (float)Math.Sin(theta);
             var khat = k;
             khat.Normalize();
-            var vrot = v * ct + Point3.Cross(khat, v) * st + khat * Point3.Dot(khat , v) * (1.0f - ct);
+            var vrot = v * ct + Point3.Cross(khat, v) * st + khat * Point3.Dot(khat, v) * (1.0f - ct);
             return vrot;
         }
     }

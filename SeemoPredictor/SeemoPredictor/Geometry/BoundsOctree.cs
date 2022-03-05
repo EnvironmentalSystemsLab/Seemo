@@ -1,29 +1,48 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
-namespace SeemoPredictor.Octree
+namespace SeemoPredictor.Geometry
 {
     /// <summary>
-    /// A Dynamic Octree for storing any objects that can be described as a single point
+    /// A Dynamic, Loose Octree for storing any objects that can be described with AABB bounds
     /// </summary>
+    /// <seealso cref="BoundsOctree{T}"/>
     /// <remarks>
-    /// Octree:	An octree is a tree data structure which divides 3D space into smaller partitions (nodes) 
+    /// Octree:	An octree is a tree data structure which divides 3D space into smaller partitions (nodes)
     /// and places objects into the appropriate nodes. This allows fast access to objects
     /// in an area of interest without having to check every object.
     /// 
     /// Dynamic: The octree grows or shrinks as required when objects as added or removed.
     /// It also splits and merges nodes as appropriate. There is no maximum depth.
-    /// Nodes have a constant - <see cref="PointOctree{T}.Node.NumObjectsAllowed"/> - which sets the amount of items allowed in a node before it splits.
+    /// Nodes have a constant - <see cref="BoundsOctree{T}.BoundsOctreeNode.NumObjectsAllowed"/> - which sets the amount of items allowed in a node before it splits.
     /// 
+    /// Loose: The octree's nodes can be larger than 1/2 their parent's length and width, so they overlap to some extent.
+    /// This can alleviate the problem of even tiny objects ending up in large nodes if they're near boundaries.
+    /// A looseness value of 1.0 will make it a "normal" octree.
+    /// 
+    /// Note: For loops are often used here since in some cases (e.g. the IsColliding method)
+    /// they actually give much better performance than using Foreach, even in the compiled build.
+    /// Using a LINQ expression is worse again than Foreach.
+    /// 
+    /// See also: PointOctree, where objects are stored as single points and some code can be simplified
     /// </remarks>
     /// <typeparam name="T">The content of the octree can be anything, since the bounds data is supplied separately.</typeparam>
-    public class PointOctree<T>
+    public  class BoundsOctree<T>
     {
+   
+
         /// <summary>
         /// Root node of the octree
         /// </summary>
-        private Node _rootNode;
+        private BoundsOctreeNode _rootNode;
+
+        /// <summary>
+        /// Should be a value between 1 and 2. A multiplier for the base size of a node.
+        /// </summary>
+        /// <remarks>
+        /// 1.0 is a "normal" octree, while values > 1 have overlap
+        /// </remarks>
+        private readonly float _looseness;
 
         /// <summary>
         /// Size that the octree was on creation
@@ -40,22 +59,23 @@ namespace SeemoPredictor.Octree
 	    /// </summary>
 	    public int Count { get; private set; }
 
-	    /// <summary>
-	    /// Gets the bounding box that represents the whole octree
-	    /// </summary>
-	    /// <value>The bounding box of the root node.</value>
-	    public BBox MaxBounds
-	    {
-		    get { return new BBox(_rootNode.Center, new Point3(_rootNode.SideLength, _rootNode.SideLength, _rootNode.SideLength)); }
-	    }
-
 		/// <summary>
-		/// Constructor for the point octree.
+		/// Gets the bounding box that represents the whole octree
 		/// </summary>
-		/// <param name="initialWorldSize">Size of the sides of the initial node. The octree will never shrink smaller than this.</param>
-		/// <param name="initialWorldPos">Position of the centre of the initial node.</param>
-		/// <param name="minNodeSize">Nodes will stop splitting if the new nodes would be smaller than this.</param>
-		public PointOctree(float initialWorldSize, Point3 initialWorldPos, float minNodeSize)
+		/// <value>The bounding box of the root node.</value>
+		public BBox MaxBounds
+        {
+            get { return _rootNode.Bounds; }
+        }
+
+        /// <summary>
+        /// Constructor for the bounds octree.
+        /// </summary>
+        /// <param name="initialWorldSize">Size of the sides of the initial node, in metres. The octree will never shrink smaller than this.</param>
+        /// <param name="initialWorldPos">Position of the center of the initial node.</param>
+        /// <param name="minNodeSize">Nodes will stop splitting if the new nodes would be smaller than this (metres).</param>
+        /// <param name="loosenessVal">Clamped between 1 and 2. Values > 1 let nodes overlap.</param>
+        public BoundsOctree(float initialWorldSize, Point3 initialWorldPos, float minNodeSize, float loosenessVal)
         {
             if (minNodeSize > initialWorldSize)
             {
@@ -67,7 +87,8 @@ namespace SeemoPredictor.Octree
             Count = 0;
             _initialSize = initialWorldSize;
             _minSize = minNodeSize;
-            _rootNode = new Node(_initialSize, _minSize, initialWorldPos);
+            _looseness = MathExtensions.Clamp(loosenessVal, 1.0f, 2.0f);
+            _rootNode = new BoundsOctreeNode(_initialSize, _minSize, _looseness, initialWorldPos);
         }
 
         // #### PUBLIC METHODS ####
@@ -76,14 +97,14 @@ namespace SeemoPredictor.Octree
         /// Add an object.
         /// </summary>
         /// <param name="obj">Object to add.</param>
-        /// <param name="objPos">Position of the object.</param>
-        public void Add(T obj, Point3 objPos)
+        /// <param name="objBounds">3D bounding box around the object.</param>
+        public void Add(T obj, BBox objBounds)
         {
             // Add object or expand the octree until it can be added
             int count = 0; // Safety check against infinite/excessive growth
-            while (!_rootNode.Add(obj, objPos))
+            while (!_rootNode.Add(obj, objBounds))
             {
-                Grow(objPos - _rootNode.Center);
+                Grow(objBounds.Center - _rootNode.Center);
                 if (++count > 20)
                 {
                     Debug.WriteLine(
@@ -118,11 +139,11 @@ namespace SeemoPredictor.Octree
         /// Removes the specified object at the given position. Makes the assumption that the object only exists once in the tree.
         /// </summary>
         /// <param name="obj">Object to remove.</param>
-        /// <param name="objPos">Position of the object.</param>
+        /// <param name="objBounds">3D bounding box around the object.</param>
         /// <returns>True if the object was removed successfully.</returns>
-        public bool Remove(T obj, Point3 objPos)
+        public bool Remove(T obj, BBox objBounds)
         {
-            bool removed = _rootNode.Remove(obj, objPos);
+            bool removed = _rootNode.Remove(obj, objBounds);
 
             // See if we can shrink the octree down now that we've removed the item
             if (removed)
@@ -135,43 +156,47 @@ namespace SeemoPredictor.Octree
         }
 
         /// <summary>
-        /// Returns objects that are within <paramref name="maxDistance"/> of the specified ray.
-        /// If none, returns an empty array (not null).
+        /// Check if the specified bounds intersect with anything in the tree. See also: GetColliding.
         /// </summary>
-        /// <param name="ray">The ray. Passing as ref to improve performance since it won't have to be copied.</param>
-        /// <param name="maxDistance">Maximum distance from the ray to consider.</param>
-        /// <returns>Objects within range.</returns>
-        public T[] GetNearby(Ray ray, float maxDistance)
+        /// <param name="checkBounds">bounds to check.</param>
+        /// <returns>True if there was a collision.</returns>
+        public bool IsColliding(BBox checkBounds)
         {
-            List<T> collidingWith = new List<T>();
-            _rootNode.GetNearby(ref ray, maxDistance, collidingWith);
-            return collidingWith.ToArray();
+            return _rootNode.IsColliding(ref checkBounds);
         }
 
         /// <summary>
-        /// Returns objects that are within <paramref name="maxDistance"/> of the specified position.
-        /// If none, returns an empty array (not null).
+        /// Check if the specified ray intersects with anything in the tree. See also: GetColliding.
         /// </summary>
-        /// <param name="position">The position. Passing as ref to improve performance since it won't have to be copied.</param>
-        /// <param name="maxDistance">Maximum distance from the position to consider.</param>
-        /// <returns>Objects within range.</returns>
-        public T[] GetNearby(Point3 position, float maxDistance)
+        /// <param name="checkRay">ray to check.</param>
+        /// <param name="maxDistance">distance to check.</param>
+        /// <returns>True if there was a collision.</returns>
+        public bool IsColliding(Ray checkRay, float maxDistance)
         {
-            List<T> collidingWith = new List<T>();
-            _rootNode.GetNearby(ref position, maxDistance, collidingWith);
-            return collidingWith.ToArray();
+            return _rootNode.IsColliding(ref checkRay, maxDistance);
         }
 
         /// <summary>
-        /// Returns all objects in the tree.
-        /// If none, returns an empty array (not null).
+        /// Returns an array of objects that intersect with the specified bounds, if any. Otherwise returns an empty array. See also: IsColliding.
         /// </summary>
-        /// <returns>All objects.</returns>
-        public ICollection<T> GetAll()
+        /// <param name="collidingWith">list to store intersections.</param>
+        /// <param name="checkBounds">bounds to check.</param>
+        /// <returns>Objects that intersect with the specified bounds.</returns>
+        public void GetColliding(List<T> collidingWith, BBox checkBounds)
         {
-            List<T> objects = new List<T>(Count);
-            _rootNode.GetAll(objects);
-            return objects;
+            _rootNode.GetColliding(ref checkBounds, collidingWith);
+        }
+
+        /// <summary>
+        /// Returns an array of objects that intersect with the specified ray, if any. Otherwise returns an empty array. See also: IsColliding.
+        /// </summary>
+        /// <param name="collidingWith">list to store intersections.</param>
+        /// <param name="checkRay">ray to check.</param>
+        /// <param name="maxDistance">distance to check.</param>
+        /// <returns>Objects that intersect with the specified ray.</returns>
+        public void GetColliding(List<T> collidingWith, Ray checkRay, float maxDistance = float.PositiveInfinity)
+        {
+            _rootNode.GetColliding(ref checkRay, collidingWith, maxDistance);
         }
 
         // #### PRIVATE METHODS ####
@@ -185,19 +210,19 @@ namespace SeemoPredictor.Octree
             int xDirection = direction.X >= 0 ? 1 : -1;
             int yDirection = direction.Y >= 0 ? 1 : -1;
             int zDirection = direction.Z >= 0 ? 1 : -1;
-            Node oldRoot = _rootNode;
-            float half = _rootNode.SideLength / 2;
-            float newLength = _rootNode.SideLength * 2;
+            BoundsOctreeNode oldRoot = _rootNode;
+            float half = _rootNode.BaseLength / 2;
+            float newLength = _rootNode.BaseLength * 2;
             Point3 newCenter = _rootNode.Center + new Point3(xDirection * half, yDirection * half, zDirection * half);
 
             // Create a new, bigger octree root node
-            _rootNode = new Node(newLength, _minSize, newCenter);
+            _rootNode = new BoundsOctreeNode(newLength, _minSize, _looseness, newCenter);
 
             if (oldRoot.HasAnyObjects())
             {
                 // Create 7 new octree children to go with the old root as children of the new root
                 int rootPos = _rootNode.BestFitChild(oldRoot.Center);
-                Node[] children = new Node[8];
+                BoundsOctreeNode[] children = new BoundsOctreeNode[8];
                 for (int i = 0; i < 8; i++)
                 {
                     if (i == rootPos)
@@ -209,9 +234,10 @@ namespace SeemoPredictor.Octree
                         xDirection = i % 2 == 0 ? -1 : 1;
                         yDirection = i > 3 ? -1 : 1;
                         zDirection = (i < 2 || (i > 3 && i < 6)) ? -1 : 1;
-                        children[i] = new Node(
-                            oldRoot.SideLength,
+                        children[i] = new BoundsOctreeNode(
+                            oldRoot.BaseLength,
                             _minSize,
+                            _looseness,
                             newCenter + new Point3(xDirection * half, yDirection * half, zDirection * half));
                     }
                 }
@@ -232,22 +258,39 @@ namespace SeemoPredictor.Octree
 
 
 
-        private class Node
+
+
+        /// <summary>
+        /// A node in a BoundsOctree
+        /// </summary>
+        private class BoundsOctreeNode
         {
+
+
             /// <summary>
-            /// Center of this node
+            /// Centre of this node
             /// </summary>
             public Point3 Center { get; private set; }
 
             /// <summary>
-            /// Length of the sides of this node
+            /// Length of this node if it has a looseness of 1.0
             /// </summary>
-            public float SideLength { get; private set; }
+            public float BaseLength { get; private set; }
+
+            /// <summary>
+            /// Looseness value for this node
+            /// </summary>
+            private float _looseness;
 
             /// <summary>
             /// Minimum size for a node in this octree
             /// </summary>
             private float _minSize;
+
+            /// <summary>
+            /// Actual length of sides, taking the looseness value into account
+            /// </summary>
+            private float _adjLength;
 
             /// <summary>
             /// Bounding box that represents this node
@@ -262,7 +305,7 @@ namespace SeemoPredictor.Octree
             /// <summary>
             /// Child nodes, if any
             /// </summary>
-            private Node[] _children = null;
+            private BoundsOctreeNode[] _children = null;
 
             /// <summary>
             /// Bounds of potential children to this node. These are actual size (with looseness taken into account), not base size
@@ -276,11 +319,6 @@ namespace SeemoPredictor.Octree
             /// A generally good number seems to be something around 8-15
             /// </remarks>
             private const int NumObjectsAllowed = 8;
-
-            /// <summary>
-            /// For reverting the bounds size after temporary changes
-            /// </summary>
-            private Point3 _actualBoundsSize;
 
             /// <summary>
             /// Gets a value indicating whether this node has children
@@ -301,9 +339,17 @@ namespace SeemoPredictor.Octree
                 public T Obj;
 
                 /// <summary>
-                /// Object position
+                /// Object bounds
                 /// </summary>
-                public Point3 Pos;
+                public BBox Bounds;
+            }
+
+            /// <summary>
+            /// Gets the bounding box that represents this node
+            /// </summary>
+            public BBox Bounds
+            {
+                get { return _bounds; }
             }
 
             /// <summary>
@@ -311,10 +357,11 @@ namespace SeemoPredictor.Octree
             /// </summary>
             /// <param name="baseLengthVal">Length of this node, not taking looseness into account.</param>
             /// <param name="minSizeVal">Minimum size of nodes in this octree.</param>
-            /// <param name="centerVal">Center position of this node.</param>
-            public Node(float baseLengthVal, float minSizeVal, Point3 centerVal)
+            /// <param name="loosenessVal">Multiplier for baseLengthVal to get the actual size.</param>
+            /// <param name="centerVal">Centre position of this node.</param>
+            public BoundsOctreeNode(float baseLengthVal, float minSizeVal, float loosenessVal, Point3 centerVal)
             {
-                SetValues(baseLengthVal, minSizeVal, centerVal);
+                SetValues(baseLengthVal, minSizeVal, loosenessVal, centerVal);
             }
 
             // #### PUBLIC METHODS ####
@@ -323,15 +370,15 @@ namespace SeemoPredictor.Octree
             /// Add an object.
             /// </summary>
             /// <param name="obj">Object to add.</param>
-            /// <param name="objPos">Position of the object.</param>
-            /// <returns></returns>
-            public bool Add(T obj, Point3 objPos)
+            /// <param name="objBounds">3D bounding box around the object.</param>
+            /// <returns>True if the object fits entirely within this node.</returns>
+            public bool Add(T obj, BBox objBounds)
             {
-                if (!Encapsulates(_bounds, objPos))
+                if (!Encapsulates(_bounds, objBounds))
                 {
                     return false;
                 }
-                SubAdd(obj, objPos);
+                SubAdd(obj, objBounds);
                 return true;
             }
 
@@ -378,33 +425,103 @@ namespace SeemoPredictor.Octree
             /// Removes the specified object at the given position. Makes the assumption that the object only exists once in the tree.
             /// </summary>
             /// <param name="obj">Object to remove.</param>
-            /// <param name="objPos">Position of the object.</param>
+            /// <param name="objBounds">3D bounding box around the object.</param>
             /// <returns>True if the object was removed successfully.</returns>
-            public bool Remove(T obj, Point3 objPos)
+            public bool Remove(T obj, BBox objBounds)
             {
-                if (!Encapsulates(_bounds, objPos))
+                if (!Encapsulates(_bounds, objBounds))
                 {
                     return false;
                 }
-                return SubRemove(obj, objPos);
+                return SubRemove(obj, objBounds);
             }
 
             /// <summary>
-            /// Return objects that are within <paramref name="maxDistance"/> of the specified ray.
+            /// Check if the specified bounds intersect with anything in the tree. See also: GetColliding.
             /// </summary>
-            /// <param name="ray">The ray.</param>
-            /// <param name="maxDistance">Maximum distance from the ray to consider.</param>
-            /// <param name="result">List result.</param>
-            /// <returns>Objects within range.</returns>
-            public void GetNearby(ref Ray ray, float maxDistance, List<T> result)
+            /// <param name="checkBounds">Bounds to check.</param>
+            /// <returns>True if there was a collision.</returns>
+            public bool IsColliding(ref BBox checkBounds)
             {
-                // Does the ray hit this node at all?
-                // Note: Expanding the bounds is not exactly the same as a real distance check, but it's fast.
-                // TODO: Does someone have a fast AND accurate formula to do this check?
-                _bounds.Expand(new Point3(maxDistance * 2, maxDistance * 2, maxDistance * 2));
-                bool intersected = _bounds.IntersectRay(ray);
-                _bounds.Size = _actualBoundsSize;
-                if (!intersected)
+                // Are the input bounds at least partially in this node?
+                if (!_bounds.Intersects(checkBounds))
+                {
+                    return false;
+                }
+
+                // Check against any objects in this node
+                for (int i = 0; i < _objects.Count; i++)
+                {
+                    if (_objects[i].Bounds.Intersects(checkBounds))
+                    {
+                        return true;
+                    }
+                }
+
+                // Check children
+                if (_children != null)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (_children[i].IsColliding(ref checkBounds))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            /// <summary>
+            /// Check if the specified ray intersects with anything in the tree. See also: GetColliding.
+            /// </summary>
+            /// <param name="checkRay">Ray to check.</param>
+            /// <param name="maxDistance">Distance to check.</param>
+            /// <returns>True if there was a collision.</returns>
+            public bool IsColliding(ref Ray checkRay, float maxDistance = float.PositiveInfinity)
+            {
+                // Is the input ray at least partially in this node?
+                float distance;
+                if (!_bounds.IntersectRay(checkRay, out distance) || distance > maxDistance)
+                {
+                    return false;
+                }
+
+                // Check against any objects in this node
+                for (int i = 0; i < _objects.Count; i++)
+                {
+                    if (_objects[i].Bounds.IntersectRay(checkRay, out distance) && distance <= maxDistance)
+                    {
+                        return true;
+                    }
+                }
+
+                // Check children
+                if (_children != null)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (_children[i].IsColliding(ref checkRay, maxDistance))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            /// <summary>
+            /// Returns an array of objects that intersect with the specified bounds, if any. Otherwise returns an empty array. See also: IsColliding.
+            /// </summary>
+            /// <param name="checkBounds">Bounds to check. Passing by ref as it improves performance with structs.</param>
+            /// <param name="result">List result.</param>
+            /// <returns>Objects that intersect with the specified bounds.</returns>
+            public void GetColliding(ref BBox checkBounds, List<T> result)
+            {
+                // Are the input bounds at least partially in this node?
+                if (!_bounds.Intersects(checkBounds))
                 {
                     return;
                 }
@@ -412,7 +529,7 @@ namespace SeemoPredictor.Octree
                 // Check against any objects in this node
                 for (int i = 0; i < _objects.Count; i++)
                 {
-                    if (SqrDistanceToRay(ray, _objects[i].Pos) <= (maxDistance * maxDistance))
+                    if (_objects[i].Bounds.Intersects(checkBounds))
                     {
                         result.Add(_objects[i].Obj);
                     }
@@ -423,27 +540,23 @@ namespace SeemoPredictor.Octree
                 {
                     for (int i = 0; i < 8; i++)
                     {
-                        _children[i].GetNearby(ref ray, maxDistance, result);
+                        _children[i].GetColliding(ref checkBounds, result);
                     }
                 }
             }
 
             /// <summary>
-            /// Return objects that are within <paramref name="maxDistance"/> of the specified position.
+            /// Returns an array of objects that intersect with the specified ray, if any. Otherwise returns an empty array. See also: IsColliding.
             /// </summary>
-            /// <param name="position">The position.</param>
-            /// <param name="maxDistance">Maximum distance from the position to consider.</param>
+            /// <param name="checkRay">Ray to check. Passing by ref as it improves performance with structs.</param>
+            /// <param name="maxDistance">Distance to check.</param>
             /// <param name="result">List result.</param>
-            /// <returns>Objects within range.</returns>
-            public void GetNearby(ref Point3 position, float maxDistance, List<T> result)
+            /// <returns>Objects that intersect with the specified ray.</returns>
+            public void GetColliding(ref Ray checkRay, List<T> result, float maxDistance = float.PositiveInfinity)
             {
-                // Does the node contain this position at all?
-                // Note: Expanding the bounds is not exactly the same as a real distance check, but it's fast.
-                // TODO: Does someone have a fast AND accurate formula to do this check?
-                _bounds.Expand(new Point3(maxDistance * 2, maxDistance * 2, maxDistance * 2));
-                bool contained = _bounds.Contains(position);
-                _bounds.Size = _actualBoundsSize;
-                if (!contained)
+                float distance;
+                // Is the input ray at least partially in this node?
+                if (!_bounds.IntersectRay(checkRay, out distance) || distance > maxDistance)
                 {
                     return;
                 }
@@ -451,7 +564,7 @@ namespace SeemoPredictor.Octree
                 // Check against any objects in this node
                 for (int i = 0; i < _objects.Count; i++)
                 {
-                    if (Point3.Distance(position, _objects[i].Pos) <= maxDistance)
+                    if (_objects[i].Bounds.IntersectRay(checkRay, out distance) && distance <= maxDistance)
                     {
                         result.Add(_objects[i].Obj);
                     }
@@ -462,26 +575,7 @@ namespace SeemoPredictor.Octree
                 {
                     for (int i = 0; i < 8; i++)
                     {
-                        _children[i].GetNearby(ref position, maxDistance, result);
-                    }
-                }
-            }
-
-            /// <summary>
-            /// Return all objects in the tree.
-            /// </summary>
-            /// <returns>All objects.</returns>
-            public void GetAll(List<T> result)
-            {
-                // add directly contained objects
-                result.AddRange(_objects.Select(o => o.Obj));
-
-                // add children objects
-                if (_children != null)
-                {
-                    for (int i = 0; i < 8; i++)
-                    {
-                        _children[i].GetAll(result);
+                        _children[i].GetColliding(ref checkRay, result, maxDistance);
                     }
                 }
             }
@@ -490,7 +584,7 @@ namespace SeemoPredictor.Octree
             /// Set the 8 children of this octree.
             /// </summary>
             /// <param name="childOctrees">The 8 new child nodes.</param>
-            public void SetChildren(Node[] childOctrees)
+            public void SetChildren(BoundsOctreeNode[] childOctrees)
             {
                 if (childOctrees.Length != 8)
                 {
@@ -510,9 +604,9 @@ namespace SeemoPredictor.Octree
             /// </summary>
             /// <param name="minLength">Minimum dimensions of a node in this octree.</param>
             /// <returns>The new root, or the existing one if we didn't shrink.</returns>
-            public Node ShrinkIfPossible(float minLength)
+            public BoundsOctreeNode ShrinkIfPossible(float minLength)
             {
-                if (SideLength < (2 * minLength))
+                if (BaseLength < (2 * minLength))
                 {
                     return this;
                 }
@@ -526,12 +620,21 @@ namespace SeemoPredictor.Octree
                 for (int i = 0; i < _objects.Count; i++)
                 {
                     OctreeObject curObj = _objects[i];
-                    int newBestFit = BestFitChild(curObj.Pos);
+                    int newBestFit = BestFitChild(curObj.Bounds.Center);
                     if (i == 0 || newBestFit == bestFit)
                     {
-                        if (bestFit < 0)
+                        // In same octant as the other(s). Does it fit completely inside that octant?
+                        if (Encapsulates(_childBounds[newBestFit], curObj.Bounds))
                         {
-                            bestFit = newBestFit;
+                            if (bestFit < 0)
+                            {
+                                bestFit = newBestFit;
+                            }
+                        }
+                        else
+                        {
+                            // Nope, so we can't reduce. Otherwise we continue
+                            return this;
                         }
                     }
                     else
@@ -567,7 +670,13 @@ namespace SeemoPredictor.Octree
                 {
                     // We don't have any children, so just shrink this node to the new size
                     // We already know that everything will still fit in it
-                    SetValues(SideLength / 2, _minSize, _childBounds[bestFit].Center);
+                    SetValues(BaseLength / 2, _minSize, _looseness, _childBounds[bestFit].Center);
+                    return this;
+                }
+
+                // No objects in entire octree
+                if (bestFit == -1)
+                {
                     return this;
                 }
 
@@ -578,11 +687,13 @@ namespace SeemoPredictor.Octree
             /// <summary>
             /// Find which child node this object would be most likely to fit in.
             /// </summary>
-            /// <param name="objPos">The object's position.</param>
+            /// <param name="objBoundsCenter">The object's bounds center.</param>
             /// <returns>One of the eight child octants.</returns>
-            public int BestFitChild(Point3 objPos)
+            public int BestFitChild(Point3 objBoundsCenter)
             {
-                return (objPos.X <= Center.X ? 0 : 1) + (objPos.Y >= Center.Y ? 0 : 4) + (objPos.Z <= Center.Z ? 0 : 2);
+                return (objBoundsCenter.X <= Center.X ? 0 : 1)
+                       + (objBoundsCenter.Y >= Center.Y ? 0 : 4)
+                       + (objBoundsCenter.Z <= Center.Z ? 0 : 2);
             }
 
             /// <summary>
@@ -604,17 +715,6 @@ namespace SeemoPredictor.Octree
                 return false;
             }
 
-            /// <summary>
-            /// Returns the squared distance to the given ray from a point.
-            /// </summary>
-            /// <param name="ray">The ray.</param>
-            /// <param name="point">The point to check distance from the ray.</param>
-            /// <returns>Squared distance from the point to the closest point of the ray.</returns>
-            public static float SqrDistanceToRay(Ray ray, Point3 point)
-            {
-                return Point3.Cross(ray.Direction, point - ray.Origin).SqrMagnitude;
-            }
-
             // #### PRIVATE METHODS ####
 
             /// <summary>
@@ -622,19 +722,22 @@ namespace SeemoPredictor.Octree
             /// </summary>
             /// <param name="baseLengthVal">Length of this node, not taking looseness into account.</param>
             /// <param name="minSizeVal">Minimum size of nodes in this octree.</param>
-            /// <param name="centerVal">Centre position of this node.</param>
-            private void SetValues(float baseLengthVal, float minSizeVal, Point3 centerVal)
+            /// <param name="loosenessVal">Multiplier for baseLengthVal to get the actual size.</param>
+            /// <param name="centerVal">Center position of this node.</param>
+            private void SetValues(float baseLengthVal, float minSizeVal, float loosenessVal, Point3 centerVal)
             {
-                SideLength = baseLengthVal;
+                BaseLength = baseLengthVal;
                 _minSize = minSizeVal;
+                _looseness = loosenessVal;
                 Center = centerVal;
+                _adjLength = _looseness * baseLengthVal;
 
                 // Create the bounding box.
-                _actualBoundsSize = new Point3(SideLength, SideLength, SideLength);
-                _bounds = new BBox(Center, _actualBoundsSize);
+                Point3 size = new Point3(_adjLength, _adjLength, _adjLength);
+                _bounds = new BBox(Center, size);
 
-                float quarter = SideLength / 4f;
-                float childActualLength = SideLength / 2;
+                float quarter = BaseLength / 4f;
+                float childActualLength = (BaseLength / 2) * _looseness;
                 Point3 childActualSize = new Point3(childActualLength, childActualLength, childActualLength);
                 _childBounds = new BBox[8];
                 _childBounds[0] = new BBox(Center + new Point3(-quarter, quarter, -quarter), childActualSize);
@@ -651,25 +754,25 @@ namespace SeemoPredictor.Octree
             /// Private counterpart to the public Add method.
             /// </summary>
             /// <param name="obj">Object to add.</param>
-            /// <param name="objPos">Position of the object.</param>
-            private void SubAdd(T obj, Point3 objPos)
+            /// <param name="objBounds">3D bounding box around the object.</param>
+            private void SubAdd(T obj, BBox objBounds)
             {
                 // We know it fits at this level if we've got this far
 
                 // We always put things in the deepest possible child
-                // So we can skip checks and simply move down if there are children aleady
+                // So we can skip some checks if there are children already
                 if (!HasChildren)
                 {
                     // Just add if few objects are here, or children would be below min size
-                    if (_objects.Count < NumObjectsAllowed || (SideLength / 2) < _minSize)
+                    if (_objects.Count < NumObjectsAllowed || (BaseLength / 2) < _minSize)
                     {
-                        OctreeObject newObj = new OctreeObject { Obj = obj, Pos = objPos };
+                        OctreeObject newObj = new OctreeObject { Obj = obj, Bounds = objBounds };
                         _objects.Add(newObj);
                         return; // We're done. No children yet
                     }
 
-                    // Enough objects in this node already: Create the 8 children
-                    int bestFitChild;
+                    // Fits at this level, but we can go deeper. Would it fit there?
+                    // Create the 8 children
                     if (_children == null)
                     {
                         Split();
@@ -679,31 +782,44 @@ namespace SeemoPredictor.Octree
                             return;
                         }
 
-                        // Now that we have the new children, move this node's existing objects into them
+                        // Now that we have the new children, see if this node's existing objects would fit there
                         for (int i = _objects.Count - 1; i >= 0; i--)
                         {
                             OctreeObject existingObj = _objects[i];
                             // Find which child the object is closest to based on where the
                             // object's center is located in relation to the octree's center
-                            bestFitChild = BestFitChild(existingObj.Pos);
-                            _children[bestFitChild].SubAdd(existingObj.Obj, existingObj.Pos); // Go a level deeper					
-                            _objects.Remove(existingObj); // Remove from here
+                            int bestFitChild = BestFitChild(existingObj.Bounds.Center);
+                            // Does it fit?
+                            if (Encapsulates(_children[bestFitChild]._bounds, existingObj.Bounds))
+                            {
+                                _children[bestFitChild].SubAdd(existingObj.Obj, existingObj.Bounds); // Go a level deeper					
+                                _objects.Remove(existingObj); // Remove from here
+                            }
                         }
                     }
                 }
 
                 // Handle the new object we're adding now
-                int bestFit = BestFitChild(objPos);
-                _children[bestFit].SubAdd(obj, objPos);
+                int bestFit = BestFitChild(objBounds.Center);
+                if (Encapsulates(_children[bestFit]._bounds, objBounds))
+                {
+                    _children[bestFit].SubAdd(obj, objBounds);
+                }
+                else
+                {
+                    // Didn't fit in a child. We'll have to it to this node instead
+                    OctreeObject newObj = new OctreeObject { Obj = obj, Bounds = objBounds };
+                    _objects.Add(newObj);
+                }
             }
 
             /// <summary>
-            /// Private counterpart to the public <see cref="Remove(T, Point3)"/> method.
+            /// Private counterpart to the public <see cref="Remove(T, BBox)"/> method.
             /// </summary>
             /// <param name="obj">Object to remove.</param>
-            /// <param name="objPos">Position of the object.</param>
+            /// <param name="objBounds">3D bounding box around the object.</param>
             /// <returns>True if the object was removed successfully.</returns>
-            private bool SubRemove(T obj, Point3 objPos)
+            private bool SubRemove(T obj, BBox objBounds)
             {
                 bool removed = false;
 
@@ -718,8 +834,8 @@ namespace SeemoPredictor.Octree
 
                 if (!removed && _children != null)
                 {
-                    int bestFitChild = BestFitChild(objPos);
-                    removed = _children[bestFitChild].SubRemove(obj, objPos);
+                    int bestFitChild = BestFitChild(objBounds.Center);
+                    removed = _children[bestFitChild].SubRemove(obj, objBounds);
                 }
 
                 if (removed && _children != null)
@@ -739,17 +855,49 @@ namespace SeemoPredictor.Octree
             /// </summary>
             private void Split()
             {
-                float quarter = SideLength / 4f;
-                float newLength = SideLength / 2;
-                _children = new Node[8];
-                _children[0] = new Node(newLength, _minSize, Center + new Point3(-quarter, quarter, -quarter));
-                _children[1] = new Node(newLength, _minSize, Center + new Point3(quarter, quarter, -quarter));
-                _children[2] = new Node(newLength, _minSize, Center + new Point3(-quarter, quarter, quarter));
-                _children[3] = new Node(newLength, _minSize, Center + new Point3(quarter, quarter, quarter));
-                _children[4] = new Node(newLength, _minSize, Center + new Point3(-quarter, -quarter, -quarter));
-                _children[5] = new Node(newLength, _minSize, Center + new Point3(quarter, -quarter, -quarter));
-                _children[6] = new Node(newLength, _minSize, Center + new Point3(-quarter, -quarter, quarter));
-                _children[7] = new Node(newLength, _minSize, Center + new Point3(quarter, -quarter, quarter));
+                float quarter = BaseLength / 4f;
+                float newLength = BaseLength / 2;
+                _children = new BoundsOctreeNode[8];
+                _children[0] = new BoundsOctreeNode(
+                    newLength,
+                    _minSize,
+                    _looseness,
+                    Center + new Point3(-quarter, quarter, -quarter));
+                _children[1] = new BoundsOctreeNode(
+                    newLength,
+                    _minSize,
+                    _looseness,
+                    Center + new Point3(quarter, quarter, -quarter));
+                _children[2] = new BoundsOctreeNode(
+                    newLength,
+                    _minSize,
+                    _looseness,
+                    Center + new Point3(-quarter, quarter, quarter));
+                _children[3] = new BoundsOctreeNode(
+                    newLength,
+                    _minSize,
+                    _looseness,
+                    Center + new Point3(quarter, quarter, quarter));
+                _children[4] = new BoundsOctreeNode(
+                    newLength,
+                    _minSize,
+                    _looseness,
+                    Center + new Point3(-quarter, -quarter, -quarter));
+                _children[5] = new BoundsOctreeNode(
+                    newLength,
+                    _minSize,
+                    _looseness,
+                    Center + new Point3(quarter, -quarter, -quarter));
+                _children[6] = new BoundsOctreeNode(
+                    newLength,
+                    _minSize,
+                    _looseness,
+                    Center + new Point3(-quarter, -quarter, quarter));
+                _children[7] = new BoundsOctreeNode(
+                    newLength,
+                    _minSize,
+                    _looseness,
+                    Center + new Point3(quarter, -quarter, quarter));
             }
 
             /// <summary>
@@ -762,7 +910,7 @@ namespace SeemoPredictor.Octree
                 // Note: We know children != null or we wouldn't be merging
                 for (int i = 0; i < 8; i++)
                 {
-                    Node curChild = _children[i];
+                    BoundsOctreeNode curChild = _children[i];
                     int numObjects = curChild._objects.Count;
                     for (int j = numObjects - 1; j >= 0; j--)
                     {
@@ -775,14 +923,14 @@ namespace SeemoPredictor.Octree
             }
 
             /// <summary>
-            /// Checks if outerBounds encapsulates the given point.
+            /// Checks if outerBounds encapsulates innerBounds.
             /// </summary>
             /// <param name="outerBounds">Outer bounds.</param>
-            /// <param name="point">Point.</param>
+            /// <param name="innerBounds">Inner bounds.</param>
             /// <returns>True if innerBounds is fully encapsulated by outerBounds.</returns>
-            private static bool Encapsulates(BBox outerBounds, Point3 point)
+            private static bool Encapsulates(BBox outerBounds, BBox innerBounds)
             {
-                return outerBounds.Contains(point);
+                return outerBounds.Contains(innerBounds.Min) && outerBounds.Contains(innerBounds.Max);
             }
 
             /// <summary>
@@ -794,7 +942,7 @@ namespace SeemoPredictor.Octree
                 int totalObjects = _objects.Count;
                 if (_children != null)
                 {
-                    foreach (Node child in _children)
+                    foreach (BoundsOctreeNode child in _children)
                     {
                         if (child._children != null)
                         {
@@ -808,5 +956,7 @@ namespace SeemoPredictor.Octree
                 return totalObjects <= NumObjectsAllowed;
             }
         }
+
+
     }
 }

@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Converters;
 using System;
 
-namespace SeemoPredictor.SeemoGeo
+namespace SeemoPredictor.Geometry
 {
     /// <summary>
     /// Representation of rays.
@@ -13,23 +13,23 @@ namespace SeemoPredictor.SeemoGeo
     /// This class was inspired by the Ray type of the Unity Engine and 
     /// designed with the exact same interface to provide maximum compatibility.
     /// </remarks>
-    public struct SmoRay
+    public struct Ray
     {
 
         /// <summary>
         /// Gets or sets the origin of the ray.
         /// </summary>
-        public SmoPoint3 Origin {  get; set; }
+        public Point3 Origin {  get; set; }
 
         /// <summary>
         /// The direction of the ray.
         /// </summary>
-        private SmoPoint3 _direction;
+        private Point3 _direction;
 
         /// <summary>
         /// Gets or sets the direction of the ray.
         /// </summary>
-        public SmoPoint3 Direction
+        public Point3 Direction
         {
             get { return _direction; }
             set { _direction = value.Normalized; }
@@ -41,7 +41,7 @@ namespace SeemoPredictor.SeemoGeo
         /// </summary>
         /// <param name="origin">The origin of the ray.</param>
         /// <param name="direction">The direction of the ray.</param>
-        public SmoRay(SmoPoint3 origin, SmoPoint3 direction)
+        public Ray(Point3 origin, Point3 direction)
         {
             Origin = origin;
             _direction = direction.Normalized;
@@ -52,7 +52,7 @@ namespace SeemoPredictor.SeemoGeo
         /// </summary>
         /// <param name="distance">The distance.</param>
         /// <returns>The point on the ray.</returns>
-        public SmoPoint3 GetPoint( float distance)
+        public Point3 GetPoint( float distance)
         {
             return Origin + Direction * distance;
         }
