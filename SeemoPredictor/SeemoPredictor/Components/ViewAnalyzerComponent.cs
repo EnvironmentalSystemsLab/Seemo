@@ -71,6 +71,7 @@ namespace SeemoPredictor
             //calculate min, max mode size
             double minNodeSize = double.MaxValue;
             double maxNodeSize = double.MinValue;
+            BBox worldbounds = new BBox();
 
             for (int i = 0; i < faces.Count; i++)
             {
@@ -79,10 +80,12 @@ namespace SeemoPredictor
                 var size = f.BoundingBox.Size.Length;
                 if (minNodeSize > size) minNodeSize = size;
                 if (maxNodeSize < size) maxNodeSize = size;
+
+                worldbounds.Encapsulate(f.BoundingBox);
             }
 
             // make octree
-            PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>((float)maxNodeSize, sensors[0].Pt, (float)minNodeSize);
+            PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>((float)worldbounds.Size.Length, worldbounds.Center, (float) (minNodeSize * maxNodeSize *0.5) );
             foreach (SmoFace f in faces)
             {
                 octree0.Add(f, f.Center);
@@ -118,7 +121,7 @@ namespace SeemoPredictor
                 }
             }
 
-            report.AppendLine("Setup raycasting worklist: " + sp.ElapsedMilliseconds/1000 +"[s]");
+            report.AppendLine("Setup raycasting worklist: " + sp.ElapsedMilliseconds +"[ms]");
             sp.Restart();
 
             // -------------------------
@@ -133,7 +136,7 @@ namespace SeemoPredictor
                 imageArray[i].ComputeImage(octree0, maxNodeSize);
             }); // Parallel.For
 
-            report.AppendLine("Computing view images: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            report.AppendLine("Computing view images: " + sp.ElapsedMilliseconds  + "[ms]");
             sp.Restart();
 
 
@@ -345,7 +348,7 @@ namespace SeemoPredictor
 
 
 
-            report.AppendLine("Computing predictions: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            report.AppendLine("Computing predictions: " + sp.ElapsedMilliseconds  + "[ms]");
             sp.Restart();
 
 
@@ -357,7 +360,7 @@ namespace SeemoPredictor
 
 
 
-            report.AppendLine("Saving result: " + sp.ElapsedMilliseconds / 1000 + "[s]");
+            report.AppendLine("Saving result: " + sp.ElapsedMilliseconds  + "[ms]");
             sp.Restart();
 
 
