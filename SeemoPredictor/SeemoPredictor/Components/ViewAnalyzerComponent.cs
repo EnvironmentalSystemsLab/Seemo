@@ -69,6 +69,7 @@ namespace SeemoPredictor
 
 
             //calculate min, max mode size
+            double avNodeSize = 0;
             double minNodeSize = double.MaxValue;
             double maxNodeSize = double.MinValue;
             BBox worldbounds = new BBox();
@@ -80,12 +81,13 @@ namespace SeemoPredictor
                 var size = f.BoundingBox.Size.Length;
                 if (minNodeSize > size) minNodeSize = size;
                 if (maxNodeSize < size) maxNodeSize = size;
-
+                avNodeSize += size;
                 worldbounds.Encapsulate(f.BoundingBox);
             }
-
+            avNodeSize /= faces.Count;
             // make octree
-            PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>((float)worldbounds.Size.Length, worldbounds.Center, (float) (minNodeSize * maxNodeSize *0.5) );
+            float worldSize = (float)worldbounds.Size.Length * 0.8f;
+            PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize));
             foreach (SmoFace f in faces)
             {
                 octree0.Add(f, f.Center);
