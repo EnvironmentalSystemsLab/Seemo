@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
-using SeemoPredictor.SeemoGeo;
+using SeemoPredictor.Geometry;
 
 namespace SeemoPredictor
 {
@@ -54,8 +54,8 @@ namespace SeemoPredictor
             
            Point3d ViewPoint = Point3d.Origin;
             List<Vector3d> ViewVectors = new List<Vector3d>();
-            List<SmoPoint3> SViewPoints = new List<SmoPoint3>();
-            List<SmoPoint3> SViewVectors = new List<SmoPoint3>();
+            List<Point3> SViewPoints = new List<Point3>();
+            List<Point3> SViewVectors = new List<Point3>();
             
            
             Point3d vvp = new Point3d(0, 0, 0);
@@ -81,13 +81,13 @@ namespace SeemoPredictor
 
 
  
-                SmoPoint3 sp = new SmoPoint3(ViewPoint.X, ViewPoint.Y, ViewPoint.Z);
+                Point3 sp = new Point3(ViewPoint.X, ViewPoint.Y, ViewPoint.Z);
              
 
             //Convert Vector3d to SmoPoint3
             foreach (Vector3d vt in ViewVectors)
             {
-                SmoPoint3 sv = new SmoPoint3(vt.X, vt.Y, vt.Z);
+                Point3 sv = new Point3(vt.X, vt.Y, vt.Z);
                 SViewVectors.Add(sv);
             }
 

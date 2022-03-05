@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
-using SeemoPredictor.SeemoGeo;
+using SeemoPredictor.Geometry;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
@@ -82,7 +82,7 @@ namespace SeemoPredictor
             }
 
             // make octree
-            SmoPointOctree<SmoFace> octree0 = new SmoPointOctree<SmoFace>((float)maxNodeSize, sensors[0].Pt, (float)minNodeSize);
+            PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>((float)maxNodeSize, sensors[0].Pt, (float)minNodeSize);
             foreach (SmoFace f in faces)
             {
                 octree0.Add(f, f.Center);

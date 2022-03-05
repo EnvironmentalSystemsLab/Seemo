@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
 using Rhino.Geometry;
-using SeemoPredictor.SeemoGeo;
+using SeemoPredictor.Geometry;
 
 namespace SeemoPredictor
 {

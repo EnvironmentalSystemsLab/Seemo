@@ -1,5 +1,5 @@
 ﻿using Rhino.Geometry;
-using SeemoPredictor.SeemoGeo;
+using SeemoPredictor.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,20 +17,20 @@ namespace SeemoPredictor
             for (int i = 0; i < m.Faces.Count; i++)
             {
 
-                SmoPoint3[] pts;
+                Point3[] pts;
 
                 var a = m.Vertices[m.Faces[i].A];
                 var b = m.Vertices[m.Faces[i].B];
                 var c = m.Vertices[m.Faces[i].C];
-                SmoPoint3 p0 = new SmoPoint3(a.X, a.Y, a.Z);
-                SmoPoint3 p1 = new SmoPoint3(b.X, b.Y, b.Z);
-                SmoPoint3 p2 = new SmoPoint3(c.X, c.Y, c.Z);
+                Point3 p0 = new Point3(a.X, a.Y, a.Z);
+                Point3 p1 = new Point3(b.X, b.Y, b.Z);
+                Point3 p2 = new Point3(c.X, c.Y, c.Z);
 
                 if (m.Faces[i].IsQuad)
                 {
-                    pts = new SmoPoint3[4];
+                    pts = new Point3[4];
                     var d = m.Vertices[m.Faces[i].D];
-                    SmoPoint3 p3 = new SmoPoint3(d.X, d.Y, d.Z);
+                    Point3 p3 = new Point3(d.X, d.Y, d.Z);
                     pts[0] = p0;
                     pts[1] = p1;
                     pts[2] = p2;
@@ -38,7 +38,7 @@ namespace SeemoPredictor
                 }
                 else
                 {
-                    pts = new SmoPoint3[3];
+                    pts = new Point3[3];
                     pts[0] = p0;
                     pts[1] = p1;
                     pts[2] = p2;

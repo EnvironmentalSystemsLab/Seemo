@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Rhino.Geometry;
-using SeemoPredictor.SeemoGeo;
+using SeemoPredictor.Geometry;
 
 namespace SeemoPredictor
 {
     public class SmoSensor
     {
 
-        public  SmoPoint3 Pt { get; set; }
-        public SmoPoint3[] ViewDirections { get; set; }
+        public  Point3 Pt { get; set; }
+        public Point3[] ViewDirections { get; set; }
 
         public int Resolution { get; set; } = 1024;
         public double HorizontalViewAngle { get; set; } = (35.754 * 2);
@@ -24,7 +24,7 @@ namespace SeemoPredictor
         {
         }
 
-        public SmoSensor(SmoPoint3  _pt, List<SmoPoint3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
+        public SmoSensor(Point3  _pt, List<Point3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
         {
             Pt = _pt;
             ViewDirections = _vecs.ToArray();
@@ -35,7 +35,7 @@ namespace SeemoPredictor
 
 
 
-        public SmoImage GenerateImagePlane(SmoPoint3 viewDirection)
+        public SmoImage GenerateImagePlane(Point3 viewDirection)
         {
             //compute features for single view point and single view direction
   

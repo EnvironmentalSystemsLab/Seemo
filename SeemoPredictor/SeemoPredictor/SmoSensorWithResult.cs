@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SeemoPredictor.SeemoGeo;
+using SeemoPredictor.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,16 +13,16 @@ namespace SeemoPredictor
     {
         public int NodeID { get; set; }
 
-        public SmoPoint3 Pt { get; set; }
+        public Point3 Pt { get; set; }
 
-        public SmoPoint3[] Dirs { get; set; }
+        public Point3[] Dirs { get; set; }
 
         public List<DirectionResult> DirectionsResults { get; set; } = new List<DirectionResult>();
     }
 
     public class DirectionResult
     {
-        public SmoPoint3 Dir { get; set; }
+        public Point3 Dir { get; set; }
 
         [JsonIgnore]
         public SmoImage Image { get; set; }
@@ -160,7 +160,7 @@ namespace SeemoPredictor
                 {
                     SmoFace.SmoFaceType type = Image.LabelMap[x][y];
                     double dist = Image.DepthMap[x][y];
-                    SmoPoint3 ray = Image.ImageRays[x][y];
+                    Point3 ray = Image.ImageRays[x][y];
 
                     switch (type)
                     {
