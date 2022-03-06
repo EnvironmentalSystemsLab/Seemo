@@ -301,16 +301,17 @@ namespace SeemoPredictor
 
                     };
 
-                    // Make a single prediction on the sample data and print results
-                    var overallRating = ConsumeOverallRating.Predict(sampleDataOverallRating);
-                    var viewContent = ConsumeViewContent.Predict(sampleDataViewContent);
-                    var viewAccess = ConsumeViewAccess.Predict(sampleDataViewAccess);
-                    var privacy = ConsumePrivacy.Predict(sampleDataPrivacy);
+                    
 
                     //max:43259, min: 17892
                     //(directionResult.WindowAreaSum * 5288.02083158) > 17892) && ((directionResult.WindowAreaSum * 5288.02083158) < 43259)
                     if (directionResult.WindowAreaSum > 0)
                     {
+                        // Make a single prediction on the sample data and print results
+                        var overallRating = ConsumeOverallRating.Predict(sampleDataOverallRating);
+                        var viewContent = ConsumeViewContent.Predict(sampleDataViewContent);
+                        var viewAccess = ConsumeViewAccess.Predict(sampleDataViewAccess);
+                        var privacy = ConsumePrivacy.Predict(sampleDataPrivacy);
 
                         overallRatings.Add(overallRating.OverallRatingB);
                         viewContents.Add(viewContent.ViewContentB);
