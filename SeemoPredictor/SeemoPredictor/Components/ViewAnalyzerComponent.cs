@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.Text;
+using System.IO;
 
 namespace SeemoPredictor
 {
@@ -44,10 +45,10 @@ namespace SeemoPredictor
             pManager.AddTextParameter("Report", "Out", "Console log of simulation", GH_ParamAccess.item);
             pManager.AddGenericParameter("Result", "Res", "Result", GH_ParamAccess.item);
             pManager.AddTextParameter("Result File Path", "File", "Result File Path", GH_ParamAccess.item);
-            //pManager.AddNumberParameter("OverallRatings", "OverallRatings", "OverallRatings", GH_ParamAccess.list);
-            //pManager.AddNumberParameter("ViewContents", "ViewContents", "ViewContents", GH_ParamAccess.list);
-            //pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
-            //pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
+            pManager.AddNumberParameter("OverallRatings", "OverallRatings", "OverallRatings", GH_ParamAccess.list);
+            pManager.AddNumberParameter("ViewContents", "ViewContents", "ViewContents", GH_ParamAccess.list);
+            pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
+            pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
 
         }
 
@@ -359,7 +360,14 @@ namespace SeemoPredictor
             //save all results to json file
             // -------------------------
             string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            seemoResult.ToFile(path + @"\Result.json");
+
+            string dir =(path + @"\Seemo");
+
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            seemoResult.ToFile(dir + @"\Result"+ DateTime.Now.ToFileTime()+".json");
 
 
 
@@ -375,13 +383,13 @@ namespace SeemoPredictor
 
             DA.SetData(0, report.ToString());
             DA.SetData(1, seemoResult);
-            DA.SetData(2, path + @"\Result.json");
+            DA.SetData(2, dir + @"\Result" + DateTime.Now.ToFileTime() + ".json");
 
 
-            //DA.SetDataList(1, overallRatings);
-            //DA.SetDataList(2, viewContents);
-            //DA.SetDataList(3, viewAccesses);
-            //DA.SetDataList(4, privacys);
+            DA.SetDataList(3, overallRatings);
+            DA.SetDataList(4, viewContents);
+            DA.SetDataList(5, viewAccesses);
+            DA.SetDataList(6, privacys);
 
  
         }

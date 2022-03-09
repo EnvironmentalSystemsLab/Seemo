@@ -6,6 +6,7 @@ using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 using Rhino.Geometry;
+using System.Linq;
 
 namespace SeemoPredictor
 {
@@ -39,6 +40,10 @@ namespace SeemoPredictor
             pManager.AddMeshParameter("View Content Graph", "View Content Graph", "View Content Graph", GH_ParamAccess.list);
             pManager.AddMeshParameter("View Access Graph", "View Access Graph", "View Access Graph", GH_ParamAccess.list);
             pManager.AddMeshParameter("Privacy Graph", "Privacy Graph", "Privacy Graph", GH_ParamAccess.list);
+            pManager.AddNumberParameter("OverallRating", "OverallRating", "OverallRating", GH_ParamAccess.item);
+            pManager.AddNumberParameter("View Content", "View Content", "View Content", GH_ParamAccess.item);
+            pManager.AddNumberParameter("View Access", "View Access", "View Access", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Privacy", "Privacy", "Privacy", GH_ParamAccess.item);
 
         }
 
@@ -66,11 +71,15 @@ namespace SeemoPredictor
             List<Mesh> viewContentGraphs = new List<Mesh>();
             List<Mesh> viewAccessGraphs = new List<Mesh>();
             List<Mesh> privacyGraphs = new List<Mesh>();
+            List<double> overalls = new List<double>();
+            List<double> contents = new List<double>();
+            List<double> accesses = new List<double>();
+            List<double> privacys = new List<double>();
 
 
             //Wind Rose Mesh Generation
 
-            for(int i = 0; i < result.Results.Count; i++)
+            for (int i = 0; i < result.Results.Count; i++)
             {
                 // i is node index
                 Point3d viewPoint = new Point3d(result.Results[i].Pt.X, result.Results[i].Pt.Y, result.Results[i].Pt.Z);
@@ -94,12 +103,14 @@ namespace SeemoPredictor
                     //1.overall Rating
                     Color overallRatingColor;
                     double overallRatingV = resultData3.PredictedOverallRating;
+                    
                     if (resultData3.WindowAreaSum <= 0.05)
                     { overallRatingColor = Color.DarkGray; }
                     else if((overallRatingV >= -5) && (overallRatingV <= 5))
                     {
+                        overalls.Add(overallRatingV);
                         double overallRatingP = ColorGenerator.Remap(overallRatingV, -5, 5, 0, 1);
-                        overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.Gray, Color.Yellow, Color.Navy);
+                        overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.Red, Color.BlueViolet, Color.Blue);
                     }
                     else
                     { overallRatingColor = Color.DarkGray; }
@@ -128,6 +139,7 @@ namespace SeemoPredictor
                     { viewContentColor = Color.DarkGray; }
                     else if ((viewContentV >= -5) && (viewContentV <= 5))
                     {
+                        contents.Add(viewContentV);
                         double viewContentP = ColorGenerator.Remap(viewContentV, -5, 5, 0, 1);
                         viewContentColor = ColorGenerator.GetTriColour(viewContentP, Color.Red, Color.Orange, Color.Green);
                     }
@@ -158,8 +170,9 @@ namespace SeemoPredictor
                     { viewAccessColor = Color.DarkGray; }
                     else if ((viewAccessV >= -5) && (viewAccessV <= 5))
                     {
+                        accesses.Add(viewAccessV);
                         double viewAccessP = ColorGenerator.Remap(viewAccessV, -5, 5, 0, 1);
-                        viewAccessColor = ColorGenerator.GetTriColour(viewAccessP, Color.Gray, Color.Beige, Color.Brown);
+                        viewAccessColor = ColorGenerator.GetTriColour(viewAccessP, Color.DarkKhaki, Color.Khaki, Color.Green);
                     }
                     else
                     { viewAccessColor = Color.DarkGray; }
@@ -187,6 +200,7 @@ namespace SeemoPredictor
                     { privacyColor = Color.DarkGray; }
                     else if ((privacyV >= -5) && (privacyV <= 5))
                     {
+                        privacys.Add(privacyV);
                         double privacyP = ColorGenerator.Remap(privacyV, -5, 5, 0, 1);
                         privacyColor = ColorGenerator.GetTriColour(privacyP, Color.Navy, Color.Purple, Color.Magenta);
                     }
@@ -222,6 +236,14 @@ namespace SeemoPredictor
             DA.SetDataList(2, viewAccessGraphs);
             DA.SetDataList(3, privacyGraphs);
 
+            double o = overalls.Average();
+            double c = contents.Average();
+            double a = accesses.Average();
+            double p = privacys.Average();
+            DA.SetData(4, o);
+            DA.SetData(5, c);
+            DA.SetData(6, a);
+            DA.SetData(7, p);
 
         }
 
