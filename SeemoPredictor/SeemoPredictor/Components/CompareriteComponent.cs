@@ -2,22 +2,20 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using Grasshopper;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Data;
 using Rhino.Geometry;
 using System.Linq;
 
-namespace SeemoPredictor
+namespace SeemoPredictor.Components
 {
-    public class VisualizationComponent : GH_Component
+    public class CompareriteComponent : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the VisualizationComponent class.
+        /// Initializes a new instance of the Comparison class.
         /// </summary>
-        public VisualizationComponent()
-          : base("Visualizer", "Visualizer",
-              "Wind Rose Visualization of the prediction result",
+        public CompareriteComponent()
+          : base("Comparerite", "Comparerite",
+              "Compare two result files",
               "SeEmo", "4|Visualize")
         {
         }
@@ -28,7 +26,8 @@ namespace SeemoPredictor
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             //  pManager.AddGenericParameter("ViewResult", "ViewResult", "ViewResult", GH_ParamAccess.tree);
-            pManager.AddTextParameter("Path", "Path", "Result file path", GH_ParamAccess.item);
+            pManager.AddTextParameter("Optimized", "Optimized", "Optimized result file path", GH_ParamAccess.item);
+            pManager.AddTextParameter("Original", "Original", "Original result file path", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -53,17 +52,35 @@ namespace SeemoPredictor
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string path = "";
-            if (!DA.GetData(0, ref path)) { return; }
+            string path1 = "";
+            if (!DA.GetData(0, ref path1)) { return; }
 
-            if ( ! File.Exists(path)) {
+            if (!File.Exists(path1))
+            {
 
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Result file does not exsist");
                 return;
             }
 
 
-            SeemoResult result = SeemoResult.FromFile(path);
+            SeemoResult resultOpt = SeemoResult.FromFile(path1);
+
+
+            string path2 = "";
+            if (!DA.GetData(1, ref path2)) { return; }
+
+            if (!File.Exists(path2))
+            {
+
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Result file does not exsist");
+                return;
+            }
+
+
+            SeemoResult resultOri = SeemoResult.FromFile(path2);
+
+
+
 
 
             //GH_Structure<Grasshopper.Kernel.Types.IGH_Goo> List1;
@@ -79,19 +96,20 @@ namespace SeemoPredictor
 
             //Wind Rose Mesh Generation
 
-            for (int i = 0; i < result.Results.Count; i++)
+            for (int i = 0; i < resultOpt.Results.Count; i++)
             {
                 // i is node index
-                Point3d viewPoint = new Point3d(result.Results[i].Pt.X, result.Results[i].Pt.Y, result.Results[i].Pt.Z);
+                Point3d viewPoint = new Point3d(resultOpt.Results[i].Pt.X, resultOpt.Results[i].Pt.Y, resultOpt.Results[i].Pt.Z);
 
 
-                for (int j = 0; j<result.Results[i].DirectionsResults.Count; j++)
+                for (int j = 0; j < resultOpt.Results[i].DirectionsResults.Count; j++)
                 {
                     //j is vector index
-                    DirectionResult resultData3 = result.Results[i].DirectionsResults[j];
-                    Point3d viewVector = new Point3d(resultData3.ViewVectorX, resultData3.ViewVectorY, resultData3.ViewVectorZ);
-                    
-                    
+                    DirectionResult resultData3Opt = resultOpt.Results[i].DirectionsResults[j];
+                    DirectionResult resultData3Ori = resultOri.Results[i].DirectionsResults[j];
+                    Point3d viewVector = new Point3d(resultData3Opt.ViewVectorX, resultData3Opt.ViewVectorY, resultData3Opt.ViewVectorZ);
+
+
                     Transform rocw25 = Transform.Rotation(-0.125 * (Math.PI), viewPoint);
                     Transform roccw25 = Transform.Rotation(0.125 * (Math.PI), viewPoint);
                     Point3d p1 = new Point3d(viewPoint + 0.3 * viewVector);
@@ -102,14 +120,14 @@ namespace SeemoPredictor
                     //int prediction = (int)Math.Ceiling((r1.PredictedOverallRating + 5) / 10);
                     //1.overall Rating
                     Color overallRatingColor;
-                    double overallRatingV = resultData3.PredictedOverallRating;
-                    
-                    if (resultData3.WindowAreaSum <= 0.05)
+                    double overallRatingV = (resultData3Opt.PredictedOverallRating - resultData3Ori.PredictedOverallRating);
+
+                    if (resultData3Opt.WindowAreaSum <= 0.05)
                     { overallRatingColor = Color.DarkGray; }
-                    else if((overallRatingV >= -5) && (overallRatingV <= 5))
+                    else if ((overallRatingV >= -10) && (overallRatingV <= 10))
                     {
                         overalls.Add(overallRatingV);
-                        double overallRatingP = ColorGenerator.Remap(overallRatingV, -5, 5, 0, 1);
+                        double overallRatingP = ColorGenerator.Remap(overallRatingV, -10, 10, 0, 1);
                         overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.Red, Color.BlueViolet, Color.Blue);
                     }
                     else
@@ -134,13 +152,13 @@ namespace SeemoPredictor
 
                     //2.viewContent
                     Color viewContentColor;
-                    double viewContentV = resultData3.PredictedViewContent;
-                    if (resultData3.WindowAreaSum <= 0.05)
+                    double viewContentV = (resultData3Opt.PredictedViewContent - resultData3Ori.PredictedViewContent);
+                    if (resultData3Opt.WindowAreaSum <= 0.05)
                     { viewContentColor = Color.DarkGray; }
-                    else if ((viewContentV >= -5) && (viewContentV <= 5))
+                    else if ((viewContentV >= -10) && (viewContentV <= 10))
                     {
                         contents.Add(viewContentV);
-                        double viewContentP = ColorGenerator.Remap(viewContentV, -5, 5, 0, 1);
+                        double viewContentP = ColorGenerator.Remap(viewContentV, -10, 10, 0, 1);
                         viewContentColor = ColorGenerator.GetTriColour(viewContentP, Color.Red, Color.Orange, Color.Green);
                     }
                     else
@@ -165,13 +183,13 @@ namespace SeemoPredictor
 
                     //3.viewAccess
                     Color viewAccessColor;
-                    double viewAccessV = resultData3.PredictedViewAccess;
-                    if (resultData3.WindowAreaSum <= 0.05)
+                    double viewAccessV = (resultData3Opt.PredictedViewAccess - resultData3Ori.PredictedViewAccess);
+                    if (resultData3Opt.WindowAreaSum <= 0.05)
                     { viewAccessColor = Color.DarkGray; }
-                    else if ((viewAccessV >= -5) && (viewAccessV <= 5))
+                    else if ((viewAccessV >= -10) && (viewAccessV <= 10))
                     {
                         accesses.Add(viewAccessV);
-                        double viewAccessP = ColorGenerator.Remap(viewAccessV, -5, 5, 0, 1);
+                        double viewAccessP = ColorGenerator.Remap(viewAccessV, -10, 10, 0, 1);
                         viewAccessColor = ColorGenerator.GetTriColour(viewAccessP, Color.DarkKhaki, Color.Khaki, Color.Green);
                     }
                     else
@@ -195,13 +213,13 @@ namespace SeemoPredictor
 
                     //4.Privacy
                     Color privacyColor;
-                    double privacyV = resultData3.PredictedPrivacy;
-                    if (resultData3.WindowAreaSum <= 0.05)
+                    double privacyV = (resultData3Opt.PredictedPrivacy - resultData3Ori.PredictedPrivacy);
+                    if (resultData3Opt.WindowAreaSum <= 0.05)
                     { privacyColor = Color.DarkGray; }
-                    else if ((privacyV >= -5) && (privacyV <= 5))
+                    else if ((privacyV >= -10) && (privacyV <= 10))
                     {
                         privacys.Add(privacyV);
-                        double privacyP = ColorGenerator.Remap(privacyV, -5, 5, 0, 1);
+                        double privacyP = ColorGenerator.Remap(privacyV, -10, 10, 0, 1);
                         privacyColor = ColorGenerator.GetTriColour(privacyP, Color.Navy, Color.Purple, Color.Magenta);
                     }
                     else
@@ -230,7 +248,7 @@ namespace SeemoPredictor
 
             }
 
-            
+
             DA.SetDataList(0, overallRatingGraphs);
             DA.SetDataList(1, viewContentGraphs);
             DA.SetDataList(2, viewAccessGraphs);
@@ -265,7 +283,7 @@ namespace SeemoPredictor
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("417BE727-FAE1-48A0-9A2A-F44D734A39F5"); }
+            get { return new Guid("F587FDE1-ACB2-4201-8A08-1F39240C5DED"); }
         }
     }
 }
