@@ -67,6 +67,7 @@ namespace SeemoPredictor
         public double GrassPtsCountRatio { get; set; } = 0;
         public double WaterPtsCountRatio { get; set; } = 0;
         public double DynamicPtsRatio { get; set; } = 0;
+        public double WindowPtsRatio { get; set; } = 0;
         public double SkyPtsCountRatio { get; set; } = 0;
         public double ElementNumber { get; set; } = 0;
         public double FloorHeights { get; set; } = 0;
@@ -76,6 +77,7 @@ namespace SeemoPredictor
         public double GrassClosestDist { get; set; } = 0;
         public double WaterClosestDist { get; set; } = 0;
         public double DynamicClosestDist { get; set; } = 0;
+        public double WindowClosestDist { get; set; } = 0;
         public double SkyCondition { get; set; } = 0;
 
 
@@ -94,11 +96,11 @@ namespace SeemoPredictor
         public DirectionResult(double _WindowNumber, double _WindowAreaSum,
             double _Z1PtsCountRatio, double _Z2PtCountRatio,
             double _Z3PtsCountRatio, double _Z4PtsCountRatio,
-            double _BuildingPtsCountRatio, double _EquipmentPtsCountRatio, double _TreePtsCountRatio, double _PavementPtsCountRatio, double _GrassPtsCountRatio, double _WaterPtsCountRatio, double _DynamicPtsRatio,
+            double _BuildingPtsCountRatio, double _EquipmentPtsCountRatio, double _TreePtsCountRatio, double _PavementPtsCountRatio, double _GrassPtsCountRatio, double _WaterPtsCountRatio, double _DynamicPtsRatio, double _WindowPtsRatio,
             double _SkyPtsCountRatio,
             double _ElementNumber, double _FloorHeights, double _BuildingClosestDist, double _EquipmentClosestDist, double _TreeClosestDist,
             double _GrassClosestDist, double _WaterClosestDist,
-            double _DynamicClosestDist
+            double _DynamicClosestDist, double _WindowClosestDist
             )
         {
             WindowNumber = _WindowNumber;
@@ -116,6 +118,7 @@ namespace SeemoPredictor
             GrassPtsCountRatio = _GrassPtsCountRatio;
             WaterPtsCountRatio = _WaterPtsCountRatio;
             DynamicPtsRatio = _DynamicPtsRatio;
+            WindowPtsRatio = _WindowPtsRatio;
             SkyPtsCountRatio = _SkyPtsCountRatio;
             ElementNumber = _ElementNumber;
             FloorHeights = _FloorHeights;
@@ -125,6 +128,7 @@ namespace SeemoPredictor
             GrassClosestDist = _GrassClosestDist;
             WaterClosestDist = _WaterClosestDist;
             DynamicClosestDist = _DynamicClosestDist;
+            WindowClosestDist = _WindowClosestDist;
 
         }
 
@@ -149,6 +153,7 @@ namespace SeemoPredictor
             List<double> grassDists = new List<double>();
             List<double> waterDists = new List<double>();
             List<double> dynamicDists = new List<double>();
+            List<double> windowDists = new List<double>();
             List<double> skyDists = new List<double>();
 
 
@@ -192,6 +197,9 @@ namespace SeemoPredictor
                             break;
                         case SmoFace.SmoFaceType.Dynamic:
                             dynamicDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Window:
+                            windowDists.Add(dist);
                             break;
                     }
 
@@ -245,7 +253,8 @@ namespace SeemoPredictor
             this.GrassPtsCountRatio = ((double)(grassDists.Count)) / zhitSum;
             this.WaterPtsCountRatio = ((double)(waterDists.Count)) / zhitSum;
             this.DynamicPtsRatio = ((double)(dynamicDists.Count)) / zhitSum;
-            this.SkyPtsCountRatio = (1 - this.BuildingPtsCountRatio - this.EquipmentPtsCountRatio - this.TreePtsCountRatio - this.PavementPtsCountRatio - this.GrassPtsCountRatio - this.WaterPtsCountRatio - this.DynamicPtsRatio);
+            this.WindowPtsRatio = ((double)(windowDists.Count)) / zhitSum;
+            this.SkyPtsCountRatio = (1 - this.BuildingPtsCountRatio - this.EquipmentPtsCountRatio - this.TreePtsCountRatio - this.PavementPtsCountRatio - this.GrassPtsCountRatio - this.WaterPtsCountRatio - this.DynamicPtsRatio - this.WindowPtsRatio);
 
             //calculate object's closest distance and type
             double ComputeClosestDist(List<double> dists)
@@ -273,10 +282,10 @@ namespace SeemoPredictor
             this.GrassClosestDist = ComputeClosestDist(grassDists);
             this.WaterClosestDist = ComputeClosestDist(waterDists);
             this.DynamicClosestDist = ComputeClosestDist(dynamicDists);
-
+            this.WindowClosestDist = ComputeClosestDist(windowDists);
 
             //calculate visible element types count
-            List<int> elementPts = new List<int> { buildingDists.Count, equipmentDists.Count, treeDists.Count, pavementDists.Count, grassDists.Count, waterDists.Count, dynamicDists.Count, skyDists.Count };
+            List<int> elementPts = new List<int> { buildingDists.Count, equipmentDists.Count, treeDists.Count, pavementDists.Count, grassDists.Count, waterDists.Count, dynamicDists.Count, windowDists.Count, skyDists.Count };
 
             int elementNumber = 0;
             for (int i = 0; i < elementPts.Count; i++)

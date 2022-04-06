@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="27.2.1" />
     <PackageReference Include="Grasshopper" Version="7.9.21222.15001" IncludeAssets="compile;build" />
+    <PackageReference Include="GroupDocs.Conversion" Version="22.2.0" />
     <PackageReference Include="Microsoft.ML" Version="1.7.0" />
     <PackageReference Include="Microsoft.ML.CpuMath" Version="1.7.0" />
     <PackageReference Include="Microsoft.ML.DataView" Version="1.7.0" />

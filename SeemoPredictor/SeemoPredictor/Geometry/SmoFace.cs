@@ -111,6 +111,7 @@ namespace SeemoPredictor.Geometry
             Grass,
             Water,
             Dynamic,
+            Window,
             _UNSET_
         }
 
