@@ -17,6 +17,7 @@ namespace SeemoPredictor
 
         public Point3 Pt { get; set; }
         public Point3 Dir { get; set; }
+        public double Height { get; set; }
         public Point3 TopCorner { get; set; }
         public Point3 xAxis { get; set; }
         public Point3 yAxis { get; set; }
@@ -152,7 +153,7 @@ namespace SeemoPredictor
 
 
 
-        public void ComputeImage(  PointOctree<SmoFace> octree, double max)
+        public void ComputeImage( PointOctree<SmoFace> octree, double max)
         {
 
             for (int x = 0; x < this.xres; x++)

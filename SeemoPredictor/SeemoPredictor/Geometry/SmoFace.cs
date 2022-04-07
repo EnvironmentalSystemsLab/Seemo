@@ -105,13 +105,16 @@ namespace SeemoPredictor.Geometry
         {
             Interior,
             Building,
+            Landmark,// added
             Equipment,
             Tree,
             Pavement,
             Grass,
             Water,
-            Dynamic,
+            People,//to people
+            Car,//added
             Window,
+            Infrastructure,//added
             _UNSET_
         }
 
