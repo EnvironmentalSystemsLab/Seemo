@@ -118,33 +118,14 @@ namespace SeemoPredictor
             // -------------------------
 
             List<SmoImage> images = new List<SmoImage>();
-            List<SmoImage> splitImages = new List<SmoImage>();
-            //
-
-            bool singleDirection = false; //every sensors have the same viewdirections.
-            if (sensors[0].ViewDirections.Length == 1)
-            {
-                singleDirection = true;
-            }
-
-            List<SmoImage> sphericalImages = new List<SmoImage>();
 
             for (int i = 0; i < sensors.Count; i++)
             {
-                if(singleDirection)
-                {
-                    for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
+                for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
                     {
                         var image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
                         images.Add(image);
                     }
-                }
-                else
-                {
-                //calculate spherical image
-                var sphereImage = new SmoImage(sensors[i].Pt, new Point3(0,1,0), sensors[i].Resolution, 200, 100);
-                sphericalImages.Add(sphereImage);
-                }
                 
             }
 
@@ -156,43 +137,13 @@ namespace SeemoPredictor
             // -------------------------
 
             SmoImage[] imageArray;
-            if (singleDirection)  
+            imageArray = images.ToArray();
+
+            //    for (int i = 0; i < imageArray.Length; i++)
+            Parallel.For(0, imageArray.Length, i =>
             {
-                imageArray = images.ToArray();
-
-                //    for (int i = 0; i < imageArray.Length; i++)
-                Parallel.For(0, imageArray.Length, i =>
-                {
-                    imageArray[i].ComputeImage(octree0, maxNodeSize);
-                }); // Parallel.For
-            }
-            else
-            {
-                SmoImage[] sphericalImageArray = sphericalImages.ToArray();
-
-                //    for (int i = 0; i < imageArray.Length; i++)
-                Parallel.For(0, sphericalImageArray.Length, i =>
-                {
-                    sphericalImageArray[i].ComputeImage(octree0, maxNodeSize);
-                }); // Parallel.For
-
-                //spliting images
-                for (int i = 0; i < sensors.Count; i++)
-                {
-                    for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
-                    {
-                        Point3 p = sensors[i].ViewDirections[j];
-                        //divide image for each direction
-                        var splitImage = SmoImage.FrameImages(sphericalImageArray[i], sensors[i].ViewDirections[j], sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
-                        //!!!!!!!!!check when sphere image view angle is not 360 180.....
-                        splitImages.Add(splitImage);
-                    }
-                }
-
-                imageArray = splitImages.ToArray();
-
-            }
-
+                imageArray[i].ComputeImage(octree0, maxNodeSize);
+            }); // Parallel.For
             
             report.AppendLine("Computing view images: " + sp.ElapsedMilliseconds  + "[ms]");
             sp.Restart();
