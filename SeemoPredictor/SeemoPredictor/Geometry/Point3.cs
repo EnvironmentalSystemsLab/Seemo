@@ -363,5 +363,30 @@ namespace SeemoPredictor.Geometry
             var vrot = v * ct + Point3.Cross(khat, v) * st + khat * Point3.Dot(khat, v) * (1.0f - ct);
             return vrot;
         }
+
+        public static double AngleTheta(Point3 v, Point3 k)
+        {
+
+            var dot = Dot(v, k);
+            var lengthV = v.Length;
+            var lengthK = k.Length;
+
+            var cos = (double)(dot / (lengthV * lengthK));
+            if (cos > 1) cos = 1;
+            if (cos < -1) cos = -1;
+
+            double theta = Math.Acos(cos);
+
+            return theta;
+        }
+
+        public static double AngleDegree(Point3 v, Point3 k)
+        {
+            
+            double theta = AngleTheta(v, k);
+            double degree = (theta * 180 / (Math.PI));
+
+            return degree;
+        } 
     }
 }

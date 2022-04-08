@@ -26,12 +26,12 @@ namespace SeemoPredictor
             
             pManager.AddPointParameter("Point", "Pt", "View Point", GH_ParamAccess.item);
             pManager.AddVectorParameter("Vectors", "Vec", "Optional view vectors", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Resolution", "Res", "View Resolution in pixels along z", GH_ParamAccess.item , 300);
+            pManager.AddIntegerParameter("Resolution", "Res", "View Resolution in pixels along z", GH_ParamAccess.item);
             //pManager.AddNumberParameter("Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", "Option_HorizontalSceneAngle", GH_ParamAccess.item);
             //pManager.AddNumberParameter("Option_VerticalSceneAngle", "Option_VerticalSceneAngle", "Option_VerticalSceneAngle", GH_ParamAccess.item);
 
             pManager[1].Optional = true;
-            //pManager[4].Optional = true;
+            pManager[2].Optional = true;
             //pManager[5].Optional = true;
             //pManager[6].Optional = true;
 
@@ -92,8 +92,9 @@ namespace SeemoPredictor
             }
 
 
-            int xResolution = 300;
-            DA.GetData(2, ref xResolution);
+            int xResolution = 1440;
+
+            if (!DA.GetData(2, ref xResolution));
 
             double HorizontalSceneAngle = (35.754 * 2);
             double VerticalSceneAngle = (25.641 * 2);

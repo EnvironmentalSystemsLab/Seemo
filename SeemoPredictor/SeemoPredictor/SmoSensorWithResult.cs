@@ -52,7 +52,7 @@ namespace SeemoPredictor
         public double ViewVectorX { get; set; }
         public double ViewVectorY { get; set; }
         public double ViewVectorZ { get; set; }
-        public double WindowNumber { get; set; } = 0;
+        //public double WindowNumber { get; set; } = 0;
         public double WindowAreaSum { get; set; } = 0;
 
         public double Z1PtsCountRatio { get; set; } = 0;
@@ -103,7 +103,7 @@ namespace SeemoPredictor
         }
 
 
-        public DirectionResult(double _WindowNumber, double _WindowAreaSum,
+        public DirectionResult(double _WindowAreaSum,
             double _Z1PtsCountRatio, double _Z2PtsCountRatio,
             double _Z3PtsCountRatio, double _Z4PtsCountRatio,
             double _InteriorPtsCountRatio, double _BuildingPtsCountRatio, double _LandmarkPtsCountRatio, double _EquipmentPtsCountRatio, double _TreePtsCountRatio, double _PavementPtsCountRatio, double _GrassPtsCountRatio, double _WaterPtsCountRatio, double _PeoplePtsCountRatio, double _CarPtsCountRatio, double _WindowPtsCountRatio, double _InfrastructurePtsCountRatio,
@@ -114,7 +114,7 @@ namespace SeemoPredictor
             double _PeopleClosestDist, double _CarClosestDist, double _WindowClosestDist, double _InfrastructureClosestDist
             )
         {
-            WindowNumber = _WindowNumber;
+            //WindowNumber = _WindowNumber;
             WindowAreaSum = _WindowAreaSum;
 
             Z1PtsCountRatio = _Z1PtsCountRatio;
@@ -250,8 +250,8 @@ namespace SeemoPredictor
             //calculate ml inputs
             double zhitSum = z1hit + z2hit + z3hit + z4hit;
 
-            double r = 0.05275781019; // come from survey window area with ray counts
-            this.WindowAreaSum = (zhitSum / (rayTotal * r));
+            double r = Image.xres/1440; // when resolution is 1440
+            this.WindowAreaSum = (zhitSum / (rayTotal/r/r));
 
             this.Z1PtsCountRatio = (double)z1hit / zhitSum;
             this.Z2PtsCountRatio = (double)z2hit / zhitSum;
@@ -280,7 +280,7 @@ namespace SeemoPredictor
             //}
             //hitWindows = hitWindows.Distinct().ToList();
             //wn = hitWindows.Count;
-            this.WindowNumber = 2;
+            //this.WindowNumber = 2;
             this.SkyCondition = 1;
 
             this.InteriorPtsCountRatio = ((double)(interiorDists.Count)) / zhitSum;
