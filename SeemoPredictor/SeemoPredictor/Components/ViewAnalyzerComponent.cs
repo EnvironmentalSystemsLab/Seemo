@@ -122,7 +122,7 @@ namespace SeemoPredictor
             //
 
             bool singleDirection = false; //every sensors have the same viewdirections.
-            if (sensors[0].ViewDirections.Length == 1)
+            if (sensors[0].ViewDirections.Length == 1 && sensors[0].ViewDirections[0].Z == 0)
             {
                 singleDirection = true;
             }
@@ -142,7 +142,7 @@ namespace SeemoPredictor
                 else
                 {
                 //calculate spherical image
-                var sphereImage = new SmoImage(sensors[i].Pt, new Point3(0,1,0), sensors[i].Resolution, 200, 100);
+                var sphereImage = new SmoImage(sensors[i].Pt, new Point3(0,1,0), sensors[i].Resolution, 360, sensors[i].VerticalViewAngle);
                 sphericalImages.Add(sphereImage);
                 }
                 
