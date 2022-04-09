@@ -252,15 +252,16 @@ namespace SeemoPredictor
                 for (int y = 0; y < image.yres; y++)
                 {
                     int offsetX = (int)Math.Floor(hAngle / sphereImage.angleStep) - (int)Math.Floor(horizontalViewAngle / sphereImage.angleStep / 2);
-                    int offsetY = (int)Math.Floor(vAngle / sphereImage.angleStep) - (int)Math.Floor(verticalViewAngle / sphereImage.angleStep / 2);
+                    //int offsetY = (int)Math.Floor(vAngle / sphereImage.angleStep) - (int)Math.Floor(verticalViewAngle / sphereImage.angleStep / 2);
+
 
                     int sphereX = ((x + offsetX) + sphereImage.xres) % sphereImage.xres;
-                    int sphereY = ((y + offsetY) + (sphereImage.yres)/2 * 3) % sphereImage.yres;
+                    //int sphereY = ((y + offsetY) + (sphereImage.yres)/2 * 3) % sphereImage.yres;
 
-                    image.ImageRays[x][y] = sphereImage.ImageRays[sphereX][sphereY];
-                    image.Hits[x][y] = sphereImage.Hits[sphereX][sphereY];
-                    image.DepthMap[x][y] = sphereImage.DepthMap[sphereX][sphereY];
-                    image.LabelMap[x][y] = sphereImage.LabelMap[sphereX][sphereY];
+                    image.ImageRays[x][y] = sphereImage.ImageRays[sphereX][y];
+                    image.Hits[x][y] = sphereImage.Hits[sphereX][y];
+                    image.DepthMap[x][y] = sphereImage.DepthMap[sphereX][y];
+                    image.LabelMap[x][y] = sphereImage.LabelMap[sphereX][y];
 
                 }
             }
