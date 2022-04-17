@@ -33,6 +33,7 @@ namespace SeemoPredictor
 
             pManager.AddGenericParameter("Sensors", "S", "View Sensors", GH_ParamAccess.list);
             pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
+            pManager.AddNumberParameter("Ground Level", "GL", "Z coordinate of Ground Level", GH_ParamAccess.item);
             //pManager.AddGenericParameter("Windows", "W", "Windows", GH_ParamAccess.list);
 
         }
@@ -63,10 +64,11 @@ namespace SeemoPredictor
             //input objects
             List<SmoSensor> sensors = new List<SmoSensor>();
             List<SmoFace> faces = new List<SmoFace>();
+            double glevel = 0;
 
             DA.GetDataList(0, sensors);
             DA.GetDataList(1, faces);
-
+            if (!DA.GetData(2, ref glevel)) ;
 
 
             //calculate min, max mode size
@@ -86,7 +88,7 @@ namespace SeemoPredictor
                 worldbounds.Encapsulate(f.BoundingBox);
             }
             avNodeSize /= faces.Count;
-            // make octree
+            // make octree for visibility
             float worldSize = (float)worldbounds.Size.Length * 0.8f;
             PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize));
             foreach (SmoFace f in faces)
@@ -186,6 +188,7 @@ namespace SeemoPredictor
                     // compute the ML model inputs from the SmoImage class here
                     directionResult.ComputeFeatures();
 
+                    directionResult.FloorHeights = (directionResult.ViewPointZ - glevel);
 
 
                     //Generate Model input for prediction
@@ -367,8 +370,9 @@ namespace SeemoPredictor
             {
                 Directory.CreateDirectory(dir);
             }
-            seemoResult.ToFile(dir + @"\Result"+ DateTime.Now.ToFileTime()+".json");
 
+            long time = DateTime.Now.ToFileTime();
+            seemoResult.ToFile(dir + @"\Result" + time + ".json");
 
 
             report.AppendLine("Saving result: " + sp.ElapsedMilliseconds  + "[ms]");
@@ -383,7 +387,7 @@ namespace SeemoPredictor
 
             DA.SetData(0, report.ToString());
             DA.SetData(1, seemoResult);
-            DA.SetData(2, dir + @"\Result" + DateTime.Now.ToFileTime() + ".json");
+            DA.SetData(2, dir + @"\Result" + time + ".json");
 
 
             DA.SetDataList(3, overallRatings);
