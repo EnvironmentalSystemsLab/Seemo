@@ -8,13 +8,13 @@ using System.Linq;
 
 namespace SeemoPredictor.Components
 {
-    public class CompareriteComponent : GH_Component
+    public class ComparisonComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the Comparison class.
         /// </summary>
-        public CompareriteComponent()
-          : base("Comparerite", "Comparerite",
+        public ComparisonComponent()
+          : base("Comparison", "Comparison",
               "Compare two result files",
               "SeEmo", "4|Visualize")
         {
@@ -274,7 +274,7 @@ namespace SeemoPredictor.Components
             {
                 //You can add image files to your project resources and access them like this:
                 // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.comparison;
             }
         }
 

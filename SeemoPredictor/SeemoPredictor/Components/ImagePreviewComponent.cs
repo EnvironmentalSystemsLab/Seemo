@@ -71,7 +71,7 @@ namespace SeemoPredictor
             {
                 // You can add image files to your project resources and access them like this:
                 // return Properties.Resources.Viewer_24;
-                return null;
+                return Properties.Resources.imageViewer;
             }
         }
 
