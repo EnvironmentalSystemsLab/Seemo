@@ -124,20 +124,24 @@ namespace SeemoPredictor
 
             TopCorner = _vdx;
 
+            Point3 xAxisTemp = Point3.Cross(nvd, yAxis);
+            xAxisTemp.Normalize();
+
 
             for (int x = 0; x < xres ; x++)
             {
+                var xrot = -(xres - x) * angleStep;
+                var vdx = Point3.Rotate(TopCorner, yAxis, (float)(xrot * Math.PI / 180));
+
+                xAxisTemp = Point3.Cross(yAxis, vdx);
+
                 for (int y = 0; y < yres; y++)
                 {
                      
-                    var xrot =  - ( xres - x ) * angleStep;
                      
                     var yrot =  - ( yres - y ) * angleStep;
 
-
-                    var vdx = Point3.Rotate(TopCorner, yAxis, (float)(xrot * Math.PI / 180));
-
-                    var vdy = Point3.Rotate(vdx, xAxis, (float)(yrot * Math.PI / 180));
+                    var vdy = Point3.Rotate(vdx, -xAxisTemp, (float)(yrot * Math.PI / 180));
 
                     ImageRays[x][y] = vdy;
 
@@ -232,7 +236,7 @@ namespace SeemoPredictor
         //split sphere image to multiple directions after compute image
         public static SmoImage FrameImages(SmoImage sphereImage, Point3 dir, double horizontalViewAngle, double verticalViewAngle)
         {
-            SmoImage image = new SmoImage(sphereImage.Pt, dir, (int)Math.Floor(horizontalViewAngle / sphereImage.angleStep), horizontalViewAngle, verticalViewAngle);
+            SmoImage image = new SmoImage(sphereImage.Pt, dir, (int)Math.Ceiling(horizontalViewAngle / sphereImage.angleStep), horizontalViewAngle, verticalViewAngle);
             Point3 nvd = dir;
             nvd.Normalize();
 

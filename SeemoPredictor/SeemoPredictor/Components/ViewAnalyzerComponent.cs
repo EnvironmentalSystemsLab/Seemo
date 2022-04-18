@@ -187,6 +187,7 @@ namespace SeemoPredictor
                         //!!!!!!!!!check when sphere image view angle is not 360 180.....
                         splitImages.Add(splitImage);
                     }
+                    
                 }
 
                 imageArray = splitImages.ToArray();
