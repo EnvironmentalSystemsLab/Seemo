@@ -31,9 +31,11 @@ namespace SeemoPredictor
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
 
+            pManager.AddBooleanParameter("Run", "Run", "Run", GH_ParamAccess.item);
             pManager.AddGenericParameter("Sensors", "S", "View Sensors", GH_ParamAccess.list);
             pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
             pManager.AddNumberParameter("Ground Level", "GL", "Z coordinate of Ground Level", GH_ParamAccess.item);
+            
             //pManager.AddGenericParameter("Windows", "W", "Windows", GH_ParamAccess.list);
 
         }
@@ -65,10 +67,14 @@ namespace SeemoPredictor
             List<SmoSensor> sensors = new List<SmoSensor>();
             List<SmoFace> faces = new List<SmoFace>();
             double glevel = 0;
+            Boolean run = false;
 
-            DA.GetDataList(0, sensors);
-            DA.GetDataList(1, faces);
-            if (!DA.GetData(2, ref glevel)) ;
+            if (!DA.GetData(0, ref run))  return; 
+            if (run == false)  return; 
+
+            DA.GetDataList(1, sensors);
+            DA.GetDataList(2, faces);
+            if (!DA.GetData(3, ref glevel))  return; 
 
 
             //calculate min, max mode size
