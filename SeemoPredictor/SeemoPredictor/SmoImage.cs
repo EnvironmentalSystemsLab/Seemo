@@ -6,6 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using ILGPU;
+using ILGPU.Algorithms;
+using ILGPU.Runtime;
+using SeemoPredictor.GPU;
+
 
 namespace SeemoPredictor
 {
@@ -301,6 +308,49 @@ namespace SeemoPredictor
 
                 }
             }
+
+
+            //Test GPU code (reference. ILGPU tutorial
+            Context context = Context.Create(builder => builder.Default().EnableAlgorithms());
+            Accelerator device = context.GetPreferredDevice(preferCPU: false)
+                                      .CreateAccelerator(context);
+
+            int width = 500;
+            int height = 500;
+
+            // my GPU can handle around 10,000 when using the struct of arrays
+            int particleCount = 100;
+
+            byte[] h_bitmapData = new byte[width * height * 3];
+
+            MemoryBuffer2D<Point3, Stride2D.DenseY> canvasData = device.Allocate2DDenseY<Point3>(new Index2D(width, height));
+            MemoryBuffer1D<byte, Stride1D.Dense> d_bitmapData = device.Allocate1D<byte>(width * height * 3);
+
+            HpGPU.CanvasData c = new HpGPU.CanvasData(canvasData, d_bitmapData, width, height);
+
+            HpGPU.HostParticleSystem h_particleSystem = new HpGPU.HostParticleSystem(device, particleCount, width, height);
+
+            var frameBufferToBitmap = device.LoadAutoGroupedStreamKernel<Index2D, HpGPU.CanvasData>(HpGPU.CanvasData.CanvasToBitmap);
+            var particleProcessingKernel = device.LoadAutoGroupedStreamKernel<Index1D, HpGPU.CanvasData, HpGPU.ParticleSystem>(HpGPU.ParticleSystem.particleKernel);
+
+            //process 100 N-body ticks
+            for (int i = 0; i < 100; i++)
+            {
+                particleProcessingKernel(particleCount, c, h_particleSystem.deviceParticleSystem);
+                device.Synchronize();
+            }
+
+            frameBufferToBitmap(canvasData.Extent.ToIntIndex(), c);
+            device.Synchronize();
+
+            d_bitmapData.CopyToCPU(h_bitmapData);
+
+            //bitmap magic that ignores bitmap striding, be careful some sizes will mess up the striding
+            Bitmap b = new Bitmap(width, height, width * 3, PixelFormat.Format24bppRgb, Marshal.UnsafeAddrOfPinnedArrayElement(h_bitmapData, 0));
+            b.Save("out.bmp");
+            Console.WriteLine("Wrote 100 iterations of N-body simulation to out.bmp");
+
+
         }
 
 
