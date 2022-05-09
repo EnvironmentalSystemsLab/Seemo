@@ -80,6 +80,11 @@ namespace SeemoPredictor.Geometry
                 );
         }
 
+        public Point3 PointAtParameter(float t)
+        {
+            return Origin + (t * _direction);
+        }
+
 
     }
 

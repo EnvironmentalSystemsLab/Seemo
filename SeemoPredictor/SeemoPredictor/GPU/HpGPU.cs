@@ -19,20 +19,20 @@ namespace SeemoPredictor.GPU
 
         public struct CanvasData
         {
-            public ArrayView2D<Point3, Stride2D.DenseY> canvas;
-            public ArrayView1D<byte, Stride1D.Dense> bitmapData;
+            //public ArrayView2D<Point3, Stride2D.DenseY> canvas;
+            public ArrayView1D<double, Stride1D.Dense> flattenDepthMap;
             public int width;
             public int height;
 
-            public CanvasData(ArrayView2D<Point3, Stride2D.DenseY> canvas, ArrayView1D<byte, Stride1D.Dense> bitmapData, int width, int height)
+            public CanvasData(/*ArrayView2D<Point3, Stride2D.DenseY> canvas, */ArrayView1D<double, Stride1D.Dense> flattenDepthMap, int width, int height)
             {
-                this.canvas = canvas;
-                this.bitmapData = bitmapData;
+                //this.canvas = canvas;
+                this.flattenDepthMap = flattenDepthMap;
                 this.width = width;
                 this.height = height;
 
             }
-
+            /*
             public void setColor(Index2D index, Point3 c)
             {
                 if ((index.X >= 0) && (index.X < canvas.IntExtent.X) && (index.Y >= 0) && (index.Y < canvas.IntExtent.Y))
@@ -45,14 +45,14 @@ namespace SeemoPredictor.GPU
             {
                 Point3 color = c.canvas[index];
 
-                int bitmapIndex = ((index.Y * c.width) + index.X) * 3;
+                int flattenDepthMapIndex = ((index.Y * c.width) + index.X) * 3;
 
-                c.bitmapData[bitmapIndex] = (byte)(255.99f * color.X);
-                c.bitmapData[bitmapIndex + 1] = (byte)(255.99f * color.Y);
-                c.bitmapData[bitmapIndex + 2] = (byte)(255.99f * color.Z);
+                c.flattenDepthMap[flattenDepthMapIndex] = (double)(255.99f * color.X);
+                c.flattenDepthMap[flattenDepthMapIndex + 1] = (double)(255.99f * color.Y);
+                c.flattenDepthMap[flattenDepthMapIndex + 2] = (double)(255.99f * color.Z);
 
                 c.canvas[index] = new Point3(0, 0, 0);
-            }
+            }*/
 
         }
 
@@ -90,6 +90,8 @@ namespace SeemoPredictor.GPU
             public Point3 centerPos;
             public float centerMass;
 
+
+
             public ParticleSystem(ArrayView1D<Particle, Stride1D.Dense> particles, int width, int height)
             {
                 this.particles = particles;
@@ -106,13 +108,20 @@ namespace SeemoPredictor.GPU
                 return particles[ID].position;
             }
 
+            //key!!!
             public static void particleKernel(Index1D index, CanvasData c, ParticleSystem p)
             {
                 Point3 pos = p.update(index);
                 Index2D position = new Index2D((int)pos.X, (int)pos.Y);
-                c.setColor(position, new Point3(1, 1, 1));
+                //c.setColor(position, new Point3(1, 1, 1));
+
+
+
             }
+
         }
+
+
 
         public struct Particle
         {

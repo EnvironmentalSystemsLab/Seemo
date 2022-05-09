@@ -30,6 +30,15 @@ namespace SeemoPredictor
         public Point3 xAxis { get; set; }
         public Point3 yAxis { get; set; }
 
+        //Imported from GPU tracer
+
+        public float aspectRatio { get; set; }
+        public float cameraPlaneDist { get; set; }
+        public float reciprocalHeight { get; set; }
+        public float reciprocalWidth { get; set; }
+        public OrthoNormalBasis axis { get; set; }
+
+
 
         //raycast input
         public Point3[][] ImageRays { get; set; }
@@ -89,11 +98,14 @@ namespace SeemoPredictor
 
             Point3 vup = new Point3(0, 0, 1);
 
-             xAxis = Point3.Cross(nvd, vup);
+            xAxis = Point3.Cross(nvd, vup);
             xAxis.Normalize();
 
-             yAxis = Point3.Cross(nvd, -xAxis);
+            yAxis = Point3.Cross(nvd, -xAxis);
             yAxis.Normalize();
+
+
+            axis = OrthoNormalBasis.fromZY(nvd, vup);
 
 
             xres = (Resolution / 2) * 2;
@@ -154,6 +166,15 @@ namespace SeemoPredictor
 
                 }
             }
+
+
+
+
+            aspectRatio = xres / yres;
+            cameraPlaneDist = 1.0f / XMath.Tan((float)51.282 * XMath.PI / 360.0f); //51.282 come from vertical scene angle (smoSensor setting)
+            reciprocalHeight = 1.0f / yres;
+            reciprocalWidth = 1.0f / xres;
+
 
         }
         /*
@@ -281,10 +302,14 @@ namespace SeemoPredictor
 
         }
 
-
+        /// <summary>
+        /// Imported from GPUTracer
+        /// </summary>
+        /// <param name="octree"></param>
+        /// <param name="max"></param>
         public void ComputeImage( PointOctree<SmoFace> octree, double max)
         {
-
+            /* original cpu calculation code
             for (int x = 0; x < this.xres; x++)
             {
                 for (int y = 0; y < this.yres; y++)
@@ -309,47 +334,71 @@ namespace SeemoPredictor
                 }
             }
 
-
-            //Test GPU code (reference. ILGPU tutorial
+            */
+            // Test GPU code (reference. ILGPU tutorial
+            // 1.host and device setup
             Context context = Context.Create(builder => builder.Default().EnableAlgorithms());
             Accelerator device = context.GetPreferredDevice(preferCPU: false)
                                       .CreateAccelerator(context);
 
-            int width = 500;
-            int height = 500;
+            int width = this.xres;
+            int height = this.yres;
 
             // my GPU can handle around 10,000 when using the struct of arrays
-            int particleCount = 100;
+            // 2.create cpu output storage
+            double[] h_flattenDepthMap = new double[width * height];
 
-            byte[] h_bitmapData = new byte[width * height * 3];
+            // 3.create device input storage (d_///: device)
+            //MemoryBuffer2D<Point3, Stride2D.DenseY> canvasData = device.Allocate2DDenseY<Point3>(new Index2D(width, height));
+            MemoryBuffer1D<double, Stride1D.Dense> d_flattenDepthMap = device.Allocate1D<double>(width * height);
 
-            MemoryBuffer2D<Point3, Stride2D.DenseY> canvasData = device.Allocate2DDenseY<Point3>(new Index2D(width, height));
-            MemoryBuffer1D<byte, Stride1D.Dense> d_bitmapData = device.Allocate1D<byte>(width * height * 3);
-
-            HpGPU.CanvasData c = new HpGPU.CanvasData(canvasData, d_bitmapData, width, height);
+            HpGPU.CanvasData c = new HpGPU.CanvasData(/*canvasData,*/ d_flattenDepthMap, width, height);
 
             HpGPU.HostParticleSystem h_particleSystem = new HpGPU.HostParticleSystem(device, particleCount, width, height);
 
-            var frameBufferToBitmap = device.LoadAutoGroupedStreamKernel<Index2D, HpGPU.CanvasData>(HpGPU.CanvasData.CanvasToBitmap);
+
+            //loading kernels, not yet connected with data (memorybuffers), only set dataTypes and actions.
+            //var frameBufferToBitmap = device.LoadAutoGroupedStreamKernel<Index2D, HpGPU.CanvasData>(HpGPU.CanvasData.CanvasToBitmap);
             var particleProcessingKernel = device.LoadAutoGroupedStreamKernel<Index1D, HpGPU.CanvasData, HpGPU.ParticleSystem>(HpGPU.ParticleSystem.particleKernel);
 
-            //process 100 N-body ticks
-            for (int i = 0; i < 100; i++)
-            {
-                particleProcessingKernel(particleCount, c, h_particleSystem.deviceParticleSystem);
-                device.Synchronize();
-            }
+            var particleProcessingKernel2 = device.LoadAutoGroupedStreamKernel<>
 
-            frameBufferToBitmap(canvasData.Extent.ToIntIndex(), c);
+
+            particleProcessingKernel(particleCount, c, h_particleSystem.deviceParticleSystem);
             device.Synchronize();
 
-            d_bitmapData.CopyToCPU(h_bitmapData);
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var pt = this.Pt;
+                    var ray = this.ImageRays[x][y];
+
+                    Point3 hit;
+                    var face = SmoIntersect.IsVisible(octree, pt, ray, max, out hit);
+
+                    if (face == null)
+                    {
+                        this.LabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
+                        continue;
+                    }
+
+                    double dist = Point3.Distance(hit, pt);
+                    this.Hits[x][y] = hit;
+                    this.DepthMap[x][y] = (hit - pt).Length;
+                    this.LabelMap[x][y] = face.ViewContentType;
+
+                }
+            }
+            //frameBufferToBitmap(canvasData.Extent.ToIntIndex(), c);
+            //device.Synchronize();
+
+            d_flattenDepthMap.CopyToCPU(h_flattenDepthMap);
 
             //bitmap magic that ignores bitmap striding, be careful some sizes will mess up the striding
-            Bitmap b = new Bitmap(width, height, width * 3, PixelFormat.Format24bppRgb, Marshal.UnsafeAddrOfPinnedArrayElement(h_bitmapData, 0));
-            b.Save("out.bmp");
-            Console.WriteLine("Wrote 100 iterations of N-body simulation to out.bmp");
-
+            //Bitmap b = new Bitmap(width, height, width * 3, PixelFormat.Format24bppRgb, Marshal.UnsafeAddrOfPinnedArrayElement(h_bitmapData, 0));
+            //b.Save("out.bmp");
 
         }
 
@@ -412,5 +461,108 @@ namespace SeemoPredictor
             return bitmap;
         }
 
+
+        private Ray rayFromUnit(float x, float y)
+        {
+            Point3 xContrib = axis.x * -x * aspectRatio;
+            Point3 yContrib = axis.y * -y;
+            Point3 zContrib = axis.z * cameraPlaneDist;
+            
+            Point3 direction = (xContrib + yContrib + zContrib);
+            direction.Normalize();
+
+            return new Ray(Pt, direction);
+        }
+
+
+        public Ray GetRay(float x, float y)
+        {
+            return rayFromUnit(2f * (x * (1/xres)) - 1f, 2f * (y * (1/yres)) - 1f);
+        }
+    }
+
+    public readonly struct OrthoNormalBasis
+    {
+        public readonly Point3 x;
+        public readonly Point3 y;
+        public readonly Point3 z;
+
+        public OrthoNormalBasis(Point3 x, Point3 y, Point3 z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+
+        public Point3 transform(Point3 pos)
+        {
+            return x * pos.X + y * pos.Y + z * pos.Z;
+        }
+
+
+        public static OrthoNormalBasis fromXY(Point3 x, Point3 y)
+        {
+            Point3 zz = (Point3.Cross(x, y)).Normalized;
+            Point3 yy = (Point3.Cross(zz, x)).Normalized;
+            return new OrthoNormalBasis(x, yy, zz);
+        }
+
+
+        public static OrthoNormalBasis fromYX(Point3 y, Point3 x)
+        {
+            Point3 zz = (Point3.Cross(x, y)).Normalized;
+            Point3 xx = (Point3.Cross(y, zz)).Normalized;
+            return new OrthoNormalBasis(xx, y, zz);
+        }
+
+
+        public static OrthoNormalBasis fromXZ(Point3 x, Point3 z)
+        {
+            Point3 yy = (Point3.Cross(z, x)).Normalized;
+            Point3 zz = (Point3.Cross(x, yy)).Normalized;
+            return new OrthoNormalBasis(x, yy, zz);
+        }
+
+
+        public static OrthoNormalBasis fromZX(Point3 z, Point3 x)
+        {
+            Point3 yy = (Point3.Cross(z, x)).Normalized;
+            Point3 xx = (Point3.Cross(yy, z)).Normalized;
+            return new OrthoNormalBasis(xx, yy, z);
+        }
+
+
+        public static OrthoNormalBasis fromYZ(Point3 y, Point3 z)
+        {
+            Point3 xx = (Point3.Cross(y, z)).Normalized;
+            Point3 zz = (Point3.Cross(xx, y)).Normalized;
+            return new OrthoNormalBasis(xx, y, zz);
+        }
+
+
+        public static OrthoNormalBasis fromZY(Point3 z, Point3 y)
+        {
+            Point3 xx = (Point3.Cross(y, z)).Normalized;
+            Point3 yy = (Point3.Cross(z, xx)).Normalized;
+            return new OrthoNormalBasis(xx, yy, z);
+        }
+
+
+        public static OrthoNormalBasis fromZ(Point3 z)
+        {
+            Point3 xx;
+            if (XMath.Abs(Point3.Dot(z, new Point3(1, 0, 0))) > 0.99999f)
+            {
+                xx = (Point3.Cross(new Point3(0, 1, 0), z)).Normalized;
+                
+            }
+            else
+            {
+                xx = (Point3.Cross(new Point3(1, 0, 0), z)).Normalized;
+            }
+            Point3 yy = (Point3.Cross(z, xx)).Normalized;
+            return new OrthoNormalBasis(xx, yy, z);
+        }
     }
 }

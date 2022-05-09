@@ -387,6 +387,15 @@ namespace SeemoPredictor.Geometry
             double degree = (theta * 180 / (Math.PI));
 
             return degree;
-        } 
+        }
+
+
+        // added functions from GPU tracer
+
+        public static Point3 Reflect(Point3 normal, Point3 incomming)
+        {
+            Point3 reflect = (incomming - normal * 2f * Dot(incomming, normal));
+            return reflect.Normalized;
+        }
     }
 }

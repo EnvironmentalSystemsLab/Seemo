@@ -96,8 +96,8 @@ namespace SeemoPredictor
 
             if (!DA.GetData(2, ref xResolution));
 
-            double HorizontalSceneAngle = (35.754 * 2);
-            double VerticalSceneAngle = (25.641 * 2);
+            double HorizontalSceneAngle = (35.754 * 2);  //71.508
+            double VerticalSceneAngle = (25.641 * 2);  //51.282
 
             SmoSensor smoSensor = new SmoSensor(sp, SViewVectors, xResolution, HorizontalSceneAngle, VerticalSceneAngle);
 
