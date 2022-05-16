@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
+
+
 namespace SeemoPredictor
 {
     public class SmoImage
@@ -149,89 +151,95 @@ namespace SeemoPredictor
             }
 
         }
+
+        public void ConvertFromGpuResultToImage(float[] distances, byte[] materials)
+        {
+            throw new NotImplementedException();
+        }
+
         /*
 
-        public SmoImage(Point3 pt, int Resolution)
-        {
+public SmoImage(Point3 pt, int Resolution)
+{
 
-            this.Pt = pt;
-            this.Dir = new Point3(0,1,0);
+   this.Pt = pt;
+   this.Dir = new Point3(0,1,0);
 
-            double horizontalViewAngle = 360;
-            double verticalViewAngle = 180;
+   double horizontalViewAngle = 360;
+   double verticalViewAngle = 180;
 
-            //Define Left, right, up, down vectors to measure room dimension
-            Point3 nvd = new Point3(0, 1, 0);
-            nvd.Normalize();
-            Dir = nvd;
+   //Define Left, right, up, down vectors to measure room dimension
+   Point3 nvd = new Point3(0, 1, 0);
+   nvd.Normalize();
+   Dir = nvd;
 
-            Point3 vup = new Point3(0, 0, 1);
+   Point3 vup = new Point3(0, 0, 1);
 
-            xAxis = Point3.Cross(nvd, vup);
-            xAxis.Normalize();
+   xAxis = Point3.Cross(nvd, vup);
+   xAxis.Normalize();
 
-            yAxis = Point3.Cross(nvd, -xAxis);
-            yAxis.Normalize();
-
-
-            xres = (Resolution / 2) * 2;
-            angleStep = horizontalViewAngle / xres;
-            yres = ((int)(verticalViewAngle / (double)angleStep) / 2) * 2;
+   yAxis = Point3.Cross(nvd, -xAxis);
+   yAxis.Normalize();
 
 
-
-            ImageRays = new Point3[xres][];
-
-
-            Hits = new Point3[xres][];
-            DepthMap = new double[xres][];
-            LabelMap = new SmoFace.SmoFaceType[xres][];
-
-            for (int i = 0; i < xres; i++)
-            {
-                ImageRays[i] = new Point3[yres];
-
-                Hits[i] = new Point3[yres];
-                DepthMap[i] = new double[yres];
-                LabelMap[i] = new SmoFace.SmoFaceType[yres];
-            }
+   xres = (Resolution / 2) * 2;
+   angleStep = horizontalViewAngle / xres;
+   yres = ((int)(verticalViewAngle / (double)angleStep) / 2) * 2;
 
 
 
-            //generate view rays
-
-            //        rotate to the left edge     
-            var _xrot = (angleStep * xres / 2.0);
-            //        rotate to the top edge     
-            var _yrot = (angleStep * yres / 2.0);
-
-            var _vdy = Point3.Rotate(nvd, xAxis, (float)(_yrot * Math.PI / 180));
-            var _vdx = Point3.Rotate(_vdy, yAxis, (float)(_xrot * Math.PI / 180));
-
-            TopCorner = _vdx;
+   ImageRays = new Point3[xres][];
 
 
-            for (int x = 0; x < xres; x++)
-            {
-                for (int y = 0; y < yres; y++)
-                {
+   Hits = new Point3[xres][];
+   DepthMap = new double[xres][];
+   LabelMap = new SmoFace.SmoFaceType[xres][];
 
-                    var xrot = -(xres - x) * angleStep;
+   for (int i = 0; i < xres; i++)
+   {
+       ImageRays[i] = new Point3[yres];
 
-                    var yrot = -(yres - y) * angleStep;
+       Hits[i] = new Point3[yres];
+       DepthMap[i] = new double[yres];
+       LabelMap[i] = new SmoFace.SmoFaceType[yres];
+   }
 
 
-                    var vdx = Point3.Rotate(TopCorner, yAxis, (float)(xrot * Math.PI / 180));
 
-                    var vdy = Point3.Rotate(vdx, xAxis, (float)(yrot * Math.PI / 180));
+   //generate view rays
 
-                    ImageRays[x][y] = vdy;
+   //        rotate to the left edge     
+   var _xrot = (angleStep * xres / 2.0);
+   //        rotate to the top edge     
+   var _yrot = (angleStep * yres / 2.0);
 
-                }
-            }
+   var _vdy = Point3.Rotate(nvd, xAxis, (float)(_yrot * Math.PI / 180));
+   var _vdx = Point3.Rotate(_vdy, yAxis, (float)(_xrot * Math.PI / 180));
 
-        }
-        */
+   TopCorner = _vdx;
+
+
+   for (int x = 0; x < xres; x++)
+   {
+       for (int y = 0; y < yres; y++)
+       {
+
+           var xrot = -(xres - x) * angleStep;
+
+           var yrot = -(yres - y) * angleStep;
+
+
+           var vdx = Point3.Rotate(TopCorner, yAxis, (float)(xrot * Math.PI / 180));
+
+           var vdy = Point3.Rotate(vdx, xAxis, (float)(yrot * Math.PI / 180));
+
+           ImageRays[x][y] = vdy;
+
+       }
+   }
+
+}
+*/
 
         //split sphere image to multiple directions after compute image
         public static SmoImage FrameImages(SmoImage sphereImage, Point3 dir, double horizontalViewAngle, double verticalViewAngle)
@@ -275,6 +283,7 @@ namespace SeemoPredictor
         }
 
 
+        /*
         public void ComputeImage( PointOctree<SmoFace> octree, double max)
         {
 
@@ -294,10 +303,91 @@ namespace SeemoPredictor
                         continue;
                     }
 
+
+
                     double dist = Point3.Distance(hit, pt);
                     this.Hits[x][y] = hit;
                     this.DepthMap[x][y] = (hit - pt).Length;
                     this.LabelMap[x][y] = face.ViewContentType;
+
+                }
+            }
+        }*/
+
+        public void ComputeImage(PointOctree<SmoFace> octree, double max) //compute using gpu
+        {
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var pt = this.Pt;
+                    var ray = this.ImageRays[x][y];
+
+                    Point3 hit;
+                    var face = SmoIntersect.IsVisible(octree, pt, ray, max, out hit);
+
+                    if (face == null)
+                    {
+                        this.LabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
+                        continue;
+                    }
+
+
+
+
+                    double dist = Point3.Distance(hit, pt);
+                    this.Hits[x][y] = hit;
+                    this.DepthMap[x][y] = (hit - pt).Length;
+                    this.LabelMap[x][y] = face.ViewContentType;
+
+                }
+            }
+        }
+
+        /// <summary>
+        /// convert gpu result to seemo image class for feature computing
+        /// </summary>
+        /// <param name="distances"></param>
+        /// <param name="lables"></param>
+        public void ConvertFromGpuResultToImage(List<double> distances, List<int> lables) //compute using gpu
+        {
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var pt = this.Pt;
+                    var ray = this.ImageRays[x][y];
+
+                    double dist  = distances[y * xres + x]; //not sure about the order
+                    int label = lables[y * xres + x];
+
+                    Point3 hit = new Point3(0, 0, 0);  //fake
+                    //var face = SmoIntersect.IsVisible(octree, pt, ray, max, out hit);
+
+                    /*
+                    if (face == null)
+                    {
+                        this.LabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
+                        continue;
+                    }
+                    */
+
+                    this.Hits[x][y] = hit;
+                    this.DepthMap[x][y] = dist;
+
+                    switch (label)
+                    {
+                        case 0:
+                            this.LabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
+                            break;
+
+                        case 1:
+                            this.LabelMap[x][y] = SmoFace.SmoFaceType.Building;
+                            break;
+                    }
+
 
                 }
             }
