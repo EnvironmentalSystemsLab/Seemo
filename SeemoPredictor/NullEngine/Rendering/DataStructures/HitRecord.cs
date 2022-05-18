@@ -13,7 +13,9 @@ namespace NullEngine.Rendering.DataStructures
         public Vec3 p;  //intersecting point
         public Vec3 normal;
         public int materialID;
-        public int drawableID;
+        public int drawableID;  //triangle index
+
+        
 
         public HitRecord(float t, Vec3 p, Vec3 normal, bool inside, int materialID, int drawableID)
         {

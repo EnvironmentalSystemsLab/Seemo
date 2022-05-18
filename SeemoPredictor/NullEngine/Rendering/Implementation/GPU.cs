@@ -56,7 +56,7 @@ namespace NullEngine.Rendering.Implementation
             float y = (pixel / camera.width);
 
             frameData.rayBuffer[pixel] = camera.GetRay(x, y);
-        }
+        } //generate new cylindical rays(predefined) camera
 
         //real raycasting first place of making hitrecord
         public static void HitRays(Index1D pixel, dFrameData frameData, dTLAS tlas, dRenderData renderData)

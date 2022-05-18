@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeemoPredictor", "SeemoPredictor\SeemoPredictor.csproj", "{6EC149EA-EB12-4AF7-B198-3749B53B7E50}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NullEngine", "NullEngine\NullEngine.csproj", "{02671C82-0F5B-4C28-B0FA-6325CDC0CC52}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6EC149EA-EB12-4AF7-B198-3749B53B7E50} = {6EC149EA-EB12-4AF7-B198-3749B53B7E50}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

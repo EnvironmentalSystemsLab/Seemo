@@ -7,8 +7,8 @@ using System.Windows;
 using System;
 using ILGPU.Algorithms;
 using System.Collections.Generic;
-using SeemoPredictor;
-using SeemoPredictor.Geometry;
+//using SeemoPredictor;
+//using SeemoPredictor.Geometry;
 using System.IO;
 
 namespace NullEngine.Rendering
@@ -112,7 +112,7 @@ namespace NullEngine.Rendering
             }
             gpu.Dispose();
 
-
+            
 
             //add seemo
             List<SmoSensor> sensors = new List<SmoSensor>();
@@ -389,7 +389,7 @@ namespace NullEngine.Rendering
             long time = DateTime.Now.ToFileTime();
             seemoResult.ToFile(dir + @"\Result" + time + ".json");
 
-            
+            */
         }
 
         private void ConvertToSeemoJSON()
