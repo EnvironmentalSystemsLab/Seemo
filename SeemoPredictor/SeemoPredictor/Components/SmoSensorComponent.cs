@@ -94,7 +94,7 @@ namespace SeemoPredictor
 
             int xResolution = 1440;
 
-            if (!DA.GetData(2, ref xResolution));
+            if (!DA.GetData(2, ref xResolution)) return;
 
             double HorizontalSceneAngle = (35.754 * 2);
             double VerticalSceneAngle = (25.641 * 2);

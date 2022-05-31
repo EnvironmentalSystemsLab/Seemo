@@ -11,16 +11,16 @@ using System.Diagnostics;
 using System.Text;
 using System.IO;
 
-namespace SeemoPredictor
+namespace SeemoPredictor.Components
 {
-    public class ViewAnalyzerComponent : GH_Component
+    public class PredictorComponent : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the ViewAnalyzerComponent_ver2 class.
+        /// Initializes a new instance of the PredictorComponent class.
         /// </summary>
-        public ViewAnalyzerComponent()
-          : base("ViewAnalyzer", "ViewAnalyzer",
-              "ViewAnalyzer",
+        public PredictorComponent()
+          : base("Predictor", "Predictor",
+              "Predictor",
               "SeEmo", "3|Analyzer")
         {
         }
@@ -30,13 +30,9 @@ namespace SeemoPredictor
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-
             pManager.AddBooleanParameter("Run", "Run", "Run", GH_ParamAccess.item);
-            pManager.AddGenericParameter("Sensors", "S", "View Sensors", GH_ParamAccess.list);
-            pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
+            pManager.AddGenericParameter("RT_Result", "RT", "RT_Result", GH_ParamAccess.item);
             pManager.AddNumberParameter("Ground Level", "GL", "Z coordinate of Ground Level", GH_ParamAccess.item);
-            
-            //pManager.AddGenericParameter("Windows", "W", "Windows", GH_ParamAccess.list);
 
         }
 
@@ -61,46 +57,15 @@ namespace SeemoPredictor
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            
-
             //input objects
-            List<SmoSensor> sensors = new List<SmoSensor>();
-            List<SmoFace> faces = new List<SmoFace>();
+            var seemoResult = new SeemoResult();
             double glevel = 0;
             Boolean run = false;
 
-            if (!DA.GetData(0, ref run))  return; 
-            if (run == false)  return; 
+            if (!DA.GetData(0, ref run)) return;
+            if (run == false) return;
 
-            DA.GetDataList(1, sensors);
-            DA.GetDataList(2, faces);
-            if (!DA.GetData(3, ref glevel))  return; 
-
-
-            //calculate min, max mode size
-            double avNodeSize = 0;
-            double minNodeSize = double.MaxValue;
-            double maxNodeSize = double.MinValue;
-            BBox worldbounds = new BBox();
-
-            for (int i = 0; i < faces.Count; i++)
-            {
-                var f = faces[i];
-                f.Id = i;
-                var size = f.BoundingBox.Size.Length;
-                if (minNodeSize > size) minNodeSize = size;
-                if (maxNodeSize < size) maxNodeSize = size;
-                avNodeSize += size;
-                worldbounds.Encapsulate(f.BoundingBox);
-            }
-            avNodeSize /= faces.Count;
-            // make octree for visibility
-            float worldSize = (float)worldbounds.Size.Length * 0.8f;
-            PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize));
-            foreach (SmoFace f in faces)
-            {
-                octree0.Add(f, f.Center);
-            }
+            if (!DA.GetData(1, ref seemoResult)) return;
 
 
 
@@ -112,143 +77,35 @@ namespace SeemoPredictor
 
 
             //output objects
-            var seemoResult = new SeemoResult();
+            
             List<SmoSensorWithResults> resultNodes = new List<SmoSensorWithResults>();
 
             StringBuilder report = new StringBuilder();
             Stopwatch sp = new Stopwatch();
+            report.AppendLine("Computing view images: " + sp.ElapsedMilliseconds + "[ms]");
             sp.Start();
 
-            // -------------------------
-            // setup raycasting worklist
-            // -------------------------
-
-            List<SmoImage> images = new List<SmoImage>();
-            List<SmoImage> splitImages = new List<SmoImage>();
-            //
-
-            bool singleDirection = false; //every sensors have the same viewdirections.
-            if (sensors[0].ViewDirections.Length == 1 && sensors[0].ViewDirections[0].Z == 0)
-            {
-                singleDirection = true;
-            }
-
-            List<SmoImage> sphericalImages = new List<SmoImage>();
-
-            for (int i = 0; i < sensors.Count; i++)
-            {
-                if(singleDirection)
-                {
-                    for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
-                    {
-                        var image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
-                        images.Add(image);
-                    }
-                }
-                else
-                {
-                //calculate spherical image
-                var sphereImage = new SmoImage(sensors[i].Pt, new Point3(0,1,0), sensors[i].Resolution, 360, sensors[i].VerticalViewAngle);
-                sphericalImages.Add(sphereImage);
-                }
-                
-            }
-
-            report.AppendLine("Setup raycasting worklist: " + sp.ElapsedMilliseconds +"[ms]");
-            sp.Restart();
-
-            // -------------------------
-            // raycasting process
-            // -------------------------
-
-            SmoImage[] imageArray;
-            if (singleDirection)  
-            {
-                imageArray = images.ToArray();
-
-                //    for (int i = 0; i < imageArray.Length; i++)
-                Parallel.For(0, imageArray.Length, i =>
-                {
-                    imageArray[i].ComputeImage(octree0, maxNodeSize);
-                }); // Parallel.For
-            }
-            else
-            {
-                SmoImage[] sphericalImageArray = sphericalImages.ToArray();
-
-                //    for (int i = 0; i < imageArray.Length; i++)
-                Parallel.For(0, sphericalImageArray.Length, i =>
-                {
-                    sphericalImageArray[i].ComputeImage(octree0, maxNodeSize);
-                }); // Parallel.For
-
-                //spliting images
-                for (int i = 0; i < sensors.Count; i++)
-                {
-                    for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
-                    {
-                        Point3 p = sensors[i].ViewDirections[j];
-                        //divide image for each direction
-                        var splitImage = SmoImage.FrameImages(sphericalImageArray[i], sensors[i].ViewDirections[j], sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
-                        //!!!!!!!!!check when sphere image view angle is not 360 180.....
-                        splitImages.Add(splitImage);
-                    }
-                    
-                }
-
-                imageArray = splitImages.ToArray();
-
-            }
-
             
-            report.AppendLine("Computing view images: " + sp.ElapsedMilliseconds  + "[ms]");
-            sp.Restart();
-
-
-
 
             // -------------------------
             // execute ML model and create result output classes
             // -------------------------
-            int imgIndex = 0;
-            for (int i = 0; i < sensors.Count; i++)
+            for (int i = 0; i < seemoResult.Results.Count; i++) //results = list<sensors> = list<node
             {
                 List<DirectionResult> nodeResult = new List<DirectionResult>();
                 SmoSensorWithResults node = new SmoSensorWithResults();
-                node.NodeID = i;
-                node.Pt = sensors[i].Pt;
-                node.Dirs = sensors[i].ViewDirections;
+                
 
-
-                for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
+                for (int j = 0; j < seemoResult.Results[i].DirectionsResults.Count; j++)
                 {
-                    DirectionResult directionResult = new DirectionResult();
-                    directionResult.ID = ("Point" + i.ToString() + ":" + "Dir" + j.ToString());
-                    directionResult.Dir = sensors[i].ViewDirections[j];
-
-                    directionResult.ViewPointX = sensors[i].Pt.X;
-                    directionResult.ViewPointY = sensors[i].Pt.Y;
-                    directionResult.ViewPointZ = sensors[i].Pt.Z;
-                    directionResult.ViewVectorX = sensors[i].ViewDirections[j].X;
-                    directionResult.ViewVectorY = sensors[i].ViewDirections[j].Y;
-                    directionResult.ViewVectorZ = sensors[i].ViewDirections[j].Z;
-
-
-
-                    directionResult.Image = imageArray[imgIndex];
-                    imgIndex++;
-
-
-                    //directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
-                    //directionResult.Image.ComputeImage(octree0, maxNodeSize);
-
-
-
-
                     // compute the ML model inputs from the SmoImage class here
-                    directionResult.ComputeFeatures();
+                    seemoResult.Results[i].DirectionsResults[j].ComputeFeatures();
 
-                    directionResult.FloorHeights = (directionResult.ViewPointZ - glevel);
+                    DirectionResult directionResult = seemoResult.Results[i].DirectionsResults[j];
+                    
+                    
+
+                    seemoResult.Results[i].DirectionsResults[j].FloorHeights = (directionResult.ViewPointZ - glevel);
 
 
                     //Generate Model input for prediction
@@ -365,7 +222,7 @@ namespace SeemoPredictor
 
                     };
 
-                    
+
 
                     //max:43259, min: 17892
                     //(directionResult.WindowAreaSum * 5288.02083158) > 17892) && ((directionResult.WindowAreaSum * 5288.02083158) < 43259)
@@ -382,10 +239,10 @@ namespace SeemoPredictor
                         viewAccesses.Add(viewAccess.ViewAccessB);
                         privacys.Add(privacy.PrivacyB);
 
-                        directionResult.PredictedOverallRating = overallRatings[overallRatings.Count - 1];
-                        directionResult.PredictedViewContent = viewContents[viewContents.Count - 1];
-                        directionResult.PredictedViewAccess = viewAccesses[viewAccesses.Count - 1];
-                        directionResult.PredictedPrivacy = privacys[privacys.Count - 1];
+                        seemoResult.Results[i].DirectionsResults[j].PredictedOverallRating = overallRatings[overallRatings.Count - 1];
+                        seemoResult.Results[i].DirectionsResults[j].PredictedViewContent = viewContents[viewContents.Count - 1];
+                        seemoResult.Results[i].DirectionsResults[j].PredictedViewAccess = viewAccesses[viewAccesses.Count - 1];
+                        seemoResult.Results[i].DirectionsResults[j].PredictedPrivacy = privacys[privacys.Count - 1];
 
                     }
                     else
@@ -395,27 +252,16 @@ namespace SeemoPredictor
                         viewAccesses.Add(double.NaN);
                         privacys.Add(double.NaN);
 
-                        directionResult.PredictedOverallRating = double.NaN;
-                        directionResult.PredictedViewContent = double.NaN;
-                        directionResult.PredictedOverallRating = double.NaN;
-                        directionResult.PredictedViewContent = double.NaN;
+                        seemoResult.Results[i].DirectionsResults[j].PredictedOverallRating = double.NaN;
+                        seemoResult.Results[i].DirectionsResults[j].PredictedViewContent = double.NaN;
+                        seemoResult.Results[i].DirectionsResults[j].PredictedOverallRating = double.NaN;
+                        seemoResult.Results[i].DirectionsResults[j].PredictedViewContent = double.NaN;
                     }
-
-
-
-                    //Save direction result
-                    nodeResult.Add(directionResult);
                 }
-
-                node.DirectionsResults = nodeResult;
-                //Save node result
-                resultNodes.Add(node);
             }
-            seemoResult.Results = resultNodes;
+            
 
-
-
-            report.AppendLine("Computing predictions: " + sp.ElapsedMilliseconds  + "[ms]");
+            report.AppendLine("Computing predictions: " + sp.ElapsedMilliseconds + "[ms]");
             sp.Restart();
 
 
@@ -424,7 +270,7 @@ namespace SeemoPredictor
             // -------------------------
             string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-            string dir =(path + @"\Seemo");
+            string dir = (path + @"\Seemo");
 
             if (!Directory.Exists(dir))
             {
@@ -435,14 +281,10 @@ namespace SeemoPredictor
             seemoResult.ToFile(dir + @"\Result" + time + ".json");
 
 
-            report.AppendLine("Saving result: " + sp.ElapsedMilliseconds  + "[ms]");
+            report.AppendLine("Saving result: " + sp.ElapsedMilliseconds + "[ms]");
             sp.Restart();
 
             //Debug.report.WriteLine("Saving result: " + sp.ElapsedMilliseconds + "[ms]");
-
-
-
-
 
 
             DA.SetData(0, report.ToString());
@@ -455,10 +297,7 @@ namespace SeemoPredictor
             DA.SetDataList(5, viewAccesses);
             DA.SetDataList(6, privacys);
 
- 
         }
-
-
 
         /// <summary>
         /// Provides an Icon for the component.
@@ -469,7 +308,7 @@ namespace SeemoPredictor
             {
                 //You can add image files to your project resources and access them like this:
                 // return Resources.IconForThisComponent;
-                return Properties.Resources.viewAnalyzer;
+                return null;
             }
         }
 
@@ -478,7 +317,7 @@ namespace SeemoPredictor
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("E3E704D9-F1FC-4384-95E5-BA5DC4F1594C"); }
+            get { return new Guid("7B6BB83C-0A13-44DC-B465-96FD58E8A420"); }
         }
     }
 }
