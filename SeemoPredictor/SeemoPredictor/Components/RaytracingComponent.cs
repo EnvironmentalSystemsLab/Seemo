@@ -62,7 +62,7 @@ namespace SeemoPredictor.Components
             DA.GetDataList(2, faces);
 
 
-            //calculate min, max mode size
+            //calculate min, max mode size and generate octree
             double avNodeSize = 0;
             double minNodeSize = double.MaxValue;
             double maxNodeSize = double.MinValue;
@@ -86,13 +86,6 @@ namespace SeemoPredictor.Components
             {
                 octree0.Add(f, f.Center);
             }
-
-
-
-            List<double> overallRatings = new List<double>();
-            List<double> viewContents = new List<double>();
-            List<double> viewAccesses = new List<double>();
-            List<double> privacys = new List<double>();
 
 
 
@@ -193,7 +186,7 @@ namespace SeemoPredictor.Components
 
 
             // -------------------------
-            // execute ML model and create result output classes
+            //  create result output classes
             // -------------------------
             int imgIndex = 0;
             for (int i = 0; i < sensors.Count; i++)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
+
 namespace SeemoPredictor.Geometry
 {
     
@@ -388,5 +389,7 @@ namespace SeemoPredictor.Geometry
 
             return degree;
         } 
+
+        
     }
 }
