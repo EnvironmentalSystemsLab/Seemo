@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using SeemoPredictor.Geometry;
+using Rhino.DocObjects;
 
 namespace SeemoPredictor
 {
@@ -102,7 +103,9 @@ namespace SeemoPredictor
             SmoSensor smoSensor = new SmoSensor(sp, SViewVectors, xResolution, HorizontalSceneAngle, VerticalSceneAngle);
 
             DA.SetData(0, smoSensor);
-            
+
+
+
 
         }
 

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
+using Rhino.DocObjects;
 using Rhino.Geometry;
 using SeemoPredictor.Geometry;
+using Rhino.Render;
 
 namespace SeemoPredictor
 {
@@ -68,6 +70,38 @@ namespace SeemoPredictor
             }
 
             DA.SetDataList(0, faces);
+
+
+
+
+
+            ////////////////for gpu
+            //generate material with material.ID
+            Material matType = new Material();
+            matType.Name = facetype.ToString();
+
+
+            //combine List<mesh>into one mesh
+            Mesh oneMesh = new Mesh();
+            foreach(Mesh m in rhinogeo)
+            {
+                oneMesh.Append(m);
+            }
+
+            //define mesh.material 
+            ObjectAttributes attr = new ObjectAttributes();
+            attr.Name = facetype.ToString();
+            attr.
+
+
+            //da.writeData 
+
+            RhinoObject obj;
+            obj = oneMesh;
+
+                //new ObjectAttributes(Material(matType));
+
+
         }
 
         /// <summary>

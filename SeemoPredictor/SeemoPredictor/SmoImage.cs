@@ -152,10 +152,6 @@ namespace SeemoPredictor
 
         }
 
-        public void ConvertFromGpuResultToImage(float[] distances, byte[] materials)
-        {
-            throw new NotImplementedException();
-        }
 
         /*
 
@@ -350,49 +346,7 @@ public SmoImage(Point3 pt, int Resolution)
         /// </summary>
         /// <param name="distances"></param>
         /// <param name="lables"></param>
-        public void ConvertFromGpuResultToImage(List<double> distances, List<int> lables) //compute using gpu
-        {
-
-            for (int x = 0; x < this.xres; x++)
-            {
-                for (int y = 0; y < this.yres; y++)
-                {
-                    var pt = this.Pt;
-                    var ray = this.ImageRays[x][y];
-
-                    double dist  = distances[y * xres + x]; //not sure about the order
-                    int label = lables[y * xres + x];
-
-                    Point3 hit = new Point3(0, 0, 0);  //fake
-                    //var face = SmoIntersect.IsVisible(octree, pt, ray, max, out hit);
-
-                    /*
-                    if (face == null)
-                    {
-                        this.LabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
-                        continue;
-                    }
-                    */
-
-                    this.Hits[x][y] = hit;
-                    this.DepthMap[x][y] = dist;
-
-                    switch (label)
-                    {
-                        case 0:
-                            this.LabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
-                            break;
-
-                        case 1:
-                            this.LabelMap[x][y] = SmoFace.SmoFaceType.Building;
-                            break;
-                    }
-
-
-                }
-            }
-        }
-
+        
 
         public Bitmap GetDepthBitmap()
         {
@@ -416,10 +370,10 @@ public SmoImage(Point3 pt, int Resolution)
                 for (int y = 0; y < this.yres; y++)
                 {
                     var val = this.DepthMap[x][y];
-                    var remap = ColorGenerator.Remap(val, min, max, 0, 1);
+                    var remap = ColorGenerator.Remap(val, 0, max, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
                     var pixColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
 
-                    bitmap.SetPixel(this.xres -x-1 , this.yres-y-1, pixColor);    
+                    bitmap.SetPixel(this.xres - x - 1 , this.yres - y - 1, pixColor);    
 
                 }
             }
@@ -444,7 +398,7 @@ public SmoImage(Point3 pt, int Resolution)
                     var remap = ColorGenerator.Remap(val, min, max, 0, 1);
                     var pixColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
 
-                    bitmap.SetPixel(this.xres - x - 1, this.yres-y-1, pixColor);
+                    bitmap.SetPixel(this.xres - x - 1, this.yres - y - 1, pixColor);
 
                 }
             }
