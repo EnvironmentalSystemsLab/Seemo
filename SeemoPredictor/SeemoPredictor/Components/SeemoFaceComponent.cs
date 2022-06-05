@@ -74,7 +74,7 @@ namespace SeemoPredictor
 
 
 
-
+            /*
             ////////////////for gpu
             //generate material with material.ID
             Material matType = new Material();
@@ -100,7 +100,7 @@ namespace SeemoPredictor
             obj = oneMesh;
 
                 //new ObjectAttributes(Material(matType));
-
+            */
 
         }
 
