@@ -53,7 +53,7 @@ namespace SeemoPredictor
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             
-           Point3d ViewPoint = Point3d.Origin;
+            Point3d ViewPoint = Point3d.Origin;
             List<Vector3d> ViewVectors = new List<Vector3d>();
             List<Point3> SViewPoints = new List<Point3>();
             List<Point3> SViewVectors = new List<Point3>();

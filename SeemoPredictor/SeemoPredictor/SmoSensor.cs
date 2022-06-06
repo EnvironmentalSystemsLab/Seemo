@@ -24,7 +24,7 @@ namespace SeemoPredictor
         {
         }
 
-        public SmoSensor(Point3  _pt, List<Point3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
+        public SmoSensor(Point3 _pt, List<Point3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
         {
             Pt = _pt;
             ViewDirections = _vecs.ToArray();

@@ -105,17 +105,17 @@ namespace SeemoPredictor.Components
             List<SmoImage> splitImages = new List<SmoImage>();
             //
 
-            bool singleDirection = false; //every sensors have the same viewdirections.
-            if (sensors[0].ViewDirections.Length == 1 && sensors[0].ViewDirections[0].Z == 0)
+            bool customSetDirections = true; //every sensors have the same viewdirections.
+            if (sensors[0].ViewDirections.Length == 8 && Point3.AngleDegree(sensors[0].ViewDirections[0], sensors[0].ViewDirections[4]) == 180)
             {
-                singleDirection = true;
+                customSetDirections = false;
             }
 
             List<SmoImage> sphericalImages = new List<SmoImage>();
 
             for (int i = 0; i < sensors.Count; i++)
             {
-                if (singleDirection)
+                if (customSetDirections)
                 {
                     for (int j = 0; j < sensors[i].ViewDirections.Length; j++)
                     {
@@ -140,7 +140,7 @@ namespace SeemoPredictor.Components
             // -------------------------
 
             SmoImage[] imageArray;
-            if (singleDirection)
+            if (customSetDirections)
             {
                 imageArray = images.ToArray();
 

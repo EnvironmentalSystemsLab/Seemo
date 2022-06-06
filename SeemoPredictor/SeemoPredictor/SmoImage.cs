@@ -16,7 +16,7 @@ namespace SeemoPredictor
         public int xres { get; set; }
         public int yres { get; set; }
 
-        double angleStep { get; set; }  
+        public double angleStep { get; set; }  
 
         public Point3 Pt { get; set; }
         public Point3 Dir { get; set; }
