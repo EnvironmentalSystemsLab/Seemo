@@ -68,12 +68,10 @@ namespace SeemoPredictor.Components
             if (!DA.GetData(1, ref seemoResult)) return;
 
 
-
             List<double> overallRatings = new List<double>();
             List<double> viewContents = new List<double>();
             List<double> viewAccesses = new List<double>();
             List<double> privacys = new List<double>();
-
 
 
             //output objects

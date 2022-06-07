@@ -3,6 +3,9 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
 using System;
 using System.Drawing;
+using Rhino.Geometry;
+using System.Collections.Generic;
+using SeemoPredictor.Geometry;
 
 namespace SeemoPredictor
 {
@@ -29,7 +32,10 @@ namespace SeemoPredictor
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("Results", "Res", "Direction Result", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Results", "Res", "Results", GH_ParamAccess.item);
+            pManager.AddBooleanParameter("DepthMap", "DepthMap", "DepthMap preview (otherwise Material Map", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("SensorID", "SensorID", "SensorID", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("DirectionID", "DirID", "DirectionID", GH_ParamAccess.item);
            
 
 
@@ -41,8 +47,8 @@ namespace SeemoPredictor
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("Data", "Data", "Data of current result view type", GH_ParamAccess.list);
+            pManager.AddPointParameter("HitPts", "HitPts", "Intersection Points", GH_ParamAccess.list);
         }
-
 
 
 
@@ -51,13 +57,51 @@ namespace SeemoPredictor
         protected override void SolveInstance(IGH_DataAccess DA)
         {
 
-             DirectionResult results = new DirectionResult();
+            SeemoResult smoResult = null;
+            DirectionResult results = new DirectionResult();
+            Boolean DepthMapPreview = false;
+            int sensorID = 0;
+            int dirID = 0;
 
-            DA.GetData(0, ref results);
+            List<Point3d> pts = new List<Point3d>();
+            List<String> data = new List<String>();
 
-            
+
+
+            DA.GetData(0, ref smoResult);
+            DA.GetData(1, ref DepthMapPreview);
+            DA.GetData(2, ref sensorID);
+            DA.GetData(3, ref dirID);
+
+            results = smoResult.Results[sensorID].DirectionsResults[dirID];
+
+
             //current img to be shown
-            this.Bitmap = results.Image.GetDepthBitmap();
+            if (DepthMapPreview)
+            {
+                this.Bitmap = results.Image.GetDepthBitmap();
+            }
+            else
+            {
+                this.Bitmap = results.Image.GetLabelBitmap();
+            }
+
+
+            foreach (Point3[] pt in results.Image.Hits)
+            {
+                foreach (Point3 pt2 in pt)
+                {
+                    pts.Add(new Point3d(pt2.X, pt2.Y, pt2.Z));
+                }
+            }
+
+            data.Add("OverallRating: " + results.PredictedOverallRating.ToString());
+            data.Add("View Content : " + results.PredictedViewContent.ToString());
+            data.Add("View Access  : " + results.PredictedViewAccess.ToString());
+            data.Add("Privacy      : " + results.PredictedPrivacy.ToString());
+
+            DA.SetDataList(0, data);
+            DA.SetDataList(1, pts);
 
 
         }
@@ -235,7 +279,7 @@ namespace SeemoPredictor
 
             MyGraphics.FillRectangle(myBrush, Rectangle.Round(rec));
             MyGraphics.DrawImage(bitmap, new RectangleF(rec.X, rec.Y, rec.Width, rec.Height));
-            MyGraphics.DrawString("No results to display", standardFontAdjust, Brushes.Black, new Point((int)rec.X + 12, (int)rec.Y + ((int)rec.Height) - 20), myFormat);
+            MyGraphics.DrawString("No results to display", standardFontAdjust, Brushes.Black, new System.Drawing.Point((int)rec.X + 12, (int)rec.Y + ((int)rec.Height) - 20), myFormat);
 
             myBrush.Dispose();
             myFormat.Dispose();

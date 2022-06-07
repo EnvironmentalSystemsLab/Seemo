@@ -9,6 +9,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Text;
 using System.IO;
+using System.Drawing;
 
 namespace SeemoPredictor.Components
 {
@@ -183,6 +184,14 @@ namespace SeemoPredictor.Components
             sp.Restart();
 
 
+            //save rendering into bmp
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string dir = (path + @"\NullEngine");
+
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
 
 
             // -------------------------
@@ -216,7 +225,18 @@ namespace SeemoPredictor.Components
                     directionResult.Image = imageArray[imgIndex];
                     imgIndex++;
 
+                    /*
+                    
+                    long time = DateTime.Now.ToFileTime();
+                    string filename1 = dir + @"\Mat_Sensor" + i + "_dir" + j + time + ".bmp";
+                    string filename2 = dir + @"\Depth_Sensor" + i + "_dir" + j + time + ".bmp";
 
+                    var MatBitmap = directionResult.Image.GetDepthBitmap();
+                    MatBitmap.Save(filename1);
+
+                    var DepthBitmap = directionResult.Image.GetLabelBitmap();
+                    DepthBitmap.Save(filename2);
+                    */
                     //Save direction result
                     nodeResult.Add(directionResult);
                 }
@@ -227,17 +247,12 @@ namespace SeemoPredictor.Components
             }
             seemoResult.Results = resultNodes;
 
-
-
-           
             report.AppendLine("Saving result: " + sp.ElapsedMilliseconds + "[ms]");
             sp.Restart();
 
-
             DA.SetData(0, report.ToString());
             DA.SetData(1, seemoResult);
-
-
+            
         }
 
         /// <summary>

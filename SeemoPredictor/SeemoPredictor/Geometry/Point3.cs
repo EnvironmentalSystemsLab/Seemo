@@ -378,10 +378,15 @@ namespace SeemoPredictor.Geometry
 
             double theta = Math.Acos(cos);
 
+            if(Dot(new Point3(0, 0, 1), Cross(v, k)) < 0) //clockwise (-)theta, counter clockwise (+)theta  / righthand screw law
+            {
+                theta = -1 * theta;
+            }
+
             return theta;
         }
 
-        public static double AngleDegree(Point3 v, Point3 k)
+        public static double AngleDegree(Point3 v, Point3 k)  //clockwise (-)theta, counter clockwise (+)theta  / righthand screw law
         {
             
             double theta = AngleTheta(v, k);
