@@ -27,8 +27,6 @@ namespace SeemoPredictor
         [JsonIgnore]
         public SmoImage Image { get; set; }
 
-
-
 /*
         [JsonIgnore]
         public List<SmoPoint3> RayCastHits { get; set; } = new List<SmoPoint3>();
@@ -61,35 +59,33 @@ namespace SeemoPredictor
         public double Z4PtsCountRatio { get; set; } = 0;
 
         public double InteriorPtsCountRatio { get; set; } = 0;
-        public double BuildingPtsCountRatio { get; set; } = 0;
-        //public double LandmarkPtsCountRatio { get; set; } = 0;
+        public double BuildingPtsCountRatio { get; set; } = 0;  //Building includes exterior + context.building
+        public double ContextWindowPtsCountRatio { get; set; } = 0;
         public double EquipmentPtsCountRatio { get; set; } = 0;
+        public double LandmarkPtsCountRatio { get; set; } = 0;
+        public double SidewalkPtsCountRatio { get; set; } = 0;
+        public double RoadPtsCountRatio { get; set; } = 0;
+        public double ParkingLotPtsCountRatio { get; set; } = 0;
         public double TreePtsCountRatio { get; set; } = 0;
-        public double PavementPtsCountRatio { get; set; } = 0;
         public double GrassPtsCountRatio { get; set; } = 0;
         public double WaterPtsCountRatio { get; set; } = 0;
-        public double DynamicPtsCountRatio { get; set; } = 0;
-        //public double PeoplePtsCountRatio { get; set; } = 0;
-        //public double CarPtsCountRatio { get; set; } = 0;
-        //public double WindowPtsCountRatio { get; set; } = 0;
-        //public double InfrastructurePtsCountRatio { get; set; } = 0;
+       
         public double SkyPtsCountRatio { get; set; } = 0;
         public double ElementNumber { get; set; } = 0;
         public double FloorHeights { get; set; } = 0;
 
         public double InteriorClosestDist { get; set; } = 0;
         public double BuildingClosestDist { get; set; } = 0;
-        //public double LandmarkClosestDist { get; set; } = 0;
+        public double ContextWindowClosestDist { get; set; } = 0;
         public double EquipmentClosestDist { get; set; } = 0;
+        public double LandmarkClosestDist { get; set; } = 0;
+        public double SidewalkClosestDist { get; set; } = 0;
+        public double RoadClosestDist { get; set; } = 0;
+        public double ParkingLotClosestDist { get; set; } = 0;
         public double TreeClosestDist { get; set; } = 0;
-        public double PavementClosestDist { get; set; } = 0;
         public double GrassClosestDist { get; set; } = 0;
         public double WaterClosestDist { get; set; } = 0;
-        public double DynamicClosestDist { get; set; } = 0;
-        //public double PeopleClosestDist { get; set; } = 0;
-        //public double CarClosestDist { get; set; } = 0;
-        //public double WindowClosestDist { get; set; } = 0;
-        //public double InfrastructureClosestDist { get; set; } = 0;
+
         public double SkyCondition { get; set; } = 0;
 
 
@@ -108,19 +104,17 @@ namespace SeemoPredictor
         public DirectionResult(double _WindowAreaSum,
             double _Z1PtsCountRatio, double _Z2PtsCountRatio,
             double _Z3PtsCountRatio, double _Z4PtsCountRatio,
-            double _InteriorPtsCountRatio, double _BuildingPtsCountRatio, 
-            //double _LandmarkPtsCountRatio, 
-            double _EquipmentPtsCountRatio, double _TreePtsCountRatio, double _PavementPtsCountRatio, double _GrassPtsCountRatio, double _WaterPtsCountRatio, 
-            double _DynamicPtsCountRatio,
-            //double _PeoplePtsCountRatio, double _CarPtsCountRatio, double _WindowPtsCountRatio, double _InfrastructurePtsCountRatio,
+            double _InteriorPtsCountRatio, double _BuildingPtsCountRatio, double _ContextWindowPtsCountRatio, double _EquipmentPtsCountRatio, double _LandmarkPtsCountRatio, 
+            double _SidewalkPtsCountRatio, double _RoadPtsCountRatio, double _ParkingLotPtsCountRatio, 
+            double _TreePtsCountRatio, double _GrassPtsCountRatio, double _WaterPtsCountRatio, 
+            
             double _SkyPtsCountRatio,
             double _ElementNumber, double _FloorHeights,
-            double _InteriorClosestDist, double _BuildingClosestDist, 
-            //double _LandmarkClosestDist,
-            double _EquipmentClosestDist, double _TreeClosestDist,
-            double _PavementClosestDist, double _GrassClosestDist, double _WaterClosestDist,
-            double _DynamicClosestDist
-            //double _PeopleClosestDist, double _CarClosestDist, double _WindowClosestDist, double _InfrastructureClosestDist
+
+            double _InteriorClosestDist, double _BuildingClosestDist, double _ContextWindowClosestDist, double _EquipmentClosestDist, double _LandmarkClosestDist,
+            double _SidewalkClosestDist, double _RoadClosestDist, double _ParkingLotClosestDist,
+            double _TreeClosestDist, double _GrassClosestDist, double _WaterClosestDist
+            
             )
         {
             WindowNumber = 2;
@@ -134,17 +128,18 @@ namespace SeemoPredictor
 
             InteriorPtsCountRatio = _InteriorPtsCountRatio;
             BuildingPtsCountRatio = _BuildingPtsCountRatio;
-            //LandmarkPtsCountRatio = _LandmarkPtsCountRatio;
+            ContextWindowPtsCountRatio = _ContextWindowPtsCountRatio;
             EquipmentPtsCountRatio = _EquipmentPtsCountRatio;
+            LandmarkPtsCountRatio = _LandmarkPtsCountRatio;
+            
+            SidewalkPtsCountRatio = _SidewalkPtsCountRatio;
+            RoadPtsCountRatio = _RoadPtsCountRatio;
+            ParkingLotPtsCountRatio = _ParkingLotPtsCountRatio;
+
             TreePtsCountRatio = _TreePtsCountRatio;
-            PavementPtsCountRatio = _PavementPtsCountRatio;
             GrassPtsCountRatio = _GrassPtsCountRatio;
             WaterPtsCountRatio = _WaterPtsCountRatio;
-            DynamicPtsCountRatio = _DynamicPtsCountRatio;
-            //PeoplePtsCountRatio = _PeoplePtsCountRatio;
-            //CarPtsCountRatio = _CarPtsCountRatio;
-            //WindowPtsCountRatio = _WindowPtsCountRatio;
-            //InfrastructurePtsCountRatio = _InfrastructurePtsCountRatio;
+
             SkyPtsCountRatio = _SkyPtsCountRatio;
 
             ElementNumber = _ElementNumber;
@@ -152,17 +147,17 @@ namespace SeemoPredictor
 
             InteriorClosestDist = _InteriorClosestDist;
             BuildingClosestDist = _BuildingClosestDist;
-            //LandmarkClosestDist = _LandmarkClosestDist;
+            ContextWindowClosestDist = _ContextWindowClosestDist;
             EquipmentClosestDist = _EquipmentClosestDist;
+            LandmarkClosestDist = _LandmarkClosestDist;
+
+            SidewalkClosestDist = _SidewalkClosestDist;
+            RoadClosestDist = _RoadClosestDist;
+            ParkingLotClosestDist = _ParkingLotClosestDist;
+
             TreeClosestDist = _TreeClosestDist;
-            PavementClosestDist = _PavementClosestDist;
             GrassClosestDist = _GrassClosestDist;
             WaterClosestDist = _WaterClosestDist;
-            DynamicClosestDist = _DynamicClosestDist;
-            //PeopleClosestDist = _PeopleClosestDist;
-            //CarClosestDist = _CarClosestDist;
-            //WindowClosestDist = _WindowClosestDist;
-            //InfrastructureClosestDist = _InfrastructureClosestDist;
 
         }
 
@@ -182,17 +177,18 @@ namespace SeemoPredictor
 
             List<double> interiorDists = new List<double>();
             List<double> buildingDists = new List<double>();
-            //List<double> landmarkDists = new List<double>();
+            List<double> contextWindowDists = new List<double>();
             List<double> equipmentDists = new List<double>();
+            List<double> landmarkDists = new List<double>();
+
+            List<double> sidewalkDists = new List<double>();
+            List<double> roadDists = new List<double>();
+            List<double> parkingLotDists = new List<double>();
+
             List<double> treeDists = new List<double>();
-            List<double> pavementDists = new List<double>();
             List<double> grassDists = new List<double>();
             List<double> waterDists = new List<double>();
-            List<double> dynamicDists = new List<double>();
-            //List<double> peopleDists = new List<double>();
-            //List<double> carDists = new List<double>();
-            //List<double> windowDists = new List<double>();
-            //List<double> infrastructureDists = new List<double>();
+
             List<double> skyDists = new List<double>();
 
 
@@ -217,20 +213,31 @@ namespace SeemoPredictor
                             else z1hit--;
 
                             break;
-                        case SmoFace.SmoFaceType.Building:
+                        case SmoFace.SmoFaceType.Exterior:
                             buildingDists.Add(dist);
                             break;
-                        //case SmoFace.SmoFaceType.Landmark:
-                            //landmarkDists.Add(dist);
-                            //break;
+                        case SmoFace.SmoFaceType.Context_Building:
+                            buildingDists.Add(dist);
+                            break;
                         case SmoFace.SmoFaceType.Equipment:
                             equipmentDists.Add(dist);
                             break;
+                        case SmoFace.SmoFaceType.Landmark:
+                            landmarkDists.Add(dist);
+                            break;
+
+                        case SmoFace.SmoFaceType.Sidewalk:
+                            sidewalkDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Road:
+                            roadDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.ParkingLot:
+                            parkingLotDists.Add(dist);
+                            break;
+
                         case SmoFace.SmoFaceType.Tree:
                             treeDists.Add(dist);
-                            break;
-                        case SmoFace.SmoFaceType.Pavement:
-                            pavementDists.Add(dist);
                             break;
                         case SmoFace.SmoFaceType.Grass:
                             grassDists.Add(dist);
@@ -238,26 +245,8 @@ namespace SeemoPredictor
                         case SmoFace.SmoFaceType.Water:
                             waterDists.Add(dist);
                             break;
-                        case SmoFace.SmoFaceType.Dynamic:
-                            dynamicDists.Add(dist);
-                            break;
-                        //case SmoFace.SmoFaceType.People:
-                        //    peopleDists.Add(dist);
-                        //    break;
-                        //case SmoFace.SmoFaceType.Car:
-                        //    carDists.Add(dist);
-                        //    break;
-                        //case SmoFace.SmoFaceType.Window:
-                        //    windowDists.Add(dist);
-                        //    break;
-                        //case SmoFace.SmoFaceType.Infrastructure:
-                        //    infrastructureDists.Add(dist);
-                        //    break;
+                        
                     }
-
-
-
-
                 }
             }
 
@@ -303,20 +292,21 @@ namespace SeemoPredictor
 
             this.InteriorPtsCountRatio = ((double)(interiorDists.Count)) / zhitSum;
             this.BuildingPtsCountRatio = ((double)(buildingDists.Count)) / zhitSum;
-            //this.LandmarkPtsCountRatio = ((double)(landmarkDists.Count)) / zhitSum;
+            this.ContextWindowPtsCountRatio = ((double)(contextWindowDists.Count)) / zhitSum;
             this.EquipmentPtsCountRatio = ((double)(equipmentDists.Count)) / zhitSum;
+            this.LandmarkPtsCountRatio = ((double)(landmarkDists.Count)) / zhitSum;
+
+            this.SidewalkPtsCountRatio = ((double)(sidewalkDists.Count)) / zhitSum;
+            this.RoadPtsCountRatio = ((double)(roadDists.Count)) / zhitSum;
+            this.ParkingLotPtsCountRatio = ((double)(parkingLotDists.Count)) / zhitSum;
+
             this.TreePtsCountRatio = ((double)(treeDists.Count)) / zhitSum;
-            this.PavementPtsCountRatio = ((double)(pavementDists.Count)) / zhitSum;
             this.GrassPtsCountRatio = ((double)(grassDists.Count)) / zhitSum;
             this.WaterPtsCountRatio = ((double)(waterDists.Count)) / zhitSum;
-            this.DynamicPtsCountRatio = ((double)(dynamicDists.Count)) / zhitSum;
-            //this.PeoplePtsCountRatio = ((double)(peopleDists.Count)) / zhitSum;
-            //this.CarPtsCountRatio = ((double)(carDists.Count)) / zhitSum;
-            //this.WindowPtsCountRatio = ((double)(windowDists.Count)) / zhitSum;
-            //this.InfrastructurePtsCountRatio = ((double)(infrastructureDists.Count)) / zhitSum;
-            this.SkyPtsCountRatio = (1 - this.BuildingPtsCountRatio - this.EquipmentPtsCountRatio - this.TreePtsCountRatio - this.PavementPtsCountRatio - this.GrassPtsCountRatio - this.WaterPtsCountRatio - 
-                this.DynamicPtsCountRatio
-                //this.PeoplePtsCountRatio - this.WindowPtsCountRatio
+
+            this.SkyPtsCountRatio = (1 - this.BuildingPtsCountRatio - this.ContextWindowPtsCountRatio - this.EquipmentPtsCountRatio - this.LandmarkPtsCountRatio 
+                - this.SidewalkPtsCountRatio - this.RoadPtsCountRatio - this.ParkingLotPtsCountRatio
+                - this.TreePtsCountRatio - this.GrassPtsCountRatio - this.WaterPtsCountRatio
                 );
 
             //calculate object's closest distance and type
@@ -341,22 +331,22 @@ namespace SeemoPredictor
 
             this.InteriorClosestDist = ComputeClosestDist(interiorDists);
             this.BuildingClosestDist = ComputeClosestDist(buildingDists);
-            //this.LandmarkClosestDist = ComputeClosestDist(landmarkDists);
+            this.ContextWindowClosestDist = ComputeClosestDist(contextWindowDists);
             this.EquipmentClosestDist = ComputeClosestDist(equipmentDists);
+            this.LandmarkClosestDist = ComputeClosestDist(landmarkDists);
+
+            this.SidewalkClosestDist = ComputeClosestDist(sidewalkDists);
+            this.RoadClosestDist = ComputeClosestDist(roadDists);
+            this.ParkingLotClosestDist = ComputeClosestDist(parkingLotDists);
+
             this.TreeClosestDist = ComputeClosestDist(treeDists);
-            this.PavementClosestDist = ComputeClosestDist(pavementDists);
             this.GrassClosestDist = ComputeClosestDist(grassDists);
             this.WaterClosestDist = ComputeClosestDist(waterDists);
-            this.DynamicClosestDist = ComputeClosestDist(dynamicDists);
-            //this.PeopleClosestDist = ComputeClosestDist(peopleDists);
-            //this.CarClosestDist = ComputeClosestDist(carDists);
-            //this.WindowClosestDist = ComputeClosestDist(windowDists);
-            //this.InfrastructureClosestDist = ComputeClosestDist(infrastructureDists);
 
             //calculate visible element types count
-            List<int> elementPts = new List<int> { buildingDists.Count, equipmentDists.Count, treeDists.Count, pavementDists.Count, grassDists.Count, waterDists.Count, 
-                dynamicDists.Count,
-                //peopleDists.Count, windowDists.Count, 
+            List<int> elementPts = new List<int> { buildingDists.Count, contextWindowDists.Count, equipmentDists.Count, landmarkDists.Count, 
+                sidewalkDists.Count, roadDists.Count, parkingLotDists.Count, 
+                treeDists.Count, grassDists.Count, waterDists.Count, 
                 skyDists.Count };
 
             int elementNumber = 0;

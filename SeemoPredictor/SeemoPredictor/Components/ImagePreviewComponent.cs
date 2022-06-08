@@ -18,14 +18,12 @@ namespace SeemoPredictor
         public Bitmap Bitmap;
 
 
-
         public ImagePreviewComponent()
           : base("ImageViewer", "Viewer",
               "Show bitmap",
             "SeEmo", "5|Environment")
         {
         }
-
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
@@ -37,11 +35,7 @@ namespace SeemoPredictor
             pManager.AddIntegerParameter("SensorID", "SensorID", "SensorID", GH_ParamAccess.item);
             pManager.AddIntegerParameter("DirectionID", "DirID", "DirectionID", GH_ParamAccess.item);
            
-
-
         }
-
-
 
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -49,7 +43,6 @@ namespace SeemoPredictor
             pManager.AddTextParameter("Data", "Data", "Data of current result view type", GH_ParamAccess.list);
             pManager.AddPointParameter("HitPts", "HitPts", "Intersection Points", GH_ParamAccess.list);
         }
-
 
 
         /// <param name="DA">The DA object can be used to retrieve data from input parameters and 
@@ -65,7 +58,6 @@ namespace SeemoPredictor
 
             List<Point3d> pts = new List<Point3d>();
             List<String> data = new List<String>();
-
 
 
             DA.GetData(0, ref smoResult);
@@ -140,9 +132,6 @@ namespace SeemoPredictor
 
         }
 
-
-
- 
     }
 
 
@@ -192,8 +181,6 @@ namespace SeemoPredictor
             // shift output region
             m_innerBounds.X = Bounds.Right - border - ImagePreviewComponent.Params.OutputWidth - m_innerBounds.Width;
             LayoutOutputParams(Owner, m_innerBounds);
-
-
 
         }
 
