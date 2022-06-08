@@ -37,10 +37,7 @@ namespace SeemoPredictor
             pManager.AddIntegerParameter("SensorID", "SensorID", "SensorID", GH_ParamAccess.item);
             pManager.AddIntegerParameter("DirectionID", "DirID", "DirectionID", GH_ParamAccess.item);
            
-
-
         }
-
 
 
 
