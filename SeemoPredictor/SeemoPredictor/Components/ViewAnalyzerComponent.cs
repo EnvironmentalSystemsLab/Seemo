@@ -96,19 +96,30 @@ namespace SeemoPredictor
             avNodeSize /= faces.Count;
             // make octree for visibility
             float worldSize = (float)worldbounds.Size.Length * 0.8f;
-            PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize));
+            PointOctree<SmoFace> octreeEnv = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize)); //includes interior + environment
+            PointOctree<SmoFace> octreeWindow = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize)); //includes interior + glazing
+
             foreach (SmoFace f in faces)
             {
-                octree0.Add(f, f.Center);
+                if(f.ViewContentType == SmoFace.SmoFaceType.Glazing)
+                {
+                    octreeWindow.Add(f, f.Center);
+                }else if(f.ViewContentType == SmoFace.SmoFaceType.Interior)
+                {
+                    octreeEnv.Add(f, f.Center);
+                    octreeWindow.Add(f, f.Center);
+                }
+                else
+                {
+                    octreeEnv.Add(f, f.Center);
+                }
             }
-
 
 
             List<double> overallRatings = new List<double>();
             List<double> viewContents = new List<double>();
             List<double> viewAccesses = new List<double>();
             List<double> privacys = new List<double>();
-
 
 
             //output objects
@@ -169,7 +180,7 @@ namespace SeemoPredictor
                 //    for (int i = 0; i < imageArray.Length; i++)
                 Parallel.For(0, imageArray.Length, i =>
                 {
-                    imageArray[i].ComputeImage(octree0, maxNodeSize);
+                    imageArray[i].ComputeImage(octreeEnv, octreeWindow, maxNodeSize);
                 }); // Parallel.For
             }
             else
@@ -179,7 +190,7 @@ namespace SeemoPredictor
                 //    for (int i = 0; i < imageArray.Length; i++)
                 Parallel.For(0, sphericalImageArray.Length, i =>
                 {
-                    sphericalImageArray[i].ComputeImage(octree0, maxNodeSize);
+                    sphericalImageArray[i].ComputeImage(octreeEnv, octreeWindow, maxNodeSize);
                 }); // Parallel.For
 
                 //spliting images
