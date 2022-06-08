@@ -101,8 +101,6 @@ namespace SeemoPredictor.Components
 
                     DirectionResult directionResult = seemoResult.Results[i].DirectionsResults[j];
                     
-                    
-
                     seemoResult.Results[i].DirectionsResults[j].FloorHeights = (directionResult.ViewPointZ - glevel);
 
 
