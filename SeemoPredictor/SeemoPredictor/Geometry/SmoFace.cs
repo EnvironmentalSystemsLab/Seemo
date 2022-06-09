@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
-
+using System.Collections.Generic;
 
 namespace SeemoPredictor.Geometry
 {
@@ -86,6 +86,42 @@ namespace SeemoPredictor.Geometry
             }
             return area;
         }
+
+        //public static void ConvertToNull(List<SmoFace> smofaces, out List<float> vertices, out List<int> triangles, out List<int> mats)
+        //{
+        //    vertices = new List<float>();
+        //    triangles = new List<int>();
+        //    mats = new List<int>();
+        //    int vertexIndex = 0;
+            
+        //    for(int i = 0; i < smofaces.Count; i++)  //smofaces should be all triangles //check if there is quad~~~!!! 
+        //    {
+        //        vertices.Add((float)smofaces[i].VertexList[0].X);
+        //        vertices.Add((float)smofaces[i].VertexList[0].Y);
+        //        vertices.Add((float)smofaces[i].VertexList[0].Z);
+        //        triangles.Add(vertexIndex);
+                
+        //        vertexIndex++;
+
+
+        //        vertices.Add((float)smofaces[i].VertexList[1].X);
+        //        vertices.Add((float)smofaces[i].VertexList[1].Y);
+        //        vertices.Add((float)smofaces[i].VertexList[1].Z);
+        //        triangles.Add(vertexIndex); 
+        //        vertexIndex++;
+
+        //        vertices.Add((float)smofaces[i].VertexList[2].X);
+        //        vertices.Add((float)smofaces[i].VertexList[2].Y);
+        //        vertices.Add((float)smofaces[i].VertexList[2].Z);
+        //        triangles.Add(vertexIndex); 
+        //        vertexIndex++;
+
+        //        mats.Add((int)smofaces[i].ViewContentType);
+        //        //face defined, stores
+
+
+        //    }
+        //}
 
 
         [JsonConverter(typeof(StringEnumConverter))]
