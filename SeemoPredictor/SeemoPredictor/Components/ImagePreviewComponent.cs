@@ -71,15 +71,15 @@ namespace SeemoPredictor
             //current img to be shown
             if (DepthMapPreview)
             {
-                this.Bitmap = results.Image.GetDepthBitmap();
+                this.Bitmap = results.Image.GetWindowDepthBitmap();
             }
             else
             {
-                this.Bitmap = results.Image.GetLabelBitmap();
+                this.Bitmap = results.Image.GetWindowLabelBitmap();
             }
 
 
-            foreach (Point3[] pt in results.Image.Hits)
+            foreach (Point3[] pt in results.Image.WindowHits) //Image.Hits
             {
                 foreach (Point3 pt2 in pt)
                 {

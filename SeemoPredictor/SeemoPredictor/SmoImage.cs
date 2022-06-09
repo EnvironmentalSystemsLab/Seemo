@@ -338,6 +338,72 @@ namespace SeemoPredictor
             return bitmap;
         }
 
+        public Bitmap GetWindowDepthBitmap()
+        {
+            double min = double.MaxValue;
+            double max = double.MinValue;
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var val = this.WindowDepthMap[x][y];
+                    min = Math.Min(min, val);
+                    max = Math.Max(max, val);
+                }
+            }
+
+
+            var bitmap = new Bitmap(this.xres, this.yres);
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var val = this.WindowDepthMap[x][y];
+                    var remap = ColorGenerator.Remap(val, 0, max, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
+                    var pixColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
+
+                    bitmap.SetPixel(this.xres - x - 1, this.yres - y - 1, pixColor);
+
+                }
+            }
+
+            return bitmap;
+        }
+
+        public Bitmap GetWindowNormalBitmap()
+        {
+            double min = double.MaxValue;
+            double max = double.MinValue;
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var val = this.WindowNormals[x][y].Length;
+                    min = Math.Min(min, val);
+                    max = Math.Max(max, val);
+                }
+            }
+
+
+            var bitmap = new Bitmap(this.xres, this.yres);
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var val = this.WindowNormals[x][y].Length;
+                    var remap = ColorGenerator.Remap(val, 0, max, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
+                    var pixColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
+
+                    bitmap.SetPixel(this.xres - x - 1, this.yres - y - 1, pixColor);
+
+                }
+            }
+
+            return bitmap;
+        }
+
         public Bitmap GetLabelBitmap()
         {
 
@@ -352,6 +418,31 @@ namespace SeemoPredictor
                 {
 
                     double val = (double)((int) this.LabelMap[x][y]);
+                    var remap = ColorGenerator.Remap(val, min, max, 0, 1);
+                    var pixColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
+
+                    bitmap.SetPixel(this.xres - x - 1, this.yres - y - 1, pixColor);
+
+                }
+            }
+
+            return bitmap;
+        }
+
+        public Bitmap GetWindowLabelBitmap()
+        {
+
+            double min = 0;
+            double max = Enum.GetNames(typeof(SmoFace.SmoFaceType)).Length;
+
+            var bitmap = new Bitmap(this.xres, this.yres);
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+
+                    double val = (double)((int)this.WindowLabelMap[x][y]);
                     var remap = ColorGenerator.Remap(val, min, max, 0, 1);
                     var pixColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
 
