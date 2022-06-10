@@ -140,13 +140,18 @@ namespace SeemoPredictor.Geometry
         public enum SmoFaceType
         {
             Interior,
-            Building,
+            Exterior,
+            Glazing,
+            Context_Building,
+            Context_Window,
             Equipment,
+            Landmark,
+            Sidewalk,
+            Road,
+            ParkingLot,
             Tree,
-            Pavement,
             Grass,
             Water,
-            Dynamic,
             _UNSET_
         }
 

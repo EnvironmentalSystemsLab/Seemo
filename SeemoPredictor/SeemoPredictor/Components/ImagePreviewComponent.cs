@@ -1,4 +1,4 @@
-﻿using Grasshopper.GUI.Canvas;
+using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
 using System;
@@ -18,14 +18,12 @@ namespace SeemoPredictor
         public Bitmap Bitmap;
 
 
-
         public ImagePreviewComponent()
           : base("ImageViewer", "Viewer",
               "Show bitmap",
             "SeEmo", "5|Environment")
         {
         }
-
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
@@ -40,13 +38,11 @@ namespace SeemoPredictor
         }
 
 
-
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("Data", "Data", "Data of current result view type", GH_ParamAccess.list);
             pManager.AddPointParameter("HitPts", "HitPts", "Intersection Points", GH_ParamAccess.list);
         }
-
 
 
         /// <param name="DA">The DA object can be used to retrieve data from input parameters and 
@@ -64,7 +60,6 @@ namespace SeemoPredictor
             List<String> data = new List<String>();
 
 
-
             DA.GetData(0, ref smoResult);
             DA.GetData(1, ref DepthMapPreview);
             DA.GetData(2, ref sensorID);
@@ -76,15 +71,15 @@ namespace SeemoPredictor
             //current img to be shown
             if (DepthMapPreview)
             {
-                this.Bitmap = results.Image.GetDepthBitmap();
+                this.Bitmap = results.Image.GetWindowDepthBitmap();
             }
             else
             {
-                this.Bitmap = results.Image.GetLabelBitmap();
+                this.Bitmap = results.Image.GetWindowLabelBitmap();
             }
 
 
-            foreach (Point3[] pt in results.Image.Hits)
+            foreach (Point3[] pt in results.Image.WindowHits) //Image.Hits
             {
                 foreach (Point3 pt2 in pt)
                 {
@@ -137,9 +132,6 @@ namespace SeemoPredictor
 
         }
 
-
-
- 
     }
 
 
@@ -189,8 +181,6 @@ namespace SeemoPredictor
             // shift output region
             m_innerBounds.X = Bounds.Right - border - ImagePreviewComponent.Params.OutputWidth - m_innerBounds.Width;
             LayoutOutputParams(Owner, m_innerBounds);
-
-
 
         }
 

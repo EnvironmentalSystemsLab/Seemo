@@ -82,13 +82,26 @@ namespace SeemoPredictor.Components
             avNodeSize /= faces.Count;
             // make octree for visibility
             float worldSize = (float)worldbounds.Size.Length * 0.8f;
-            PointOctree<SmoFace> octree0 = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize));
+
+            PointOctree<SmoFace> octreeEnv = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize));
+            PointOctree<SmoFace> octreeWindow = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize));
+
             foreach (SmoFace f in faces)
             {
-                octree0.Add(f, f.Center);
+                if (f.ViewContentType == SmoFace.SmoFaceType.Glazing)
+                {
+                    octreeWindow.Add(f, f.Center);
+                }
+                else if (f.ViewContentType == SmoFace.SmoFaceType.Interior)
+                {
+                    octreeEnv.Add(f, f.Center);
+                    octreeWindow.Add(f, f.Center);
+                }
+                else
+                {
+                    octreeEnv.Add(f, f.Center);
+                }
             }
-
-
 
             //output objects
             var seemoResult = new SeemoResult();
@@ -148,7 +161,7 @@ namespace SeemoPredictor.Components
                 //    for (int i = 0; i < imageArray.Length; i++)
                 Parallel.For(0, imageArray.Length, i =>
                 {
-                    imageArray[i].ComputeImage(octree0, maxNodeSize);
+                    imageArray[i].ComputeImage(octreeEnv, octreeWindow, maxNodeSize);
                 }); // Parallel.For
             }
             else
@@ -158,7 +171,7 @@ namespace SeemoPredictor.Components
                 //    for (int i = 0; i < imageArray.Length; i++)
                 Parallel.For(0, sphericalImageArray.Length, i =>
                 {
-                    sphericalImageArray[i].ComputeImage(octree0, maxNodeSize);
+                    sphericalImageArray[i].ComputeImage(octreeEnv, octreeWindow, maxNodeSize);
                 }); // Parallel.For
 
                 //spliting images
@@ -219,7 +232,6 @@ namespace SeemoPredictor.Components
                     directionResult.ViewVectorX = sensors[i].ViewDirections[j].X;
                     directionResult.ViewVectorY = sensors[i].ViewDirections[j].Y;
                     directionResult.ViewVectorZ = sensors[i].ViewDirections[j].Z;
-
 
 
                     directionResult.Image = imageArray[imgIndex];

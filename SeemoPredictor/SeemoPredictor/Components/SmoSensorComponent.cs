@@ -82,7 +82,7 @@ namespace SeemoPredictor
 
 
  
-                Point3 sp = new Point3(ViewPoint.X, ViewPoint.Y, ViewPoint.Z);
+            Point3 sp = new Point3(ViewPoint.X, ViewPoint.Y, ViewPoint.Z);
              
 
             //Convert Vector3d to SmoPoint3
@@ -103,8 +103,6 @@ namespace SeemoPredictor
             SmoSensor smoSensor = new SmoSensor(sp, SViewVectors, xResolution, HorizontalSceneAngle, VerticalSceneAngle);
 
             DA.SetData(0, smoSensor);
-
-
 
 
         }
