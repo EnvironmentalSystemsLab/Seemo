@@ -103,7 +103,7 @@ namespace SeemoPredictor
                 return WindowHits.SelectMany(a => a).ToArray();
             }
         }
-
+        
         public Point3[][] WindowNormals { get; set; }
         public Point3[] WindowNormalsFlat
         {
@@ -113,6 +113,7 @@ namespace SeemoPredictor
                 return WindowNormals.SelectMany(a => a).ToArray();
             }
         }
+        
 
 
         public SmoImage(Point3 pt, Point3 dir, int Resolution, double horizontalViewAngle, double verticalViewAngle) {
