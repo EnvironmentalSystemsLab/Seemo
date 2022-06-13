@@ -66,7 +66,7 @@ namespace SeemoPredictor
 
             foreach (var m in rhinogeo)
             {
-                faces.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, facetype));
+                faces.AddRange(Mesh2SmoFaces.MeshToSmoFaces(m, facetype)); //every mesh faces are divied to triganles and saved into smofaces
             }
 
             DA.SetDataList(0, faces);

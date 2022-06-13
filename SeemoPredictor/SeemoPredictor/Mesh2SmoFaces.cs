@@ -10,7 +10,7 @@ namespace SeemoPredictor
 {
     public class Mesh2SmoFaces
     {
-        public static List<SmoFace> MeshToSmoFaces(Mesh m, SmoFace.SmoFaceType type)
+        public static List<SmoFace> MeshToSmoFaces(Mesh m, SmoFace.SmoFaceType type) 
         {
             List<SmoFace> smoFaces = new List<SmoFace>();
 
@@ -26,15 +26,24 @@ namespace SeemoPredictor
                 Point3 p1 = new Point3(b.X, b.Y, b.Z);
                 Point3 p2 = new Point3(c.X, c.Y, c.Z);
 
-                if (m.Faces[i].IsQuad)
+                if (m.Faces[i].IsQuad)  //if it's quad divide into two triangles and save
                 {
-                    pts = new Point3[4];
+                    
+                    pts = new Point3[3];
                     var d = m.Vertices[m.Faces[i].D];
                     Point3 p3 = new Point3(d.X, d.Y, d.Z);
                     pts[0] = p0;
                     pts[1] = p1;
                     pts[2] = p2;
-                    pts[3] = p3;
+
+                    Point3[] pts2 = new Point3[3];
+                    pts2[0] = p0;
+                    pts2[1] = p2;
+                    pts2[2] = p3;
+
+                    SmoFace smoFace2 = new SmoFace(pts2, type);
+                    smoFaces.Add(smoFace2);
+
                 }
                 else
                 {
@@ -44,17 +53,13 @@ namespace SeemoPredictor
                     pts[2] = p2;
                 }
 
-                SmoFace smoFace = new SmoFace(pts);
-                smoFace.ComputeCenter();
-                //smoFace.ComputeNormal();
-                //smoFace.ComputeArea();
-                //smoFace.ComputeAngleToNorth();
-
-                smoFace.ViewContentType = type;
+                SmoFace smoFace = new SmoFace(pts, type);
                 smoFaces.Add(smoFace);
             }
             return smoFaces;
         }
+
+        
 
 
     }

@@ -19,21 +19,33 @@ namespace SeemoPredictor.Geometry
 
 
 
-
         public BBox BoundingBox { get; set; }
 
 
 
-
-
         public SmoFace() { }
-        public SmoFace(Point3[] points)
+
+        //public SmoFace(Point3[] points)
+        //{
+        //    if (!(points.Length > 2 && points.Length < 5)) return;
+        //    VertexList = points;
+        //    if (VertexList.Length == 4) IsQuad = true;
+        //    Normal = ComputeNormal();
+        //    BoundingBox = GetBoundingBox();
+        //}
+
+        public SmoFace(Point3[] points, SmoFaceType type)
         {
             if (!(points.Length > 2 && points.Length < 5)) return;
-            VertexList = points;
+            this.VertexList = points;
             if (VertexList.Length == 4) IsQuad = true;
-            Normal = ComputeNormal();
-            BoundingBox = GetBoundingBox();
+            this.Normal = ComputeNormal();
+            this.BoundingBox = GetBoundingBox();
+            this.ViewContentType = type;
+            this.ComputeCenter();
+            //smoFace.ComputeNormal();
+            //smoFace.ComputeArea();
+            //smoFace.ComputeAngleToNorth();
         }
 
         internal BBox GetBoundingBox(){
@@ -87,41 +99,38 @@ namespace SeemoPredictor.Geometry
             return area;
         }
 
-        //public static void ConvertToNull(List<SmoFace> smofaces, out List<float> vertices, out List<int> triangles, out List<int> mats)
-        //{
-        //    vertices = new List<float>();
-        //    triangles = new List<int>();
-        //    mats = new List<int>();
-        //    int vertexIndex = 0;
-            
-        //    for(int i = 0; i < smofaces.Count; i++)  //smofaces should be all triangles //check if there is quad~~~!!! 
-        //    {
-        //        vertices.Add((float)smofaces[i].VertexList[0].X);
-        //        vertices.Add((float)smofaces[i].VertexList[0].Y);
-        //        vertices.Add((float)smofaces[i].VertexList[0].Z);
-        //        triangles.Add(vertexIndex);
-                
-        //        vertexIndex++;
+        public static void ConvertToPrimitive(List<SmoFace> smofaces, out List<float> vertices, out List<int> triangles, out List<int> mats)
+        {
+            vertices = new List<float>();
+            triangles = new List<int>();
+            mats = new List<int>();
+            int vertexIndex = 0;
+
+            for (int i = 0; i < smofaces.Count; i++)  //smo faces are all triangles
+            {
+                vertices.Add((float)smofaces[i].VertexList[0].X);
+                vertices.Add((float)smofaces[i].VertexList[0].Y);
+                vertices.Add((float)smofaces[i].VertexList[0].Z);
+                triangles.Add(vertexIndex);
+                vertexIndex++;
 
 
-        //        vertices.Add((float)smofaces[i].VertexList[1].X);
-        //        vertices.Add((float)smofaces[i].VertexList[1].Y);
-        //        vertices.Add((float)smofaces[i].VertexList[1].Z);
-        //        triangles.Add(vertexIndex); 
-        //        vertexIndex++;
+                vertices.Add((float)smofaces[i].VertexList[1].X);
+                vertices.Add((float)smofaces[i].VertexList[1].Y);
+                vertices.Add((float)smofaces[i].VertexList[1].Z);
+                triangles.Add(vertexIndex);
+                vertexIndex++;
 
-        //        vertices.Add((float)smofaces[i].VertexList[2].X);
-        //        vertices.Add((float)smofaces[i].VertexList[2].Y);
-        //        vertices.Add((float)smofaces[i].VertexList[2].Z);
-        //        triangles.Add(vertexIndex); 
-        //        vertexIndex++;
+                vertices.Add((float)smofaces[i].VertexList[2].X);
+                vertices.Add((float)smofaces[i].VertexList[2].Y);
+                vertices.Add((float)smofaces[i].VertexList[2].Z);
+                triangles.Add(vertexIndex);
+                vertexIndex++;
 
-        //        mats.Add((int)smofaces[i].ViewContentType);
-        //        //face defined, stores
-
-
-        //    }
-        //}
+                mats.Add((int)smofaces[i].ViewContentType);
+                //face defined, stores
+            }
+        }
 
 
         [JsonConverter(typeof(StringEnumConverter))]
