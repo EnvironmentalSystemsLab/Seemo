@@ -61,8 +61,8 @@ namespace SeemoPredictor
         }
 
         //raycast output
-        public SmoFace.SmoFaceType[][] LabelMap { get; set; }
-        public string[] LabelMapFlat
+        public SmoFace.SmoFaceType[][] LabelMap { get; set; } //no glazing
+        public string[] LabelMapFlat  
         {
             get
             {
@@ -73,7 +73,7 @@ namespace SeemoPredictor
         }
 
         //raycast2 output
-        public double[][] WindowDepthMap { get; set; }
+        public double[][] WindowDepthMap { get; set; } //0(nothing was hit), dist to glazing or dist to interior
         public double[] WindowDepthMapFlat
         {
             get
@@ -83,7 +83,7 @@ namespace SeemoPredictor
             }
         }
 
-        public SmoFace.SmoFaceType[][] WindowLabelMap { get; set; }
+        public SmoFace.SmoFaceType[][] WindowLabelMap { get; set; }  //glazing, interior, _unset_
         public string[] WindowLabelMapFlat
         {
             get
@@ -94,7 +94,7 @@ namespace SeemoPredictor
             }
         }
         
-        public Point3[][] WindowHits { get; set; }
+        public Point3[][] WindowHits { get; set; } // hitting points to glazing and interior, or (0,0,0)
         public Point3[] WindowHitsFlat
         {
             get
@@ -104,7 +104,7 @@ namespace SeemoPredictor
             }
         }
         
-        public Point3[][] WindowNormals { get; set; }
+        public Point3[][] WindowNormals { get; set; } //only when it hits glazing. otherwise (0,0,0)
         public Point3[] WindowNormalsFlat
         {
             get
@@ -270,31 +270,56 @@ namespace SeemoPredictor
                     if (face == null)
                     {
                         this.LabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
-                        continue;
-                    }
-                    double dist = Point3.Distance(hit, pt);
-                    this.Hits[x][y] = hit;
-                    this.DepthMap[x][y] = (hit - pt).Length;
-                    this.LabelMap[x][y] = face.ViewContentType;
+                        this.DepthMap[x][y] = 0;
+                        this.Hits[x][y] = pt;
 
-                    //check intersection with windows
-                    if (face.ViewContentType != SmoFace.SmoFaceType.Interior)
+                    }
+                    else
                     {
-                        Point3 hit2;
-                        var face2 = SmoIntersect.IsVisible(octreeWindow, pt, ray, max, out hit2);
-
-                        if (face2 == null)
-                        {
-                            this.WindowLabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
-                            continue;
-                        }
-
-                        double dist2 = Point3.Distance(hit2, pt);
-                        this.WindowHits[x][y] = hit2;
-                        this.WindowDepthMap[x][y] = (hit2 - pt).Length;
-                        this.WindowLabelMap[x][y] = face2.ViewContentType;
-                        this.WindowNormals[x][y] = face2.Normal;
+                        this.LabelMap[x][y] = face.ViewContentType;
+                        double dist = Point3.Distance(hit, pt);
+                        this.DepthMap[x][y] = dist;
+                        this.Hits[x][y] = hit;
                     }
+
+                    
+
+                    //generate windowMaps
+                    Point3 hit2;
+                    var face2 = SmoIntersect.IsVisible(octreeWindow, pt, ray, max, out hit2);
+                    double dist2 = Point3.Distance(hit2, pt);
+
+                    if (face2 == null)
+                    {
+                        this.WindowLabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
+                        this.WindowDepthMap[x][y] = 0;
+                        this.WindowHits[x][y] = pt;
+                        this.WindowNormals[x][y] = Point3.Zero;
+
+                    }else if(face2.ViewContentType == SmoFace.SmoFaceType.Glazing)
+                    {
+                        this.WindowLabelMap[x][y] = face2.ViewContentType;
+                        this.WindowDepthMap[x][y] = dist2;
+                        this.WindowHits[x][y] = hit2;
+                        this.WindowNormals[x][y] = face2.Normal;
+
+                    }else if(face2.ViewContentType == SmoFace.SmoFaceType.Interior)
+                    {
+                        this.WindowLabelMap[x][y] = face2.ViewContentType;
+                        this.WindowDepthMap[x][y] = dist2;
+                        this.WindowHits[x][y] = hit2;
+                        this.WindowNormals[x][y] = Point3.Zero;
+                    }
+                    else
+                    {
+                        this.WindowLabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
+                        this.WindowDepthMap[x][y] = 0;
+                        this.WindowHits[x][y] = pt;
+                        this.WindowNormals[x][y] = Point3.Zero;
+                    }
+
+                    
+
                 }
             }
         }
@@ -380,7 +405,7 @@ namespace SeemoPredictor
             {
                 for (int y = 0; y < this.yres; y++)
                 {
-                    var val = this.WindowNormals[x][y].Length;
+                    var val = Point3.Dot(-(this.Dir), this.WindowNormals[x][y]);
                     min = Math.Min(min, val);
                     max = Math.Max(max, val);
                 }
@@ -394,7 +419,7 @@ namespace SeemoPredictor
                 for (int y = 0; y < this.yres; y++)
                 {
                     var val = this.WindowNormals[x][y].Length;
-                    var remap = ColorGenerator.Remap(val, 0, max, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
+                    var remap = ColorGenerator.Remap(val, 0, Math.Max(Math.Abs(min), Math.Abs(max)), 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
                     var pixColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
 
                     bitmap.SetPixel(this.xres - x - 1, this.yres - y - 1, pixColor);
