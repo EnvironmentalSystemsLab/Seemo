@@ -99,7 +99,7 @@ namespace SeemoPredictor.Geometry
             return area;
         }
 
-        public static void ConvertToPrimitive(List<SmoFace> smofaces, out List<float> vertices, out List<int> triangles, out List<int> mats)
+        public static void ConvertToOBJdata(List<SmoFace> smofaces, out List<float> vertices, out List<int> triangles, out List<int> mats)
         {
             vertices = new List<float>();
             triangles = new List<int>();
@@ -108,22 +108,23 @@ namespace SeemoPredictor.Geometry
 
             for (int i = 0; i < smofaces.Count; i++)  //smo faces are all triangles
             {
+                //in obj(nullgh) yz is fliped and -  // ref. vector.cs
                 vertices.Add((float)smofaces[i].VertexList[0].X);
-                vertices.Add((float)smofaces[i].VertexList[0].Y);
-                vertices.Add((float)smofaces[i].VertexList[0].Z);
+                vertices.Add(-(float)smofaces[i].VertexList[0].Z);
+                vertices.Add(-(float)smofaces[i].VertexList[0].Y);
                 triangles.Add(vertexIndex);
                 vertexIndex++;
 
 
                 vertices.Add((float)smofaces[i].VertexList[1].X);
-                vertices.Add((float)smofaces[i].VertexList[1].Y);
-                vertices.Add((float)smofaces[i].VertexList[1].Z);
+                vertices.Add(-(float)smofaces[i].VertexList[1].Z);
+                vertices.Add(-(float)smofaces[i].VertexList[1].Y);
                 triangles.Add(vertexIndex);
                 vertexIndex++;
 
                 vertices.Add((float)smofaces[i].VertexList[2].X);
-                vertices.Add((float)smofaces[i].VertexList[2].Y);
-                vertices.Add((float)smofaces[i].VertexList[2].Z);
+                vertices.Add(-(float)smofaces[i].VertexList[2].Z);
+                vertices.Add(-(float)smofaces[i].VertexList[2].Y);
                 triangles.Add(vertexIndex);
                 vertexIndex++;
 

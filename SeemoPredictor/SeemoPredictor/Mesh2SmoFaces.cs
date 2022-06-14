@@ -16,7 +16,7 @@ namespace SeemoPredictor
 
             for (int i = 0; i < m.Faces.Count; i++)
             {
-
+                
                 Point3[] pts;
 
                 var a = m.Vertices[m.Faces[i].A];
