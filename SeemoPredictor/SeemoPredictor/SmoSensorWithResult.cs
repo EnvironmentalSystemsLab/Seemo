@@ -88,6 +88,7 @@ namespace SeemoPredictor
 
         public double SkyCondition { get; set; } = 0;
 
+        public double IPVEI { get; set; } = 0;
 
         public double PredictedOverallRating { get; set; } = 0;
         public double PredictedViewContent { get; set; } = 0;
@@ -191,17 +192,17 @@ namespace SeemoPredictor
 
             List<double> skyDists = new List<double>();
 
-
-
-
             for (int x = 0; x < Image.LabelMap.Length; x++)
             {
                 for (int y = 0; y < Image.LabelMap[x].Length; y++)
                 {
                     SmoFace.SmoFaceType type = Image.LabelMap[x][y];
                     double dist = Image.DepthMap[x][y];
+                    double windowDist = Image.WindowDepthMap[x][y]; //애네가 000
+                    Point3 windowN = Image.WindowNormals[x][y]; //애네가 000
                     Point3 ray = Image.ImageRays[x][y];
 
+                    
                     switch (type)
                     {
                         case SmoFace.SmoFaceType.Interior:
@@ -218,6 +219,9 @@ namespace SeemoPredictor
                             break;
                         case SmoFace.SmoFaceType.Context_Building:
                             buildingDists.Add(dist);
+                            break;
+                        case SmoFace.SmoFaceType.Context_Window:
+                            contextWindowDists.Add(dist);
                             break;
                         case SmoFace.SmoFaceType.Equipment:
                             equipmentDists.Add(dist);
@@ -247,10 +251,39 @@ namespace SeemoPredictor
                             break;
                         
                     }
+
+                    
+                    double CalculatePVEI()
+                    {
+                        double rayPVEI = 0;
+                        // calculate PVEI
+                        Point3 windowNtemp = windowN.Normalized;
+                        windowNtemp = new Point3(windowNtemp.X, windowNtemp.Y, 0);
+                        windowNtemp = Point3.Rotate(windowNtemp, Point3.ZAxis, (float)Math.PI / 2);
+                        Point3 raytemp = new Point3(ray.X, ray.Y, 0);
+
+                        rayPVEI = dist * dist * windowDist * windowDist / (dist - windowDist) / (dist - windowDist); //later multiply tan(angleStep)^4 then, it's Aobserver * Aprojected / (do - dprojected)^2
+                        rayPVEI = rayPVEI * (Point3.Cross(windowNtemp, raytemp).Length) / windowNtemp.Length / raytemp.Length;// multiply sin(alpha)
+                        rayPVEI = rayPVEI * (raytemp.Length / ray.Length); //multiply cosin
+
+                        if (y < a) rayPVEI = rayPVEI * 2.0f / 13.0f;
+                        else if (y > b) rayPVEI = rayPVEI * 2.0f / 13.0f;
+                        else if (x < c || x > d) rayPVEI = rayPVEI * 3.0f / 13.0f;
+                        else rayPVEI = rayPVEI * 6.0f / 13.0f;
+
+                        double pixelLength = Math.Tan(Image.angleStep / 180 * Math.PI);
+                        rayPVEI = rayPVEI * Math.Pow(pixelLength, 2); //it should be 4 but.. to small
+                        return rayPVEI;
+                    }
+
+                    if (type == SmoFace.SmoFaceType.Context_Window || type == SmoFace.SmoFaceType.Sidewalk || type == SmoFace.SmoFaceType.Road || type == SmoFace.SmoFaceType.ParkingLot)
+                    {
+                        IPVEI = IPVEI + CalculatePVEI();
+                    }
                 }
             }
 
-
+            
             //calculate ml inputs
             double zhitSum = z1hit + z2hit + z3hit + z4hit;
 
@@ -264,33 +297,10 @@ namespace SeemoPredictor
             this.Z2PtsCountRatio = (double)z2hit / zhitSum;
             this.Z3PtsCountRatio = (double)z3hit / zhitSum;
             this.Z4PtsCountRatio = (double)z4hit / zhitSum;
-
-            //***********Without WindowMesh How can I count window number???
-            ////Previous Method: Count how many window are visible
-            ////int[] winIhit;
-            //List<int> hitWindows = new List<int>();
-
-            //for (int i = 0; i < winRayVectors0.Count; i++)
-            //{
-            //    Vector3d ray = winRayVectors0[i];
-            //    ray.Unitize();
-            //    Ray3d ray1 = new Ray3d(vp, ray);
-
-            //    for (int q = 0; q < windowMeshs.Count; q++)
-            //    {
-            //        var dtr = Rhino.Geometry.Intersect.Intersection.MeshRay(windowMeshs[q], ray1);
-            //        if (dtr > 0)
-            //        {
-            //            hitWindows.Add(q);
-            //        }
-            //    }
-            //}
-            //hitWindows = hitWindows.Distinct().ToList();
-            //wn = hitWindows.Count;
-            //this.WindowNumber = 2;
+            
             this.SkyCondition = 1;
 
-            this.InteriorPtsCountRatio = ((double)(interiorDists.Count)) / zhitSum;
+            //this.InteriorPtsCountRatio = ((double)(interiorDists.Count)) / zhitSum;
             this.BuildingPtsCountRatio = ((double)(buildingDists.Count)) / zhitSum;
             this.ContextWindowPtsCountRatio = ((double)(contextWindowDists.Count)) / zhitSum;
             this.EquipmentPtsCountRatio = ((double)(equipmentDists.Count)) / zhitSum;
@@ -364,6 +374,8 @@ namespace SeemoPredictor
             this.FloorHeights = this.ViewPointZ;
 
         }
+
+        
     }
 
 }
