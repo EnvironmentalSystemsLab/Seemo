@@ -273,7 +273,7 @@ namespace SeemoPredictor
                         else rayPVEI = rayPVEI * 6.0f / 13.0f;
 
                         double pixelLength = Math.Tan(Image.angleStep / 180 * Math.PI);
-                        rayPVEI = rayPVEI * Math.Pow(pixelLength, 2); //it should be 4 but.. to small
+                        rayPVEI = rayPVEI * Math.Pow(pixelLength, 4); //it should be 4 but.. to small
                         return rayPVEI;
                     }
 
