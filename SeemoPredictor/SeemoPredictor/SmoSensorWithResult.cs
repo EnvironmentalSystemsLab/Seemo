@@ -89,6 +89,7 @@ namespace SeemoPredictor
         public double SkyCondition { get; set; } = 0;
 
         public double IPVEI { get; set; } = 0;
+        public double ViewContentFramework { get; set; } = 0;
 
         public double PredictedOverallRating { get; set; } = 0;
         public double PredictedViewContent { get; set; } = 0;
@@ -369,9 +370,75 @@ namespace SeemoPredictor
             }
 
             this.ElementNumber = elementNumber;
-
-            this.SkyCondition = 1;
+            if(SkyPtsCountRatio > 0) { this.SkyCondition = 1; } else
+            {
+                this.SkyCondition = 0;
+            }
             this.FloorHeights = this.ViewPointZ;
+
+            //calculate viewContentFramework
+            double Lsky = 0;
+            double Llandscape = 0;
+            double Lground = 0;
+            double Lnautre = 0;
+
+            List<double> LandscapeDists = new List<double>();
+            LandscapeDists.AddRange(buildingDists);
+            LandscapeDists.AddRange(contextWindowDists);
+            LandscapeDists.AddRange(equipmentDists);
+            LandscapeDists.AddRange(LandscapeDists);
+            LandscapeDists.Sort();
+
+            List<double> DynamicDists = new List<double>(); // also represents ground
+            DynamicDists.AddRange(sidewalkDists);
+            DynamicDists.AddRange(roadDists);
+            DynamicDists.AddRange(parkingLotDists);
+            DynamicDists.Sort();
+
+            double NatureRatio = 0;
+            NatureRatio = TreePtsCountRatio + GrassPtsCountRatio + WaterPtsCountRatio;
+
+            if(SkyPtsCountRatio > 0) { Lsky = 0.25; }
+            
+            if(LandscapeDists.Count!= 0)
+            {
+                double dist = LandscapeDists.Average();
+                if(dist > 50) { Llandscape = 1 * 0.25; }
+                else if( dist > 20) { Llandscape = 0.75 * 0.25; }
+                else if( dist > 6) { Llandscape = 0.5 * 0.25; }
+                else { Llandscape = 0; }
+            }
+            else
+            {
+                Llandscape = 0;
+            }
+
+            if (DynamicDists.Count != 0)
+            {
+                
+                if (DynamicDists[-1] > 6) { Lground = 1 * 0.25; }
+                else if (DynamicDists[0] <= 6 ) { Lground = 0 * 0.25; }
+                else { Lground = 0.5 * 0.25; }
+            }
+            else
+            {
+                Lground = 0;
+            }
+
+            if (NatureRatio > 0)
+            {
+                if(NatureRatio > 0.5) { Lnautre = 1 * 0.25; }
+                else if(NatureRatio > 0.25) { Lnautre = 0.75 * 0.25; }
+                else { Lnautre = 0.5 * 0.25; }
+            }
+            else
+            {
+                Lnautre = 0;
+            }
+
+            this.ViewContentFramework = Lsky + Llandscape + Lground + Lnautre;
+
+
 
         }
 
