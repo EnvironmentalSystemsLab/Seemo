@@ -416,7 +416,7 @@ namespace SeemoPredictor
             if (DynamicDists.Count != 0)
             {
                 
-                if (DynamicDists[-1] > 6) { Lground = 1 * 0.25; }
+                if (DynamicDists[DynamicDists.Count-1] > 6) { Lground = 1 * 0.25; }
                 else if (DynamicDists[0] <= 6 ) { Lground = 0 * 0.25; }
                 else { Lground = 0.5 * 0.25; }
             }
@@ -438,11 +438,8 @@ namespace SeemoPredictor
 
             this.ViewContentFramework = Lsky + Llandscape + Lground + Lnautre;
 
-
-
         }
 
-        
     }
 
 }

@@ -29,6 +29,7 @@ namespace SeemoPredictor
         {
             //  pManager.AddGenericParameter("ViewResult", "ViewResult", "ViewResult", GH_ParamAccess.tree);
             pManager.AddTextParameter("Path", "Path", "Result file path", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Graph Size", "Size", "Graph Size", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -40,10 +41,14 @@ namespace SeemoPredictor
             pManager.AddMeshParameter("View Content Graph", "View Content Graph", "View Content Graph", GH_ParamAccess.list);
             pManager.AddMeshParameter("View Access Graph", "View Access Graph", "View Access Graph", GH_ParamAccess.list);
             pManager.AddMeshParameter("Privacy Graph", "Privacy Graph", "Privacy Graph", GH_ParamAccess.list);
+            pManager.AddMeshParameter("Framework Graph", "Framework Graph", "Framework Graph", GH_ParamAccess.list);
+            pManager.AddMeshParameter("I-PVEI Graph", "I-PVEI Graph", "I-PVEI Graph", GH_ParamAccess.list);
             pManager.AddNumberParameter("OverallRating", "OverallRating", "OverallRating", GH_ParamAccess.item);
             pManager.AddNumberParameter("View Content", "View Content", "View Content", GH_ParamAccess.item);
             pManager.AddNumberParameter("View Access", "View Access", "View Access", GH_ParamAccess.item);
             pManager.AddNumberParameter("Privacy", "Privacy", "Privacy", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Framework", "Framework", "Framework", GH_ParamAccess.item);
+            pManager.AddNumberParameter("I-PVEI", "I-PVEI", "I-PVEI", GH_ParamAccess.item);
 
         }
 
@@ -54,7 +59,9 @@ namespace SeemoPredictor
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             string path = "";
+            double scale = 1;
             if (!DA.GetData(0, ref path)) { return; }
+            DA.GetData(1, ref scale);
 
             if ( ! File.Exists(path)) {
 
@@ -71,10 +78,14 @@ namespace SeemoPredictor
             List<Mesh> viewContentGraphs = new List<Mesh>();
             List<Mesh> viewAccessGraphs = new List<Mesh>();
             List<Mesh> privacyGraphs = new List<Mesh>();
+            List<Mesh> frameworkGraphs = new List<Mesh>();
+            List<Mesh> IPVEIGraphs = new List<Mesh>();
             List<double> overalls = new List<double>();
             List<double> contents = new List<double>();
             List<double> accesses = new List<double>();
             List<double> privacys = new List<double>();
+            List<double> frameworks = new List<double>();
+            List<double> IPVEIs = new List<double>();
 
 
             //Wind Rose Mesh Generation
@@ -94,7 +105,7 @@ namespace SeemoPredictor
                     
                     Transform rocw25 = Transform.Rotation(-0.125 * (Math.PI), viewPoint);
                     Transform roccw25 = Transform.Rotation(0.125 * (Math.PI), viewPoint);
-                    Point3d p1 = new Point3d(viewPoint + 0.3 * viewVector);
+                    Point3d p1 = new Point3d(viewPoint + scale * 0.3 * viewVector);
                     Point3d p2 = p1;
                     p1.Transform(rocw25);
                     p2.Transform(roccw25);
@@ -223,6 +234,66 @@ namespace SeemoPredictor
 
                     privacyGraphs.Add(privacyPetal);
 
+                    //5.Framework
+                    Color frameworkColor;
+                    double frameworkV = resultData3.ViewContentFramework;
+                    if (resultData3.WindowAreaSum <= 0.05)
+                    { frameworkColor = Color.DarkGray; }
+                    else if ((frameworkV >= 0) && (frameworkV <= 1))
+                    {
+                        frameworks.Add(frameworkV);
+                        double frameworkP = ColorGenerator.Remap(frameworkV, 0, 1, 0, 1);
+                        frameworkColor = ColorGenerator.GetTriColour(frameworkP, Color.IndianRed, Color.Orange, Color.LightSeaGreen);
+                    }
+                    else
+                    { frameworkColor = Color.DarkGray; }
+
+                    Mesh frameworkPetal = new Mesh();
+                    frameworkPetal.Vertices.Add(viewPoint);
+                    frameworkPetal.Vertices.Add(p1);
+                    frameworkPetal.Vertices.Add(p2);
+
+                    frameworkPetal.Faces.AddFace(0, 1, 2);
+
+                    frameworkPetal.VertexColors.SetColor(0, frameworkColor);
+                    frameworkPetal.VertexColors.SetColor(1, frameworkColor);
+                    frameworkPetal.VertexColors.SetColor(2, frameworkColor);
+
+                    frameworkPetal.Normals.ComputeNormals();
+                    //petal.FaceNormals.ComputeFaceNormals();
+
+                    frameworkGraphs.Add(frameworkPetal);
+
+                    //6.IPVEI
+                    Color IPVEIColor;
+                    double IPVEIV = resultData3.IPVEI;
+                    if (resultData3.WindowAreaSum <= 0.05)
+                    { IPVEIColor = Color.DarkGray; }
+                    else if ((IPVEIV >= 0.00000001) && (IPVEIV <= 10))
+                    {
+                        IPVEIs.Add(IPVEIV);
+                        double IPVEIP = ColorGenerator.Remap(-Math.Log10(IPVEIV), 3, 9, 0, 1);
+                        IPVEIColor = ColorGenerator.GetTriColour(IPVEIP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
+                    }
+                    else
+                    { IPVEIColor = Color.DarkGray; }
+
+                    Mesh IPVEIPetal = new Mesh();
+                    IPVEIPetal.Vertices.Add(viewPoint);
+                    IPVEIPetal.Vertices.Add(p1);
+                    IPVEIPetal.Vertices.Add(p2);
+
+                    IPVEIPetal.Faces.AddFace(0, 1, 2);
+
+                    IPVEIPetal.VertexColors.SetColor(0, IPVEIColor);
+                    IPVEIPetal.VertexColors.SetColor(1, IPVEIColor);
+                    IPVEIPetal.VertexColors.SetColor(2, IPVEIColor);
+
+                    IPVEIPetal.Normals.ComputeNormals();
+                    //petal.FaceNormals.ComputeFaceNormals();
+
+                    IPVEIGraphs.Add(IPVEIPetal);
+
 
 
                 }
@@ -235,15 +306,21 @@ namespace SeemoPredictor
             DA.SetDataList(1, viewContentGraphs);
             DA.SetDataList(2, viewAccessGraphs);
             DA.SetDataList(3, privacyGraphs);
+            DA.SetDataList(4, frameworkGraphs);
+            DA.SetDataList(5, IPVEIGraphs);
 
             double o = overalls.Average();
             double c = contents.Average();
             double a = accesses.Average();
             double p = privacys.Average();
-            DA.SetData(4, o);
-            DA.SetData(5, c);
-            DA.SetData(6, a);
-            DA.SetData(7, p);
+            double f = frameworks.Average();
+            double v = IPVEIs.Average();
+            DA.SetData(6, o);
+            DA.SetData(7, c);
+            DA.SetData(8, a);
+            DA.SetData(9, p);
+            DA.SetData(10, f);
+            DA.SetData(11, v);
 
         }
 
