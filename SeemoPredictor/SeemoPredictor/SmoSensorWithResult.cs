@@ -88,8 +88,10 @@ namespace SeemoPredictor
 
         public double SkyCondition { get; set; } = 0;
 
-        public double IPVEI { get; set; } = 0;
+        
         public double ViewContentFramework { get; set; } = 0;
+        public double SPVEI { get; set; } = 0;
+        //public double IPVEI { get; set; } = 0;
 
         public double PredictedOverallRating { get; set; } = 0;
         public double PredictedViewContent { get; set; } = 0;
@@ -279,11 +281,15 @@ namespace SeemoPredictor
 
                     if (type == SmoFace.SmoFaceType.Context_Window || type == SmoFace.SmoFaceType.Sidewalk || type == SmoFace.SmoFaceType.Road || type == SmoFace.SmoFaceType.ParkingLot)
                     {
-                        IPVEI = IPVEI + CalculatePVEI();
+                        if(dist>1 && dist < 200)
+                        {
+                            this.SPVEI = this.SPVEI + ( 1 / dist );
+                        }
                     }
                 }
             }
 
+            this.SPVEI = SPVEI * 10 / (Image.xres * Image.yres);
             
             //calculate ml inputs
             double zhitSum = z1hit + z2hit + z3hit + z4hit;

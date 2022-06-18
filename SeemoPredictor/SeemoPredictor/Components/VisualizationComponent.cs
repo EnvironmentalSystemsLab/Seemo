@@ -7,6 +7,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 using Rhino.Geometry;
 using System.Linq;
+using System.Drawing.Imaging;
 
 namespace SeemoPredictor
 {
@@ -42,13 +43,15 @@ namespace SeemoPredictor
             pManager.AddMeshParameter("View Access Graph", "View Access Graph", "View Access Graph", GH_ParamAccess.list);
             pManager.AddMeshParameter("Privacy Graph", "Privacy Graph", "Privacy Graph", GH_ParamAccess.list);
             pManager.AddMeshParameter("Framework Graph", "Framework Graph", "Framework Graph", GH_ParamAccess.list);
-            pManager.AddMeshParameter("I-PVEI Graph", "I-PVEI Graph", "I-PVEI Graph", GH_ParamAccess.list);
+            pManager.AddMeshParameter("SPVEI Graph", "SPVEI Graph", "S-PVEI Graph", GH_ParamAccess.list);
+            //pManager.AddMeshParameter("I-PVEI Graph", "I-PVEI Graph", "I-PVEI Graph", GH_ParamAccess.list);
             pManager.AddNumberParameter("OverallRating", "OverallRating", "OverallRating", GH_ParamAccess.item);
             pManager.AddNumberParameter("View Content", "View Content", "View Content", GH_ParamAccess.item);
             pManager.AddNumberParameter("View Access", "View Access", "View Access", GH_ParamAccess.item);
             pManager.AddNumberParameter("Privacy", "Privacy", "Privacy", GH_ParamAccess.item);
             pManager.AddNumberParameter("Framework", "Framework", "Framework", GH_ParamAccess.item);
-            pManager.AddNumberParameter("I-PVEI", "I-PVEI", "I-PVEI", GH_ParamAccess.item);
+            pManager.AddNumberParameter("S-PVEI", "S-PVEI", "S-PVEI", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("I-PVEI", "I-PVEI", "I-PVEI", GH_ParamAccess.item);
 
         }
 
@@ -79,13 +82,15 @@ namespace SeemoPredictor
             List<Mesh> viewAccessGraphs = new List<Mesh>();
             List<Mesh> privacyGraphs = new List<Mesh>();
             List<Mesh> frameworkGraphs = new List<Mesh>();
-            List<Mesh> IPVEIGraphs = new List<Mesh>();
+            List<Mesh> SPVEIGraphs = new List<Mesh>();
+            //List<Mesh> IPVEIGraphs = new List<Mesh>();
             List<double> overalls = new List<double>();
             List<double> contents = new List<double>();
             List<double> accesses = new List<double>();
             List<double> privacys = new List<double>();
             List<double> frameworks = new List<double>();
-            List<double> IPVEIs = new List<double>();
+            List<double> SPVEIs = new List<double>();
+            //List<double> IPVEIs = new List<double>();
 
 
             //Wind Rose Mesh Generation
@@ -116,15 +121,15 @@ namespace SeemoPredictor
                     double overallRatingV = resultData3.PredictedOverallRating;
                     
                     if (resultData3.WindowAreaSum <= 0.05)
-                    { overallRatingColor = Color.DarkGray; }
+                    { overallRatingColor = Color.Black; }
                     else if((overallRatingV >= -5) && (overallRatingV <= 5))
                     {
                         overalls.Add(overallRatingV);
                         double overallRatingP = ColorGenerator.Remap(overallRatingV, -5, 5, 0, 1);
-                        overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.Red, Color.Yellow, Color.Blue);
+                        overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.HotPink, Color.YellowGreen, Color.Cyan);
                     }
                     else
-                    { overallRatingColor = Color.DarkGray; }
+                    { overallRatingColor = Color.Black; }
 
                     Mesh overallRatingPetal = new Mesh();
                     overallRatingPetal.Vertices.Add(viewPoint);
@@ -147,15 +152,18 @@ namespace SeemoPredictor
                     Color viewContentColor;
                     double viewContentV = resultData3.PredictedViewContent;
                     if (resultData3.WindowAreaSum <= 0.05)
-                    { viewContentColor = Color.DarkGray; }
+                    { viewContentColor = Color.Black; }
                     else if ((viewContentV >= -5) && (viewContentV <= 5))
                     {
                         contents.Add(viewContentV);
                         double viewContentP = ColorGenerator.Remap(viewContentV, -5, 5, 0, 1);
-                        viewContentColor = ColorGenerator.GetTriColour(viewContentP, Color.Red, Color.Orange, Color.Green);
+
+                        Color lightIndianRed = Color.FromArgb(255, 205 + 20, 92 + 20, 92 + 20);
+                        viewContentColor = ColorGenerator.GetTriColour(viewContentP, lightIndianRed, Color.Beige, Color.LightSeaGreen);
+
                     }
                     else
-                    { viewContentColor = Color.DarkGray; }
+                    { viewContentColor = Color.Black; }
 
                     Mesh viewContentPetal = new Mesh();
                     viewContentPetal.Vertices.Add(viewPoint);
@@ -178,15 +186,15 @@ namespace SeemoPredictor
                     Color viewAccessColor;
                     double viewAccessV = resultData3.PredictedViewAccess;
                     if (resultData3.WindowAreaSum <= 0.05)
-                    { viewAccessColor = Color.DarkGray; }
+                    { viewAccessColor = Color.Black; }
                     else if ((viewAccessV >= -5) && (viewAccessV <= 5))
                     {
                         accesses.Add(viewAccessV);
                         double viewAccessP = ColorGenerator.Remap(viewAccessV, -5, 5, 0, 1);
-                        viewAccessColor = ColorGenerator.GetTriColour(viewAccessP, Color.HotPink, Color.YellowGreen, Color.Cyan);
+                        viewAccessColor = ColorGenerator.GetTriColour(viewAccessP, Color.Red, Color.Yellow, Color.Blue);
                     }
                     else
-                    { viewAccessColor = Color.DarkGray; }
+                    { viewAccessColor = Color.Black; }
 
                     Mesh viewAccessPetal = new Mesh();
                     viewAccessPetal.Vertices.Add(viewPoint);
@@ -208,7 +216,7 @@ namespace SeemoPredictor
                     Color privacyColor;
                     double privacyV = resultData3.PredictedPrivacy;
                     if (resultData3.WindowAreaSum <= 0.05)
-                    { privacyColor = Color.DarkGray; }
+                    { privacyColor = Color.Black; }
                     else if ((privacyV >= -5) && (privacyV <= 5))
                     {
                         privacys.Add(privacyV);
@@ -216,7 +224,7 @@ namespace SeemoPredictor
                         privacyColor = ColorGenerator.GetTriColour(privacyP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
                     }
                     else
-                    { privacyColor = Color.DarkGray; }
+                    { privacyColor = Color.Black; }
 
                     Mesh privacyPetal = new Mesh();
                     privacyPetal.Vertices.Add(viewPoint);
@@ -238,15 +246,18 @@ namespace SeemoPredictor
                     Color frameworkColor;
                     double frameworkV = resultData3.ViewContentFramework;
                     if (resultData3.WindowAreaSum <= 0.05)
-                    { frameworkColor = Color.DarkGray; }
+                    { frameworkColor = Color.Black; }
                     else if ((frameworkV >= 0) && (frameworkV <= 1))
                     {
                         frameworks.Add(frameworkV);
                         double frameworkP = ColorGenerator.Remap(frameworkV, 0, 1, 0, 1);
-                        frameworkColor = ColorGenerator.GetTriColour(frameworkP, Color.IndianRed, Color.Orange, Color.LightSeaGreen);
+                        Color P1 = Color.FromArgb(255, 255, 151, 82);
+                        Color P2 = Color.FromArgb(255, 237, 244, 160);
+                        Color P3 = Color.FromArgb(255, 152, 200, 117);
+                        frameworkColor = ColorGenerator.GetTriColour(frameworkP, P1, P2, P3);
                     }
                     else
-                    { frameworkColor = Color.DarkGray; }
+                    { frameworkColor = Color.Black; }
 
                     Mesh frameworkPetal = new Mesh();
                     frameworkPetal.Vertices.Add(viewPoint);
@@ -265,35 +276,84 @@ namespace SeemoPredictor
                     frameworkGraphs.Add(frameworkPetal);
 
                     //6.IPVEI
-                    Color IPVEIColor;
-                    double IPVEIV = resultData3.IPVEI;
+                    Color SPVEIColor;
+                    double SPVEIV = resultData3.SPVEI;
                     if (resultData3.WindowAreaSum <= 0.05)
-                    { IPVEIColor = Color.DarkGray; }
-                    else if ((IPVEIV >= 0.00000001) && (IPVEIV <= 10))
+                    { SPVEIColor = Color.Black; }
+                    else if(SPVEIV == double.NaN)
                     {
-                        IPVEIs.Add(IPVEIV);
-                        double IPVEIP = ColorGenerator.Remap(-Math.Log10(IPVEIV), 3, 9, 0, 1);
-                        IPVEIColor = ColorGenerator.GetTriColour(IPVEIP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
+                        { SPVEIColor = Color.Black; }
                     }
-                    else
-                    { IPVEIColor = Color.DarkGray; }
+                    else //if ((SPVEIV >= 0) && (SPVEIV <= 1))
+                    {
+                        if(SPVEIV <= 0.001) { SPVEIV = 0.001111; }
+                        if(SPVEIV >= 0.1) { SPVEIV = 0.09999; }
+                        SPVEIs.Add(SPVEIV);
+                        double remap = ((Math.Log10(SPVEIV) / 2.0f) + 1.5f);
+                        double SPVEIP = ColorGenerator.Remap(remap, 0, 1, 0, 1);
+                        Color P1 = Color.FromArgb(255, 255, 198, 253);
+                        Color P2 = Color.FromArgb(255, 227, 183, 224);
+                        Color P3 = Color.FromArgb(255, 152, 184, 255);
+                        SPVEIColor = ColorGenerator.GetTriColour(SPVEIP, P3, P2, P1);
+                        //Color darkPlum = Color.FromArgb(255, 211, 150, 211);
+                        //Color lightMediumSlateBlue = Color.FromArgb(255, 143, 124, 252);
+                        //SPVEIColor = ColorGenerator.GetTriColour(SPVEIP, Color.CornflowerBlue, lightMediumSlateBlue, darkPlum);
+                        //new Color(221, 160, 221);
+                        //medium slate blue: 123,104,238
 
-                    Mesh IPVEIPetal = new Mesh();
-                    IPVEIPetal.Vertices.Add(viewPoint);
-                    IPVEIPetal.Vertices.Add(p1);
-                    IPVEIPetal.Vertices.Add(p2);
+                        //SPVEIs.Add(SPVEIV);
+                        //double SPVEIP = ColorGenerator.Remap(-SPVEIV, -1, 0, 0, 1);
+                        //SPVEIColor = ColorGenerator.GetTriColour(SPVEIP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
+                    }
+                    //else
+                    //{ SPVEIColor = Color.Black; }
 
-                    IPVEIPetal.Faces.AddFace(0, 1, 2);
+                    Mesh SPVEIPetal = new Mesh();
+                    SPVEIPetal.Vertices.Add(viewPoint);
+                    SPVEIPetal.Vertices.Add(p1);
+                    SPVEIPetal.Vertices.Add(p2);
 
-                    IPVEIPetal.VertexColors.SetColor(0, IPVEIColor);
-                    IPVEIPetal.VertexColors.SetColor(1, IPVEIColor);
-                    IPVEIPetal.VertexColors.SetColor(2, IPVEIColor);
+                    SPVEIPetal.Faces.AddFace(0, 1, 2);
 
-                    IPVEIPetal.Normals.ComputeNormals();
+                    SPVEIPetal.VertexColors.SetColor(0, SPVEIColor);
+                    SPVEIPetal.VertexColors.SetColor(1, SPVEIColor);
+                    SPVEIPetal.VertexColors.SetColor(2, SPVEIColor);
+
+                    SPVEIPetal.Normals.ComputeNormals();
                     //petal.FaceNormals.ComputeFaceNormals();
 
-                    IPVEIGraphs.Add(IPVEIPetal);
+                    SPVEIGraphs.Add(SPVEIPetal);
 
+
+                    ////6.IPVEI
+                    //Color IPVEIColor;
+                    //double IPVEIV = resultData3.IPVEI;
+                    //if (resultData3.WindowAreaSum <= 0.05)
+                    //{ IPVEIColor = Color.Black; }
+                    //else if ((IPVEIV >= 0.00000001) && (IPVEIV <= 10))
+                    //{
+                    //    IPVEIs.Add(IPVEIV);
+                    //    double IPVEIP = ColorGenerator.Remap(-Math.Log10(IPVEIV), 3, 9, 0, 1);
+                    //    IPVEIColor = ColorGenerator.GetTriColour(IPVEIP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
+                    //}
+                    //else
+                    //{ IPVEIColor = Color.Black; }
+
+                    //Mesh IPVEIPetal = new Mesh();
+                    //IPVEIPetal.Vertices.Add(viewPoint);
+                    //IPVEIPetal.Vertices.Add(p1);
+                    //IPVEIPetal.Vertices.Add(p2);
+
+                    //IPVEIPetal.Faces.AddFace(0, 1, 2);
+
+                    //IPVEIPetal.VertexColors.SetColor(0, IPVEIColor);
+                    //IPVEIPetal.VertexColors.SetColor(1, IPVEIColor);
+                    //IPVEIPetal.VertexColors.SetColor(2, IPVEIColor);
+
+                    //IPVEIPetal.Normals.ComputeNormals();
+                    ////petal.FaceNormals.ComputeFaceNormals();
+
+                    //IPVEIGraphs.Add(IPVEIPetal);
 
 
                 }
@@ -307,14 +367,16 @@ namespace SeemoPredictor
             DA.SetDataList(2, viewAccessGraphs);
             DA.SetDataList(3, privacyGraphs);
             DA.SetDataList(4, frameworkGraphs);
-            DA.SetDataList(5, IPVEIGraphs);
+            DA.SetDataList(5, SPVEIGraphs);
+            //DA.SetDataList(5, IPVEIGraphs);
 
             double o = overalls.Average();
             double c = contents.Average();
             double a = accesses.Average();
             double p = privacys.Average();
             double f = frameworks.Average();
-            double v = IPVEIs.Average();
+            double v = SPVEIs.Average();
+            //double v = IPVEIs.Average();
             DA.SetData(6, o);
             DA.SetData(7, c);
             DA.SetData(8, a);

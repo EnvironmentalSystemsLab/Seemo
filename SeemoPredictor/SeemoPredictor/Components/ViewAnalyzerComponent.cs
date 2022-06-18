@@ -53,7 +53,8 @@ namespace SeemoPredictor
             pManager.AddNumberParameter("ViewAccesses", "ViewAccesses", "ViewAccesses", GH_ParamAccess.list);
             pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
             pManager.AddNumberParameter("Frameworks", "Frameworks", "Frameworks View Content", GH_ParamAccess.list);
-            pManager.AddNumberParameter("IPVEI", "IPVEI", "Potential Visual Exposure Index", GH_ParamAccess.list);
+            pManager.AddNumberParameter("SPVEI", "SPVEI", "Seemo Potential Visual Exposure Index", GH_ParamAccess.list);
+            //pManager.AddNumberParameter("IPVEI", "IPVEI", "Potential Visual Exposure Index", GH_ParamAccess.list);
 
         }
 
@@ -123,7 +124,8 @@ namespace SeemoPredictor
             List<double> viewAccesses = new List<double>();
             List<double> privacys = new List<double>();
             List<double> frameworks = new List<double>();
-            List<double> IPVEIs = new List<double>();
+            List<double> SPVEIs = new List<double>();
+            //List<double> IPVEIs = new List<double>();
 
 
             //output objects
@@ -392,14 +394,16 @@ namespace SeemoPredictor
                         var viewAccess = ConsumeViewAccess.Predict(sampleDataViewAccess);
                         var privacy = ConsumePrivacy.Predict(sampleDataPrivacy);
                         var framework = directionResult.ViewContentFramework;
-                        var IPVEI = directionResult.IPVEI;
+                        var SPVEI = directionResult.SPVEI;
+                        //var IPVEI = directionResult.IPVEI;
 
                         overallRatings.Add(overallRating.OverallRatingB);
                         viewContents.Add(viewContent.ViewContentB);
                         viewAccesses.Add(viewAccess.ViewAccessB);
                         privacys.Add(privacy.PrivacyB);
                         frameworks.Add(framework);
-                        IPVEIs.Add(IPVEI);
+                        SPVEIs.Add(SPVEI);
+                        //IPVEIs.Add(IPVEI);
 
                         directionResult.PredictedOverallRating = overallRatings[overallRatings.Count - 1];
                         directionResult.PredictedViewContent = viewContents[viewContents.Count - 1];
@@ -414,14 +418,16 @@ namespace SeemoPredictor
                         viewAccesses.Add(double.NaN);
                         privacys.Add(double.NaN);
                         frameworks.Add(double.NaN);
-                        IPVEIs.Add(double.NaN);
+                        SPVEIs.Add(double.NaN);
+                        //IPVEIs.Add(double.NaN);
 
                         directionResult.PredictedOverallRating = double.NaN;
                         directionResult.PredictedViewContent = double.NaN;
                         directionResult.PredictedOverallRating = double.NaN;
                         directionResult.PredictedViewContent = double.NaN;
                         directionResult.ViewContentFramework = double.NaN;
-                        directionResult.IPVEI = double.NaN;
+                        directionResult.SPVEI = double.NaN;
+                        //directionResult.IPVEI = double.NaN;
                     }
 
 
@@ -465,9 +471,6 @@ namespace SeemoPredictor
 
 
 
-
-
-
             DA.SetData(0, report.ToString());
             DA.SetData(1, seemoResult);
             DA.SetData(2, dir + @"\Result" + time + ".json");
@@ -478,7 +481,8 @@ namespace SeemoPredictor
             DA.SetDataList(5, viewAccesses);
             DA.SetDataList(6, privacys);
             DA.SetDataList(7, frameworks);
-            DA.SetDataList(8, IPVEIs);
+            DA.SetDataList(8, SPVEIs);
+            //DA.SetDataList(8, IPVEIs);
 
 
         }
