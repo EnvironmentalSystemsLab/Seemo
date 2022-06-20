@@ -66,7 +66,8 @@ namespace SeemoPredictor
             if (!DA.GetData(0, ref path)) { return; }
             DA.GetData(1, ref scale);
 
-            if ( ! File.Exists(path)) {
+            if (!File.Exists(path))
+            {
 
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Result file does not exsist");
                 return;
@@ -101,17 +102,18 @@ namespace SeemoPredictor
                 Point3d viewPoint = new Point3d(result.Results[i].Pt.X, result.Results[i].Pt.Y, result.Results[i].Pt.Z);
 
 
-                for (int j = 0; j<result.Results[i].DirectionsResults.Count; j++)
+                for (int j = 0; j < result.Results[i].DirectionsResults.Count; j++)
                 {
                     //j is vector index
                     DirectionResult resultData3 = result.Results[i].DirectionsResults[j];
                     Point3d viewVector = new Point3d(resultData3.ViewVectorX, resultData3.ViewVectorY, resultData3.ViewVectorZ);
-                    
-                    
+
+
                     Transform rocw25 = Transform.Rotation(-0.125 * (Math.PI), viewPoint);
                     Transform roccw25 = Transform.Rotation(0.125 * (Math.PI), viewPoint);
-                    Point3d p1 = new Point3d(viewPoint + scale * 0.3 * viewVector);
+                    Point3d p1 = new Point3d(viewPoint + (scale * 0.3 * viewVector / (Math.Sin(0.125 * (Math.PI)) + Math.Cos(0.125 * (Math.PI)))));
                     Point3d p2 = p1;
+                    Point3d p3 = new Point3d(viewPoint + scale * 0.3 * viewVector);
                     p1.Transform(rocw25);
                     p2.Transform(roccw25);
 
@@ -119,10 +121,10 @@ namespace SeemoPredictor
                     //1.overall Rating
                     Color overallRatingColor;
                     double overallRatingV = resultData3.PredictedOverallRating;
-                    
+
                     if (resultData3.WindowAreaSum <= 0.05)
                     { overallRatingColor = Color.Black; }
-                    else if((overallRatingV >= -5) && (overallRatingV <= 5))
+                    else if ((overallRatingV >= -5) && (overallRatingV <= 5))
                     {
                         overalls.Add(overallRatingV);
                         double overallRatingP = ColorGenerator.Remap(overallRatingV, -5, 5, 0, 1);
@@ -130,6 +132,8 @@ namespace SeemoPredictor
                     }
                     else
                     { overallRatingColor = Color.Black; }
+
+
 
                     Mesh overallRatingPetal = new Mesh();
                     overallRatingPetal.Vertices.Add(viewPoint);
@@ -145,8 +149,9 @@ namespace SeemoPredictor
                     overallRatingPetal.Normals.ComputeNormals();
                     //petal.FaceNormals.ComputeFaceNormals();
 
-
                     overallRatingGraphs.Add(overallRatingPetal);
+
+
 
                     //2.viewContent
                     Color viewContentColor;
@@ -197,7 +202,7 @@ namespace SeemoPredictor
                     { viewAccessColor = Color.Black; }
 
                     Mesh viewAccessPetal = new Mesh();
-                    viewAccessPetal.Vertices.Add(viewPoint);
+                    viewAccessPetal.Vertices.Add(p3);
                     viewAccessPetal.Vertices.Add(p1);
                     viewAccessPetal.Vertices.Add(p2);
 
@@ -227,7 +232,7 @@ namespace SeemoPredictor
                     { privacyColor = Color.Black; }
 
                     Mesh privacyPetal = new Mesh();
-                    privacyPetal.Vertices.Add(viewPoint);
+                    privacyPetal.Vertices.Add(p3);
                     privacyPetal.Vertices.Add(p1);
                     privacyPetal.Vertices.Add(p2);
 
@@ -245,7 +250,7 @@ namespace SeemoPredictor
                     //5.Framework
                     Color frameworkColor;
                     double frameworkV = resultData3.ViewContentFramework;
-                    if (resultData3.WindowAreaSum <= 0.05)
+                    if (resultData3.WindowAreaSum <= 0.05 || viewContentColor == Color.Black )
                     { frameworkColor = Color.Black; }
                     else if ((frameworkV >= 0) && (frameworkV <= 1))
                     {
@@ -280,36 +285,26 @@ namespace SeemoPredictor
                     double SPVEIV = resultData3.SPVEI;
                     if (resultData3.WindowAreaSum <= 0.05)
                     { SPVEIColor = Color.Black; }
-                    else if(SPVEIV == double.NaN)
+                    else if (SPVEIV == double.NaN)
                     {
                         { SPVEIColor = Color.Black; }
                     }
                     else //if ((SPVEIV >= 0) && (SPVEIV <= 1))
                     {
-                        if(SPVEIV <= 0.001) { SPVEIV = 0.001111; }
-                        if(SPVEIV >= 0.1) { SPVEIV = 0.09999; }
+                        if (SPVEIV <= 0.001) { SPVEIV = 0.001111; }
+                        if (SPVEIV >= 0.1) { SPVEIV = 0.09999; }
                         SPVEIs.Add(SPVEIV);
                         double remap = ((Math.Log10(SPVEIV) / 2.0f) + 1.5f);
                         double SPVEIP = ColorGenerator.Remap(remap, 0, 1, 0, 1);
-                        Color P1 = Color.FromArgb(255, 255, 198, 253);
-                        Color P2 = Color.FromArgb(255, 227, 183, 224);
-                        Color P3 = Color.FromArgb(255, 152, 184, 255);
+                        Color P1 = Color.FromArgb(255, 254, 0, 151); //255, 198, 253);
+                        Color P2 = Color.FromArgb(255, 114, 17, 154); //227, 183, 224);
+                        Color P3 = Color.FromArgb(255, 13, 34, 143); //152, 184, 255);
                         SPVEIColor = ColorGenerator.GetTriColour(SPVEIP, P3, P2, P1);
-                        //Color darkPlum = Color.FromArgb(255, 211, 150, 211);
-                        //Color lightMediumSlateBlue = Color.FromArgb(255, 143, 124, 252);
-                        //SPVEIColor = ColorGenerator.GetTriColour(SPVEIP, Color.CornflowerBlue, lightMediumSlateBlue, darkPlum);
-                        //new Color(221, 160, 221);
-                        //medium slate blue: 123,104,238
-
-                        //SPVEIs.Add(SPVEIV);
-                        //double SPVEIP = ColorGenerator.Remap(-SPVEIV, -1, 0, 0, 1);
-                        //SPVEIColor = ColorGenerator.GetTriColour(SPVEIP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
+                        
                     }
-                    //else
-                    //{ SPVEIColor = Color.Black; }
-
+                    
                     Mesh SPVEIPetal = new Mesh();
-                    SPVEIPetal.Vertices.Add(viewPoint);
+                    SPVEIPetal.Vertices.Add(p3);
                     SPVEIPetal.Vertices.Add(p1);
                     SPVEIPetal.Vertices.Add(p2);
 
@@ -361,7 +356,7 @@ namespace SeemoPredictor
 
             }
 
-            
+
             DA.SetDataList(0, overallRatingGraphs);
             DA.SetDataList(1, viewContentGraphs);
             DA.SetDataList(2, viewAccessGraphs);
