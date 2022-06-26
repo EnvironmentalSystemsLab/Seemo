@@ -202,7 +202,7 @@ namespace SeemoPredictor
                     { viewAccessColor = Color.Black; }
 
                     Mesh viewAccessPetal = new Mesh();
-                    viewAccessPetal.Vertices.Add(p3);
+                    viewAccessPetal.Vertices.Add(viewPoint); //p3
                     viewAccessPetal.Vertices.Add(p1);
                     viewAccessPetal.Vertices.Add(p2);
 
@@ -232,7 +232,7 @@ namespace SeemoPredictor
                     { privacyColor = Color.Black; }
 
                     Mesh privacyPetal = new Mesh();
-                    privacyPetal.Vertices.Add(p3);
+                    privacyPetal.Vertices.Add(viewPoint);
                     privacyPetal.Vertices.Add(p1);
                     privacyPetal.Vertices.Add(p2);
 
@@ -304,7 +304,7 @@ namespace SeemoPredictor
                     }
                     
                     Mesh SPVEIPetal = new Mesh();
-                    SPVEIPetal.Vertices.Add(p3);
+                    SPVEIPetal.Vertices.Add(viewPoint);
                     SPVEIPetal.Vertices.Add(p1);
                     SPVEIPetal.Vertices.Add(p2);
 
