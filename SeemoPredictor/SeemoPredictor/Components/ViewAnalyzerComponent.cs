@@ -273,7 +273,7 @@ namespace SeemoPredictor
                     {
 
                         WindowNumber = (float)2.0,
-                        WindowAreaSum = (float)directionResult.WindowAreaSum,
+                        WindowAreaSum = (float)directionResult.WindowAreaRatio,
                         Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
                         Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
                         Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
@@ -301,7 +301,7 @@ namespace SeemoPredictor
                     {
 
                         WindowNumber = (float)2.0,
-                        WindowAreaSum = (float)directionResult.WindowAreaSum,
+                        WindowAreaSum = (float)directionResult.WindowAreaRatio,
                         Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
                         Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
                         Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
@@ -329,7 +329,7 @@ namespace SeemoPredictor
                     {
 
                         WindowNumber = (float)2.0,
-                        WindowAreaSum = (float)directionResult.WindowAreaSum,
+                        WindowAreaSum = (float)directionResult.WindowAreaRatio,
                         Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
                         Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
                         Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
@@ -357,7 +357,7 @@ namespace SeemoPredictor
                     {
 
                         WindowNumber = (float)2.0,
-                        WindowAreaSum = (float)directionResult.WindowAreaSum,
+                        WindowAreaSum = (float)directionResult.WindowAreaRatio,
                         Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
                         Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
                         Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
@@ -386,7 +386,7 @@ namespace SeemoPredictor
 
                     //max:43259, min: 17892
                     //(directionResult.WindowAreaSum * 5288.02083158) > 17892) && ((directionResult.WindowAreaSum * 5288.02083158) < 43259)
-                    if (directionResult.WindowAreaSum > 0)
+                    if (directionResult.WindowAreaRatio > 0)
                     {
                         // Make a single prediction on the sample data and print results
                         var overallRating = ConsumeOverallRating.Predict(sampleDataOverallRating);

@@ -51,7 +51,7 @@ namespace SeemoPredictor
         public double ViewVectorY { get; set; }
         public double ViewVectorZ { get; set; }
         public double WindowNumber { get; set; } = 2;
-        public double WindowAreaSum { get; set; } = 0;
+        public double WindowAreaRatio { get; set; } = 0;
 
         public double Z1PtsCountRatio { get; set; } = 0;
         public double Z2PtsCountRatio { get; set; } = 0;
@@ -122,7 +122,7 @@ namespace SeemoPredictor
             )
         {
             WindowNumber = 2;
-            WindowAreaSum = _WindowAreaSum;
+            WindowAreaRatio = _WindowAreaSum;
 
             Z1PtsCountRatio = _Z1PtsCountRatio;
             Z2PtsCountRatio = _Z2PtsCountRatio;
@@ -205,6 +205,10 @@ namespace SeemoPredictor
                     Point3 windowN = Image.WindowNormals[x][y]; //애네가 000
                     Point3 ray = Image.ImageRays[x][y];
 
+                    //if(windowDist>0.01 && windowDist < 100)
+                    //{
+                    //    this.WindowAreaSum = this.WindowAreaSum + Math.Pow(Math.Tan(Image.angleStep * Math.PI / 180) * windowDist, 2);
+                    //}
                     
                     switch (type)
                     {
@@ -295,10 +299,10 @@ namespace SeemoPredictor
             double zhitSum = z1hit + z2hit + z3hit + z4hit;
 
             //double r = Image.xres/1440; // when resolution is 1440
-            //this.WindowAreaSum = (zhitSum / (rayTotal/r/r));
+            //this.WindowAreaRatio = (zhitSum / (rayTotal/r));
 
             double r = 0.05275781019; // come from survey window area with ray counts 
-            this.WindowAreaSum = (zhitSum / (rayTotal * r));
+            this.WindowAreaRatio = (zhitSum / (rayTotal * r));
 
             this.Z1PtsCountRatio = (double)z1hit / zhitSum;
             this.Z2PtsCountRatio = (double)z2hit / zhitSum;
