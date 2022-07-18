@@ -14,6 +14,8 @@ namespace SeemoPredictor
         public  Point3 Pt { get; set; }
         public Point3[] ViewDirections { get; set; }
 
+        public Point3[] QuadMeshVertices { get; set; } = new Point3[3];
+
         public int Resolution { get; set; } = 1024;
         public double HorizontalViewAngle { get; set; } = (35.754 * 2);
         public double VerticalViewAngle { get; set; } = (25.641 * 2);
@@ -33,6 +35,18 @@ namespace SeemoPredictor
             VerticalViewAngle = _verticalSceneAngle;
         }
 
+        public SmoSensor(Point3 _pt, List<Point3> _vecs, Point3 Vertex0, Point3 Vertex1, Point3 Vertex2, Point3 Vertex3, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
+        {
+            Pt = _pt;
+            ViewDirections = _vecs.ToArray();
+            QuadMeshVertices.Append(Vertex0);
+            QuadMeshVertices.Append(Vertex1);
+            QuadMeshVertices.Append(Vertex2);
+            QuadMeshVertices.Append(Vertex3);
+            Resolution = _resolution;
+            HorizontalViewAngle = _horizontalSceneAngle;
+            VerticalViewAngle = _verticalSceneAngle;
+        }
 
 
         public SmoImage GenerateImagePlane(Point3 viewDirection)
