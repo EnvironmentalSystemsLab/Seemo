@@ -87,6 +87,7 @@ namespace SeemoPredictor.Components
                 Point3f vert2f = sensorPlane.Vertices[(int)sensorPlane.Faces[i].C];
                 Point3f vert3f = sensorPlane.Vertices[(int)sensorPlane.Faces[i].D];
 
+                
                 Point3 vert0 = new Point3(vert0f.X, vert0f.Y, vert0f.Z);
                 Point3 vert1 = new Point3(vert1f.X, vert1f.Y, vert1f.Z);
                 Point3 vert2 = new Point3(vert2f.X, vert2f.Y, vert2f.Z);

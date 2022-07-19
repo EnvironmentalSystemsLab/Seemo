@@ -16,6 +16,10 @@ namespace SeemoPredictor
         public Point3 Pt { get; set; }
 
         public Point3[] Dirs { get; set; }
+        public Point3 Vert0 { get; set; }
+        public Point3 Vert1 { get; set; }
+        public Point3 Vert2 { get; set; }
+        public Point3 Vert3 { get; set; }
 
         public List<DirectionResult> DirectionsResults { get; set; } = new List<DirectionResult>();
     }

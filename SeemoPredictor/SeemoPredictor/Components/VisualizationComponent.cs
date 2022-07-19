@@ -114,6 +114,9 @@ namespace SeemoPredictor
                 // i is node index
                 Point3d viewPoint = new Point3d(result.Results[i].Pt.X, result.Results[i].Pt.Y, result.Results[i].Pt.Z);
 
+                
+                
+
                 //3.ViewContentPixel
                 double viewContentPixel = -5;
                 double windowAreaRatioViewContent = 0;
@@ -181,12 +184,8 @@ namespace SeemoPredictor
                     else if ((viewContentV >= -5) && (viewContentV <= 5))
                     {
                         contents.Add(viewContentV);
-                        double viewContentP = ColorGenerator.Remap(viewContentV, -5, 5, 0, 1);
-
-                        Color P1 = Color.FromArgb(255, 215, 0, 56);
-                        Color P2 = Color.FromArgb(255, 220, 220, 200);
-                        Color P3 = Color.FromArgb(255, 0, 139, 225);
-                        viewContentColor = ColorGenerator.GetTriColour(viewContentP, P1, P2, P3);
+                        var remap = ColorGenerator.Remap(-viewContentV, -5, 5, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
+                        viewContentColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
 
                     }
                     else
@@ -355,11 +354,7 @@ namespace SeemoPredictor
                     double SPVEIV = resultData3.SPVEI;
                     if (resultData3.WindowAreaRatio <= 0.05)
                     { SPVEIColor = Color.Black; }
-                    else if (SPVEIV == double.NaN)
-                    {
-                        { SPVEIColor = Color.Black; }
-                    }
-                    else //if ((SPVEIV >= 0) && (SPVEIV <= 1))
+                    else if ((SPVEIV >= 0) && (SPVEIV <= 1))
                     {
                         if (SPVEIV <= 0.001) { SPVEIV = 0.001111; }
                         if (SPVEIV >= 0.1) { SPVEIV = 0.09999; }
@@ -369,7 +364,9 @@ namespace SeemoPredictor
                         var remap = ColorGenerator.Remap(remap2, 0, 1, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
                         SPVEIColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
 
-
+                    }else
+                    {
+                        { SPVEIColor = Color.Black; }
                     }
 
                     Mesh SPVEIPetal = new Mesh();
@@ -419,10 +416,28 @@ namespace SeemoPredictor
                 }
 
                 Mesh viewContentPixelPetal = new Mesh();
-                viewContentPixelPetal.Vertices.Add(viewPoint + pUpR * scale2 * (0.3));
-                viewContentPixelPetal.Vertices.Add(viewPoint + pUpL * scale2 * (0.3));
-                viewContentPixelPetal.Vertices.Add(viewPoint + pUpR * scale2 * (-0.3));
-                viewContentPixelPetal.Vertices.Add(viewPoint + pUpL * scale2 * (-0.3));
+
+                if (result.Results[i].Vert3 != null)
+                {
+                    
+                    Point3d vert0 = new Point3d(result.Results[i].Vert0.X, result.Results[i].Vert0.Y, result.Results[i].Vert0.Z);
+                    Point3d vert1 = new Point3d(result.Results[i].Vert1.X, result.Results[i].Vert1.Y, result.Results[i].Vert1.Z);
+                    Point3d vert2 = new Point3d(result.Results[i].Vert2.X, result.Results[i].Vert2.Y, result.Results[i].Vert2.Z);
+                    Point3d vert3 = new Point3d(result.Results[i].Vert3.X, result.Results[i].Vert3.Y, result.Results[i].Vert3.Z);
+                    
+                    viewContentPixelPetal.Vertices.Add(vert0);
+                    viewContentPixelPetal.Vertices.Add(vert1);
+                    viewContentPixelPetal.Vertices.Add(vert2);
+                    viewContentPixelPetal.Vertices.Add(vert3);
+                }
+                else
+                {
+                    viewContentPixelPetal.Vertices.Add(viewPoint + pUpR * scale2 * (0.3));
+                    viewContentPixelPetal.Vertices.Add(viewPoint + pUpL * scale2 * (0.3));
+                    viewContentPixelPetal.Vertices.Add(viewPoint + pUpR * scale2 * (-0.3));
+                    viewContentPixelPetal.Vertices.Add(viewPoint + pUpL * scale2 * (-0.3));
+                }
+               
 
                 viewContentPixelPetal.Faces.AddFace(0, 1, 2, 3);
 
@@ -437,12 +452,8 @@ namespace SeemoPredictor
                 //8.SPVEI Pixel
                 Color SPVEIPixelColor;
                 if (windowAreaRatioSPVEIV <= 0.05)
-                { viewContentPixelColor = Color.Black; }
-                else if (SPVEIVPixel == double.NaN)
-                {
-                    { viewContentPixelColor = Color.Black; }
-                }
-                else //if ((SPVEIV >= 0) && (SPVEIV <= 1))
+                { SPVEIPixelColor = Color.Black; }
+                else if ((SPVEIVPixel >= 0.001) && (SPVEIVPixel <= 0.1))
                 {
                     if (SPVEIVPixel <= 0.001) { SPVEIVPixel = 0.001111; }
                     if (SPVEIVPixel >= 0.1) { SPVEIVPixel = 0.09999; }
@@ -450,21 +461,43 @@ namespace SeemoPredictor
                     double remap2 = ((Math.Log10(SPVEIVPixel) / 2.0f) + 1.5f);
 
                     var remap = ColorGenerator.Remap(remap2, 0, 1, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
-                    viewContentPixelColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
+                    SPVEIPixelColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
+
+                }
+                else
+                {
+                    { SPVEIPixelColor = Color.Black; }
                 }
 
                 Mesh SPVEIPixelPetal = new Mesh();
-                SPVEIPixelPetal.Vertices.Add(viewPoint + pUpR * scale2 * (0.3));
-                SPVEIPixelPetal.Vertices.Add(viewPoint + pUpL * scale2 * (0.3));
-                SPVEIPixelPetal.Vertices.Add(viewPoint + pUpR * scale2 * (-0.3));
-                SPVEIPixelPetal.Vertices.Add(viewPoint + pUpL * scale2 * (-0.3));
+
+                if (result.Results[i].Vert3 != null)
+                {
+
+                    Point3d vert0 = new Point3d(result.Results[i].Vert0.X, result.Results[i].Vert0.Y, result.Results[i].Vert0.Z);
+                    Point3d vert1 = new Point3d(result.Results[i].Vert1.X, result.Results[i].Vert1.Y, result.Results[i].Vert1.Z);
+                    Point3d vert2 = new Point3d(result.Results[i].Vert2.X, result.Results[i].Vert2.Y, result.Results[i].Vert2.Z);
+                    Point3d vert3 = new Point3d(result.Results[i].Vert3.X, result.Results[i].Vert3.Y, result.Results[i].Vert3.Z);
+
+                    SPVEIPixelPetal.Vertices.Add(vert0);
+                    SPVEIPixelPetal.Vertices.Add(vert1);
+                    SPVEIPixelPetal.Vertices.Add(vert2);
+                    SPVEIPixelPetal.Vertices.Add(vert3);
+                }
+                else
+                {
+                    SPVEIPixelPetal.Vertices.Add(viewPoint + pUpR * scale2 * (0.3));
+                    SPVEIPixelPetal.Vertices.Add(viewPoint + pUpL * scale2 * (0.3));
+                    SPVEIPixelPetal.Vertices.Add(viewPoint + pUpR * scale2 * (-0.3));
+                    SPVEIPixelPetal.Vertices.Add(viewPoint + pUpL * scale2 * (-0.3));
+                }
 
                 SPVEIPixelPetal.Faces.AddFace(0, 1, 2, 3);
 
-                SPVEIPixelPetal.VertexColors.SetColor(0, viewContentPixelColor);
-                SPVEIPixelPetal.VertexColors.SetColor(1, viewContentPixelColor);
-                SPVEIPixelPetal.VertexColors.SetColor(2, viewContentPixelColor);
-                SPVEIPixelPetal.VertexColors.SetColor(3, viewContentPixelColor);
+                SPVEIPixelPetal.VertexColors.SetColor(0, SPVEIPixelColor);
+                SPVEIPixelPetal.VertexColors.SetColor(1, SPVEIPixelColor);
+                SPVEIPixelPetal.VertexColors.SetColor(2, SPVEIPixelColor);
+                SPVEIPixelPetal.VertexColors.SetColor(3, SPVEIPixelColor);
 
                 SPVEIPixelPetal.Normals.ComputeNormals();
                 SPVEIPixelGraphs.Add(SPVEIPixelPetal);
