@@ -466,7 +466,8 @@ namespace SeemoPredictor
                 }
                 else
                 {
-                    { SPVEIPixelColor = Color.Black; }
+                    SPVEIPixels.Add(SPVEIVPixel);
+                    SPVEIPixelColor = Color.Black;
                 }
 
                 Mesh SPVEIPixelPetal = new Mesh();
