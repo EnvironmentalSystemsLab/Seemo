@@ -13,7 +13,6 @@ namespace SeemoPredictor
 
         public  Point3 Pt { get; set; }
         public Point3[] ViewDirections { get; set; }
-
         public Point3[] QuadMeshVertices { get; set; }
 
         public int Resolution { get; set; } = 1024;
@@ -26,14 +25,14 @@ namespace SeemoPredictor
         {
         }
 
-        public SmoSensor(Point3 _pt, List<Point3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
-        {
-            Pt = _pt;
-            ViewDirections = _vecs.ToArray();
-            Resolution = _resolution;
-            HorizontalViewAngle = _horizontalSceneAngle;
-            VerticalViewAngle = _verticalSceneAngle;
-        }
+        //public SmoSensor(Point3 _pt, List<Point3> _vecs, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
+        //{
+        //    Pt = _pt;
+        //    ViewDirections = _vecs.ToArray();
+        //    Resolution = _resolution;
+        //    HorizontalViewAngle = _horizontalSceneAngle;
+        //    VerticalViewAngle = _verticalSceneAngle;
+        //}
 
         public SmoSensor(Point3 _pt, List<Point3> _vecs, Point3 Vertex0, Point3 Vertex1, Point3 Vertex2, Point3 Vertex3, int _resolution, double _horizontalSceneAngle, double _verticalSceneAngle)
         {

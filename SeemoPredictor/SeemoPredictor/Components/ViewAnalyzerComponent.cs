@@ -36,8 +36,6 @@ namespace SeemoPredictor
             pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
             pManager.AddNumberParameter("Ground Level", "GL", "Z coordinate of Ground Level", GH_ParamAccess.item);
             
-            //pManager.AddGenericParameter("Windows", "W", "Windows", GH_ParamAccess.list);
-
         }
 
         /// <summary>
@@ -54,7 +52,6 @@ namespace SeemoPredictor
             pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
             pManager.AddNumberParameter("Frameworks", "Frameworks", "Frameworks View Content", GH_ParamAccess.list);
             pManager.AddNumberParameter("SPVEI", "SPVEI", "Seemo Potential Visual Exposure Index", GH_ParamAccess.list);
-            //pManager.AddNumberParameter("IPVEI", "IPVEI", "Potential Visual Exposure Index", GH_ParamAccess.list);
 
         }
 
@@ -125,7 +122,6 @@ namespace SeemoPredictor
             List<double> privacys = new List<double>();
             List<double> frameworks = new List<double>();
             List<double> SPVEIs = new List<double>();
-            //List<double> IPVEIs = new List<double>();
 
 
             //output objects
@@ -207,7 +203,6 @@ namespace SeemoPredictor
                         Point3 p = sensors[i].ViewDirections[j];
                         //divide image for each direction
                         var splitImage = SmoImage.FrameImages(sphericalImageArray[i], sensors[i].ViewDirections[j], sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
-                        //!!!!!!!!!check when sphere image view angle is not 360 180.....
                         splitImages.Add(splitImage);
                     }
                     
@@ -254,11 +249,6 @@ namespace SeemoPredictor
 
                     directionResult.Image = imageArray[imgIndex];
                     imgIndex++;
-
-
-                    //directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
-                    //directionResult.Image.ComputeImage(octree0, maxNodeSize);
-
 
 
 

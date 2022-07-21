@@ -97,6 +97,12 @@ namespace SeemoPredictor
             List<double> SPVEIs = new List<double>();
             List<double> SPVEIPixels = new List<double>();
 
+            bool isMeshSensor = false;
+            if(result.Results[0].Vert0 != result.Results[0].Vert1)
+            {
+                isMeshSensor = true;
+            }
+
 
             //Wind Rose Mesh Generation
 
@@ -355,7 +361,7 @@ namespace SeemoPredictor
 
                 Mesh viewContentPixelPetal = new Mesh();
 
-                if (result.Results[i].Vert3 != null)
+                if (isMeshSensor)
                 {
                     
                     Point3d vert0 = new Point3d(result.Results[i].Vert0.X, result.Results[i].Vert0.Y, result.Results[i].Vert0.Z);
@@ -410,7 +416,7 @@ namespace SeemoPredictor
 
                 Mesh SPVEIPixelPetal = new Mesh();
 
-                if (result.Results[i].Vert3 != null)
+                if (isMeshSensor)
                 {
 
                     Point3d vert0 = new Point3d(result.Results[i].Vert0.X, result.Results[i].Vert0.Y, result.Results[i].Vert0.Z);
