@@ -13,7 +13,7 @@ namespace SeemoPredictor
 
         public  Point3 Pt { get; set; }
         public Point3[] ViewDirections { get; set; }
-        public Point3[] QuadMeshVertices { get; set; }
+        public Point3[] QuadMeshVertices { get; set; } = new Point3[4];
 
         public int Resolution { get; set; } = 1024;
         public double HorizontalViewAngle { get; set; } = (35.754 * 2);
@@ -38,7 +38,6 @@ namespace SeemoPredictor
         {
             Pt = _pt;
             ViewDirections = _vecs.ToArray();
-            QuadMeshVertices = new Point3[4];
             QuadMeshVertices[0] = (Vertex0);
             QuadMeshVertices[1] = (Vertex1);
             QuadMeshVertices[2] = (Vertex2);

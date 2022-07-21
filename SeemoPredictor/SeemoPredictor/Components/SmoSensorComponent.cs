@@ -13,7 +13,7 @@ namespace SeemoPredictor
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
         public SmoSensorComponent()
-          : base("Sensor2", "Sensor2",
+          : base("Sensor", "Sensor",
               "Analyzing View Setting : viewpoints, viewvectors",
               "SeEmo", "1|Sensor")
         {
