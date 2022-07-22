@@ -72,6 +72,13 @@ namespace SeemoPredictor.Components
             }
 
 
+            //Convert Vector3d to SmoPoint3
+            foreach (Vector3d vt in ViewVectors)
+            {
+                Point3 sv = new Point3(vt.X, vt.Y, vt.Z);
+                SViewVectors.Add(sv);
+            }
+
             int xResolution = 1440;
 
             if (!DA.GetData(2, ref xResolution)) return;
@@ -95,12 +102,6 @@ namespace SeemoPredictor.Components
 
                 Point3 sp = (vert0 + vert1 + vert2 + vert3) / 4;
 
-                //Convert Vector3d to SmoPoint3
-                foreach (Vector3d vt in ViewVectors)
-                {
-                    Point3 sv = new Point3(vt.X, vt.Y, vt.Z);
-                    SViewVectors.Add(sv);
-                }
 
                 SmoSensor smoSensor = new SmoSensor(sp, SViewVectors, vert0, vert1, vert2, vert3, xResolution, HorizontalSceneAngle, VerticalSceneAngle);
                 sensors.Add(smoSensor);
