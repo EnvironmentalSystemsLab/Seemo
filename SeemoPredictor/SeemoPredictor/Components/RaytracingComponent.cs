@@ -217,6 +217,12 @@ namespace SeemoPredictor.Components
                 SmoSensorWithResults node = new SmoSensorWithResults();
                 node.NodeID = i;
                 node.Pt = sensors[i].Pt;
+                
+                node.Vert0 = sensors[i].QuadMeshVertices[0];
+                node.Vert1 = sensors[i].QuadMeshVertices[1];
+                node.Vert2 = sensors[i].QuadMeshVertices[2];
+                node.Vert3 = sensors[i].QuadMeshVertices[3];
+
                 node.Dirs = sensors[i].ViewDirections;
 
 

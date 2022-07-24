@@ -36,8 +36,6 @@ namespace SeemoPredictor
             pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
             pManager.AddNumberParameter("Ground Level", "GL", "Z coordinate of Ground Level", GH_ParamAccess.item);
             
-            //pManager.AddGenericParameter("Windows", "W", "Windows", GH_ParamAccess.list);
-
         }
 
         /// <summary>
@@ -54,7 +52,6 @@ namespace SeemoPredictor
             pManager.AddNumberParameter("Privacys", "Privacys", "Privacys", GH_ParamAccess.list);
             pManager.AddNumberParameter("Frameworks", "Frameworks", "Frameworks View Content", GH_ParamAccess.list);
             pManager.AddNumberParameter("SPVEI", "SPVEI", "Seemo Potential Visual Exposure Index", GH_ParamAccess.list);
-            //pManager.AddNumberParameter("IPVEI", "IPVEI", "Potential Visual Exposure Index", GH_ParamAccess.list);
 
         }
 
@@ -125,7 +122,6 @@ namespace SeemoPredictor
             List<double> privacys = new List<double>();
             List<double> frameworks = new List<double>();
             List<double> SPVEIs = new List<double>();
-            //List<double> IPVEIs = new List<double>();
 
 
             //output objects
@@ -207,7 +203,6 @@ namespace SeemoPredictor
                         Point3 p = sensors[i].ViewDirections[j];
                         //divide image for each direction
                         var splitImage = SmoImage.FrameImages(sphericalImageArray[i], sensors[i].ViewDirections[j], sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
-                        //!!!!!!!!!check when sphere image view angle is not 360 180.....
                         splitImages.Add(splitImage);
                     }
                     
@@ -256,11 +251,6 @@ namespace SeemoPredictor
                     imgIndex++;
 
 
-                    //directionResult.Image = new SmoImage(sensors[i].Pt, sensors[i].ViewDirections[j], sensors[i].Resolution, sensors[i].HorizontalViewAngle, sensors[i].VerticalViewAngle);
-                    //directionResult.Image.ComputeImage(octree0, maxNodeSize);
-
-
-
 
                     // compute the ML model inputs from the SmoImage class here
                     directionResult.ComputeFeatures();
@@ -273,7 +263,7 @@ namespace SeemoPredictor
                     {
 
                         WindowNumber = (float)2.0,
-                        WindowAreaSum = (float)directionResult.WindowAreaSum,
+                        WindowAreaSum = (float)directionResult.WindowAreaRatio,
                         Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
                         Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
                         Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
@@ -301,7 +291,7 @@ namespace SeemoPredictor
                     {
 
                         WindowNumber = (float)2.0,
-                        WindowAreaSum = (float)directionResult.WindowAreaSum,
+                        WindowAreaSum = (float)directionResult.WindowAreaRatio,
                         Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
                         Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
                         Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
@@ -329,7 +319,7 @@ namespace SeemoPredictor
                     {
 
                         WindowNumber = (float)2.0,
-                        WindowAreaSum = (float)directionResult.WindowAreaSum,
+                        WindowAreaSum = (float)directionResult.WindowAreaRatio,
                         Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
                         Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
                         Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
@@ -357,7 +347,7 @@ namespace SeemoPredictor
                     {
 
                         WindowNumber = (float)2.0,
-                        WindowAreaSum = (float)directionResult.WindowAreaSum,
+                        WindowAreaSum = (float)directionResult.WindowAreaRatio,
                         Z1PtsCountRatio = (float)directionResult.Z1PtsCountRatio,
                         Z2PtCountRatio = (float)directionResult.Z2PtsCountRatio,
                         Z3PtsCountRatio = (float)directionResult.Z3PtsCountRatio,
@@ -386,7 +376,7 @@ namespace SeemoPredictor
 
                     //max:43259, min: 17892
                     //(directionResult.WindowAreaSum * 5288.02083158) > 17892) && ((directionResult.WindowAreaSum * 5288.02083158) < 43259)
-                    if (directionResult.WindowAreaSum > 0)
+                    if (directionResult.WindowAreaRatio > 0)
                     {
                         // Make a single prediction on the sample data and print results
                         var overallRating = ConsumeOverallRating.Predict(sampleDataOverallRating);

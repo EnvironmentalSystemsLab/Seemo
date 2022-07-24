@@ -122,7 +122,7 @@ namespace SeemoPredictor.Components
                     Color overallRatingColor;
                     double overallRatingV = (resultData3Opt.PredictedOverallRating - resultData3Ori.PredictedOverallRating);
 
-                    if (resultData3Opt.WindowAreaSum <= 0.05)
+                    if (resultData3Opt.WindowAreaRatio <= 0.05)
                     { overallRatingColor = Color.DarkGray; }
                     else if ((overallRatingV >= -10) && (overallRatingV <= 10))
                     {
@@ -153,7 +153,7 @@ namespace SeemoPredictor.Components
                     //2.viewContent
                     Color viewContentColor;
                     double viewContentV = (resultData3Opt.PredictedViewContent - resultData3Ori.PredictedViewContent);
-                    if (resultData3Opt.WindowAreaSum <= 0.05)
+                    if (resultData3Opt.WindowAreaRatio <= 0.05)
                     { viewContentColor = Color.DarkGray; }
                     else if ((viewContentV >= -10) && (viewContentV <= 10))
                     {
@@ -184,7 +184,7 @@ namespace SeemoPredictor.Components
                     //3.viewAccess
                     Color viewAccessColor;
                     double viewAccessV = (resultData3Opt.PredictedViewAccess - resultData3Ori.PredictedViewAccess);
-                    if (resultData3Opt.WindowAreaSum <= 0.05)
+                    if (resultData3Opt.WindowAreaRatio <= 0.05)
                     { viewAccessColor = Color.DarkGray; }
                     else if ((viewAccessV >= -10) && (viewAccessV <= 10))
                     {
@@ -214,7 +214,7 @@ namespace SeemoPredictor.Components
                     //4.Privacy
                     Color privacyColor;
                     double privacyV = (resultData3Opt.PredictedPrivacy - resultData3Ori.PredictedPrivacy);
-                    if (resultData3Opt.WindowAreaSum <= 0.05)
+                    if (resultData3Opt.WindowAreaRatio <= 0.05)
                     { privacyColor = Color.DarkGray; }
                     else if ((privacyV >= -10) && (privacyV <= 10))
                     {
