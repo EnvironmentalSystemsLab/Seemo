@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 using System.Reflection;
 using Microsoft.ML;
 using Newtonsoft.Json;
+using Microsoft.ML.Trainers.LightGbm;
 
 namespace SeemoPredictor
 {
     public class ConsumePrivacy
     {
         public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\PrivacyModel.zip"));
+        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\Privacy.zip"));
 
         private static Lazy<PredictionEngine<ModelInputPrivacy, ModelOutputPrivacy>> PredictionEngine = new Lazy<PredictionEngine<ModelInputPrivacy, ModelOutputPrivacy>>(CreatePredictionEngine);
 

@@ -13,7 +13,7 @@ namespace SeemoPredictor
     public class ConsumeOverallRating
     {
         public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\OverallRatingModel.zip"));
+        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\OverallRating.zip"));
 
         private static Lazy<PredictionEngine<ModelInput, ModelOutput>> PredictionEngine = new Lazy<PredictionEngine<ModelInput, ModelOutput>>(CreatePredictionEngine);
 

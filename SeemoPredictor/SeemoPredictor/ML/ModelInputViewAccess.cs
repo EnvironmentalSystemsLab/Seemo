@@ -11,92 +11,129 @@ namespace SeemoPredictor
     {
 
         [LoadColumn(0)]
-        public float WindowNumber { get; set; }
-
-        [LoadColumn(1)]
+        [ColumnName(@"WindowAreaSum")]
         public float WindowAreaSum { get; set; }
 
-        [LoadColumn(30)]
+        [LoadColumn(1)]
+        [ColumnName(@"Z1PtsCountRatio")]
         public float Z1PtsCountRatio { get; set; }
 
-        [LoadColumn(31)]
-        public float Z2PtCountRatio { get; set; }
+        [LoadColumn(2)]
+        [ColumnName(@"Z2PtsCountRatio")]
+        public float Z2PtsCountRatio { get; set; }
 
-        [LoadColumn(33)]
+        [LoadColumn(3)]
+        [ColumnName(@"Z3PtsCountRatio")]
         public float Z3PtsCountRatio { get; set; }
 
-        [LoadColumn(34)]
+        [LoadColumn(4)]
+        [ColumnName(@"Z4PtsCountRatio")]
         public float Z4PtsCountRatio { get; set; }
 
-        [LoadColumn(44)]
+        [LoadColumn(5)]
+        [ColumnName(@"InteriorPtsCountRatio")]
+        public float InteriorPtsCountRatio { get; set; }
+
+        [LoadColumn(6)]
+        [ColumnName(@"BuildingPtsCountRatio")]
         public float BuildingPtsCountRatio { get; set; }
 
-        [LoadColumn(45)]
+        [LoadColumn(7)]
+        [ColumnName(@"ContextWindowPtsCountRatio")]
+        public float ContextWindowPtsCountRatio { get; set; }
+
+        [LoadColumn(8)]
+        [ColumnName(@"EquipmentPtsCountRatio")]
         public float EquipmentPtsCountRatio { get; set; }
 
-        [LoadColumn(46)]
+        [LoadColumn(9)]
+        [ColumnName(@"LandmarkPtsCountRatio")]
+        public float LandmarkPtsCountRatio { get; set; }
+
+        [LoadColumn(10)]
+        [ColumnName(@"SidewalkPtsCountRatio")]
+        public float SidewalkPtsCountRatio { get; set; }
+
+        [LoadColumn(11)]
+        [ColumnName(@"RoadPtsCountRatio")]
+        public float RoadPtsCountRatio { get; set; }
+
+        [LoadColumn(12)]
+        [ColumnName(@"ParkingLotPtsCountRatio")]
+        public float ParkingLotPtsCountRatio { get; set; }
+
+        [LoadColumn(13)]
+        [ColumnName(@"TreePtsCountRatio")]
         public float TreePtsCountRatio { get; set; }
 
-        [LoadColumn(47)]
-        public float PavementPtsCountRatio { get; set; }
-
-        [LoadColumn(48)]
+        [LoadColumn(14)]
+        [ColumnName(@"GrassPtsCountRatio")]
         public float GrassPtsCountRatio { get; set; }
 
-        [LoadColumn(49)]
+        [LoadColumn(15)]
+        [ColumnName(@"WaterPtsCountRatio")]
         public float WaterPtsCountRatio { get; set; }
 
-        [LoadColumn(50)]
-        public float DynamicPtsRatio { get; set; }
-
-        [LoadColumn(52)]
+        [LoadColumn(16)]
+        [ColumnName(@"SkyPtsCountRatio")]
         public float SkyPtsCountRatio { get; set; }
 
-        [LoadColumn(59)]
+        [LoadColumn(17)]
+        [ColumnName(@"ElementNumber")]
         public float ElementNumber { get; set; }
 
-        [LoadColumn(60)]
+        [LoadColumn(18)]
+        [ColumnName(@"FloorHeights")]
         public float FloorHeights { get; set; }
 
-        [LoadColumn(61)]
+        [LoadColumn(19)]
+        [ColumnName(@"InteriorClosestDist")]
+        public float InteriorClosestDist { get; set; }
+
+        [LoadColumn(20)]
+        [ColumnName(@"BuildingClosestDist")]
         public float BuildingClosestDist { get; set; }
 
-        [LoadColumn(62)]
+        [LoadColumn(21)]
+        [ColumnName(@"ContextWindowClosestDist")]
+        public float ContextWindowClosestDist { get; set; }
+
+        [LoadColumn(22)]
+        [ColumnName(@"EquipmentClosestDist")]
         public float EquipmentClosestDist { get; set; }
 
-        [LoadColumn(63)]
+        [LoadColumn(23)]
+        [ColumnName(@"LandmarkClosestDist")]
+        public float LandmarkClosestDist { get; set; }
+
+        [LoadColumn(24)]
+        [ColumnName(@"SidewalkClosestDist")]
+        public float SidewalkClosestDist { get; set; }
+
+        [LoadColumn(25)]
+        [ColumnName(@"RoadClosestDist")]
+        public float RoadClosestDist { get; set; }
+
+        [LoadColumn(26)]
+        [ColumnName(@"ParkingLotClosestDist")]
+        public float ParkingLotClosestDist { get; set; }
+
+        [LoadColumn(27)]
+        [ColumnName(@"TreeClosestDist")]
         public float TreeClosestDist { get; set; }
 
-        [LoadColumn(64)]
+        [LoadColumn(28)]
+        [ColumnName(@"GrassClosestDist")]
         public float GrassClosestDist { get; set; }
 
-        [LoadColumn(65)]
+        [LoadColumn(29)]
+        [ColumnName(@"WaterClosestDist")]
         public float WaterClosestDist { get; set; }
 
-        [LoadColumn(67)]
-        public float DynamicClosestDist { get; set; }
 
-        [LoadColumn(69)]
-        public float SkyCondition { get; set; }
-
-        //[LoadColumn(70)]
-        //[ColumnName("Label")]
-        //public float ViewContentS { get; set; }
-
-        
-        [LoadColumn(71)]
+        [LoadColumn(30)]
         [ColumnName("Label")]
         public float ViewAccessS { get; set; }
-        /*
-        [LoadColumn(72)]
-        //[ColumnName("Label")]
-        public float PrivacyS { get; set; }
-
-        [LoadColumn(73)]
-        [ColumnName("OverallRatingLabel")]
-        public float OverallRatingS { get; set; }
-
-        */
     }
 
 

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using Microsoft.ML;
+using Microsoft.ML.Trainers.LightGbm;
 using Newtonsoft.Json;
 
 namespace SeemoPredictor
@@ -13,7 +14,7 @@ namespace SeemoPredictor
     public class ConsumeViewAccess
     {
         public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\ViewAccessModel.zip"));
+        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\ViewAccess.zip"));
 
         private static Lazy<PredictionEngine<ModelInputViewAccess, ModelOutputViewAccess>> PredictionEngine = new Lazy<PredictionEngine<ModelInputViewAccess, ModelOutputViewAccess>>(CreatePredictionEngine);
 

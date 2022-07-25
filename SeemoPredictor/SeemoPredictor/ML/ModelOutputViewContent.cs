@@ -7,11 +7,11 @@ using Microsoft.ML.Data;
 
 namespace SeemoPredictor
 {
-    public class ModelOutputViewAccess
+    public class ModelOutputViewContent
     {
         [ColumnName("Score")]
         
-        public float ViewAccessB { get; set; }
+        public float ViewContentB { get; set; }
 
     }
 }
