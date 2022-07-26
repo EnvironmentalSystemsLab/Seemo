@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeemoPredictor", "SeemoPredictor\SeemoPredictor.csproj", "{6EC149EA-EB12-4AF7-B198-3749B53B7E50}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nullgh", "..\..\NullGH\Nullgh\Nullgh.csproj", "{AAEC8358-F2EA-4066-9E58-128B86570891}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nullgh", "Nullgh\Nullgh.csproj", "{AAEC8358-F2EA-4066-9E58-128B86570891}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
