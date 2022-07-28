@@ -23,7 +23,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Seemo\SeemoPredictor\SeemoPredictor\SeemoPredictor.csproj" />
+    <ProjectReference Include="..\SeemoPredictor\SeemoPredictor.csproj" />
   </ItemGroup>
   
   <ItemGroup>
