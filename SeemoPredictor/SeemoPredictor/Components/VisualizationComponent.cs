@@ -144,7 +144,10 @@ namespace SeemoPredictor
                     {
                         overalls.Add(overallRatingV);
                         double overallRatingP = ColorGenerator.Remap(overallRatingV, -5, 5, 0, 1);
-                        overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, Color.HotPink, Color.YellowGreen, Color.Cyan);
+                        Color P1 = Color.FromArgb(255, 215, 0, 56);
+                        Color P2 = Color.FromArgb(255, 255, 255, 210);
+                        Color P3 = Color.FromArgb(255, 0, 139, 225);
+                        overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, P1, P2, P3);
                     }
                     else
                     { overallRatingColor = Color.Black; }
@@ -239,8 +242,10 @@ namespace SeemoPredictor
                     else if ((privacyV >= -5) && (privacyV <= 5))
                     {
                         privacys.Add(privacyV);
-                        double privacyP = ColorGenerator.Remap(privacyV, -5, 5, 0, 1);
-                        privacyColor = ColorGenerator.GetTriColour(privacyP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
+                        //double privacyP = ColorGenerator.Remap(privacyV, -5, 5, 0, 1);
+                        //privacyColor = ColorGenerator.GetTriColour(privacyP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
+                        var privacyP = ColorGenerator.Remap(privacyV, -5, 5, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
+                        privacyColor = ColorGenerator.Inferno.ReturnInfernoColor(privacyP);
                     }
                     else
                     { privacyColor = Color.Black; }
