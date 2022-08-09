@@ -339,6 +339,9 @@ namespace SeemoPredictor
                     if (SPVEIVPixeltemp > SPVEIVPixel)
                     {
                         SPVEIVPixel = SPVEIVPixeltemp;
+                    }
+                    if (resultData3.WindowAreaRatio > windowAreaRatioSPVEIV)
+                    {
                         windowAreaRatioSPVEIV = resultData3.WindowAreaRatio;
                     }
                 }
@@ -400,9 +403,10 @@ namespace SeemoPredictor
 
                 //8.SPVEI Pixel
                 Color SPVEIPixelColor;
+                
                 if (windowAreaRatioSPVEIV <= 0.05)
                 { SPVEIPixelColor = Color.Black; }
-                else if ((SPVEIVPixel >= 0.001) && (SPVEIVPixel <= 0.1))
+                else if ((SPVEIVPixel >= 0) && (SPVEIVPixel <= 1))
                 {
                     if (SPVEIVPixel <= 0.001) { SPVEIVPixel = 0.001111; }
                     if (SPVEIVPixel >= 0.1) { SPVEIVPixel = 0.09999; }

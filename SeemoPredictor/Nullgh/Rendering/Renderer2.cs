@@ -91,7 +91,7 @@ namespace NullEngine.Rendering
             if (ReadyFrameBuffer())  //dispose previous bufferdata and reset them for new resolution
             {
                 RenderToFrameBuffer();  //actual rendereing and copy the data to cpu
-
+                
                 //save rendering into bmp
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 string dir = (path + @"\NullEngine");
@@ -137,6 +137,7 @@ namespace NullEngine.Rendering
                     }
                 }
                 DepthBitmap.Save(filename2);
+                
             }
             //renderThread.Start();
         }
