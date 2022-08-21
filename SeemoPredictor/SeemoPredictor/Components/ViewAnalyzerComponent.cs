@@ -437,7 +437,7 @@ namespace SeemoPredictor
                         directionResult.PredictedPrivacy = privacys[privacys.Count - 1];
 
                     }
-                    else
+                    else //when there is no view, score is NaN
                     {
                         overallRatings.Add(double.NaN);
                         viewContents.Add(double.NaN);

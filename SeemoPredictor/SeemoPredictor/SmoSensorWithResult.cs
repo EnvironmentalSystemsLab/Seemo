@@ -289,7 +289,7 @@ namespace SeemoPredictor
 
                     if (type == SmoFace.SmoFaceType.Context_Window || type == SmoFace.SmoFaceType.Sidewalk || type == SmoFace.SmoFaceType.Road || type == SmoFace.SmoFaceType.ParkingLot)
                     {
-                        if(dist>1 && dist < 200)
+                        if((dist >= 1) && (dist < 200))
                         {
                             this.SPVEI = this.SPVEI + ( 1 / dist );
                         }
