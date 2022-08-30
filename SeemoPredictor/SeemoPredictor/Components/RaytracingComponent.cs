@@ -197,16 +197,6 @@ namespace SeemoPredictor.Components
             sp.Restart();
 
 
-            //save rendering into bmp
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string dir = (path + @"\NullEngine");
-
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
-
-
             // -------------------------
             //  create result output classes
             // -------------------------

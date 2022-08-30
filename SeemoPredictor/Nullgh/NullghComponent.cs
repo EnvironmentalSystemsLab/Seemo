@@ -41,6 +41,7 @@ namespace Nullgh
             pManager.AddBooleanParameter("GPU", "GPU", "GPU raytracing", GH_ParamAccess.item);
             pManager.AddGenericParameter("Sensors", "S", "View Sensors", GH_ParamAccess.list);
             pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
+            pManager.AddBooleanParameter("BitmapSave", "BitmapSave", "BitmapSave", GH_ParamAccess.item);
             //pManager.AddTextParameter("Obj file", "Obj", "Obj FilePath", GH_ParamAccess.item);
         }
 
@@ -65,6 +66,7 @@ namespace Nullgh
             Boolean run = false;
             Boolean forceCPU = true;
             string objFilePath = "";
+            Boolean bitmapSave = false;
 
 
             if (!DA.GetData(0, ref run)) return;
@@ -74,6 +76,7 @@ namespace Nullgh
             if (!DA.GetData(1, ref forceCPU)) return;
             DA.GetDataList(2, sensors);
             DA.GetDataList(3, envFaces);
+            DA.GetData(4, ref bitmapSave);
             //if (!DA.GetData(4, ref objFilePath)) return;
 
             List<float> vertices = new List<float>();
@@ -84,6 +87,7 @@ namespace Nullgh
 
 
             Renderer renderer = new Renderer(!forceCPU, objFilePath, vertices, triangles, mats);  //go in
+            renderer.savebitmap = bitmapSave;
             List<Camera> cameras = new List<Camera>();
             
             //output objects

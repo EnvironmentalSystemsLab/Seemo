@@ -138,8 +138,11 @@ namespace SeemoPredictor
                     Color overallRatingColor;
                     double overallRatingV = resultData3.PredictedOverallRating;
 
-                    if (resultData3.WindowAreaRatio <= 0.05)
-                    { overallRatingColor = Color.Black; }
+                    if (resultData3.WindowAreaRatio <= 0.0)
+                    {   
+                        overallRatingColor = Color.Black;
+                        overalls.Add(-5);
+                    }
                     else if ((overallRatingV >= -5) && (overallRatingV <= 5))
                     {
                         overalls.Add(overallRatingV);
@@ -150,7 +153,10 @@ namespace SeemoPredictor
                         overallRatingColor = ColorGenerator.GetTriColour(overallRatingP, P1, P2, P3);
                     }
                     else
-                    { overallRatingColor = Color.Black; }
+                    {   
+                        overallRatingColor = Color.Black;
+                        overalls.Add(-5);
+                    }
 
 
                     Mesh overallRatingPetal = new Mesh();
@@ -172,17 +178,22 @@ namespace SeemoPredictor
                     //2.viewContent
                     Color viewContentColor;
                     double viewContentV = resultData3.PredictedViewContent;
-                    if (resultData3.WindowAreaRatio <= 0.05)
-                    { viewContentColor = Color.Black; }
+                    if (resultData3.WindowAreaRatio <= 0.0)
+                    { 
+                        viewContentColor = Color.Black;
+                        contents.Add(-5);
+                    }
                     else if ((viewContentV >= -5) && (viewContentV <= 5))
                     {
                         contents.Add(viewContentV);
                         var remap = ColorGenerator.Remap(-viewContentV, -5, 5, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
                         viewContentColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
-
                     }
                     else
-                    { viewContentColor = Color.Black; }
+                    { 
+                        viewContentColor = Color.Black;
+                        contents.Add(-5);
+                    }
 
                     Mesh viewContentPetal = new Mesh();
                     viewContentPetal.Vertices.Add(viewPoint);
@@ -209,8 +220,11 @@ namespace SeemoPredictor
                     //4.viewAccess
                     Color viewAccessColor;
                     double viewAccessV = resultData3.PredictedViewAccess;
-                    if (resultData3.WindowAreaRatio <= 0.05)
-                    { viewAccessColor = Color.Black; }
+                    if (resultData3.WindowAreaRatio <= 0.0)
+                    { 
+                        viewAccessColor = Color.Black;
+                        accesses.Add(-5);
+                    }
                     else if ((viewAccessV >= -5) && (viewAccessV <= 5))
                     {
                         accesses.Add(viewAccessV);
@@ -218,7 +232,10 @@ namespace SeemoPredictor
                         viewAccessColor = ColorGenerator.GetTriColour(viewAccessP, Color.Red, Color.Yellow, Color.Blue);
                     }
                     else
-                    { viewAccessColor = Color.Black; }
+                    { 
+                        viewAccessColor = Color.Black;
+                        accesses.Add(-5);
+                    }
 
                     Mesh viewAccessPetal = new Mesh();
                     viewAccessPetal.Vertices.Add(viewPoint);
@@ -237,18 +254,22 @@ namespace SeemoPredictor
                     //5.Privacy
                     Color privacyColor;
                     double privacyV = resultData3.PredictedPrivacy;
-                    if (resultData3.WindowAreaRatio <= 0.05)
-                    { privacyColor = Color.Black; }
+                    if (resultData3.WindowAreaRatio <= 0.0)
+                    { 
+                        privacyColor = Color.Black;
+                        privacys.Add(-5);
+                    }
                     else if ((privacyV >= -5) && (privacyV <= 5))
                     {
                         privacys.Add(privacyV);
-                        //double privacyP = ColorGenerator.Remap(privacyV, -5, 5, 0, 1);
-                        //privacyColor = ColorGenerator.GetTriColour(privacyP, Color.Orange, Color.LimeGreen, Color.DarkCyan);
                         var privacyP = ColorGenerator.Remap(privacyV, -5, 5, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
                         privacyColor = ColorGenerator.Inferno.ReturnInfernoColor(privacyP);
                     }
                     else
-                    { privacyColor = Color.Black; }
+                    { 
+                        privacyColor = Color.Black;
+                        privacys.Add(-5);
+                    }
 
                     Mesh privacyPetal = new Mesh();
                     privacyPetal.Vertices.Add(viewPoint);
@@ -268,8 +289,11 @@ namespace SeemoPredictor
                     //6.Framework
                     Color frameworkColor;
                     double frameworkV = resultData3.ViewContentFramework;
-                    if (resultData3.WindowAreaRatio <= 0.05 || viewContentColor == Color.Black )
-                    { frameworkColor = Color.Black; }
+                    if (resultData3.WindowAreaRatio <= 0.0 || viewContentColor == Color.Black )
+                    { 
+                        frameworkColor = Color.Black;
+                        frameworks.Add(0);
+                    }
                     else if ((frameworkV >= 0) && (frameworkV <= 1))
                     {
                         frameworks.Add(frameworkV);
@@ -280,7 +304,10 @@ namespace SeemoPredictor
                         frameworkColor = ColorGenerator.GetTriColour(frameworkP, P1, P2, P3);
                     }
                     else
-                    { frameworkColor = Color.Black; }
+                    { 
+                        frameworkColor = Color.Black;
+                        frameworks.Add(0);
+                    }
 
                     Mesh frameworkPetal = new Mesh();
                     frameworkPetal.Vertices.Add(viewPoint);
@@ -301,9 +328,12 @@ namespace SeemoPredictor
                     //7.SPVEI
                     Color SPVEIColor;
                     double SPVEIV = resultData3.SPVEI;
-                    if (resultData3.WindowAreaRatio <= 0.05)
-                    { SPVEIColor = Color.Black; }
-                    else if ((SPVEIV >= 0) && (SPVEIV <= 1))
+                    if (resultData3.WindowAreaRatio <= 0.0)
+                    { 
+                        SPVEIColor = Color.Black;
+                        SPVEIs.Add(0);
+                    }
+                    else if ((SPVEIV >= 0) && (SPVEIV <= 10))
                     {
                         if (SPVEIV <= 0.001) { SPVEIV = 0.001111; }
                         if (SPVEIV >= 0.1) { SPVEIV = 0.09999; }
@@ -315,7 +345,8 @@ namespace SeemoPredictor
 
                     }else
                     {
-                        { SPVEIColor = Color.Black; }
+                        SPVEIColor = Color.Black;
+                        SPVEIs.Add(0);
                     }
 
                     Mesh SPVEIPetal = new Mesh();
@@ -351,11 +382,15 @@ namespace SeemoPredictor
 
                 //3.ViewContent Pixel
                 Color viewContentPixelColor;
-                if (windowAreaRatioViewContent <= 0.05)
-                { viewContentPixelColor = Color.Black; }
+                if (windowAreaRatioViewContent <= 0.0)
+                { 
+                    viewContentPixelColor = Color.Black;
+                    contentPixels.Add(-5);
+                }
                 else if (viewContentPixel == double.NaN)
                 {
-                    { viewContentPixelColor = Color.Black; }
+                    viewContentPixelColor = Color.Black;
+                    contentPixels.Add(-5);
                 }
                 else //if ((SPVEIV >= 0) && (SPVEIV <= 1))
                 {
@@ -404,9 +439,12 @@ namespace SeemoPredictor
                 //8.SPVEI Pixel
                 Color SPVEIPixelColor;
                 
-                if (windowAreaRatioSPVEIV <= 0.05)
-                { SPVEIPixelColor = Color.Black; }
-                else if ((SPVEIVPixel >= 0) && (SPVEIVPixel <= 1))
+                if (windowAreaRatioSPVEIV <= 0.0)
+                { 
+                    SPVEIPixelColor = Color.Black;
+                    SPVEIPixels.Add(0);
+                }
+                else if ((SPVEIVPixel >= 0) && (SPVEIVPixel <= 10))
                 {
                     if (SPVEIVPixel <= 0.001) { SPVEIVPixel = 0.001111; }
                     if (SPVEIVPixel >= 0.1) { SPVEIVPixel = 0.09999; }
@@ -419,7 +457,7 @@ namespace SeemoPredictor
                 }
                 else
                 {
-                    SPVEIPixels.Add(SPVEIVPixel);
+                    SPVEIPixels.Add(0);
                     SPVEIPixelColor = Color.Black;
                 }
 

@@ -20,6 +20,7 @@ namespace NullEngine.Rendering
         public int height = 10;
         
         private bool run = true;
+        public bool savebitmap = false;
 
         private ByteFrameBuffer deviceFrameBuffer;
         private FloatFrameBuffer deviceFrameDistanceBuffer;
@@ -91,19 +92,7 @@ namespace NullEngine.Rendering
             if (ReadyFrameBuffer())  //dispose previous bufferdata and reset them for new resolution
             {
                 RenderToFrameBuffer();  //actual rendereing and copy the data to cpu
-                
-                //save rendering into bmp
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string dir = (path + @"\NullEngine");
 
-                if (!Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
-
-                long time = DateTime.Now.ToFileTime();
-                string filename1 = dir + @"\MaterialMap" + time + ".bmp";
-                string filename2 = dir + @"\DepthMap" + time + ".bmp";
 
                 var MaterialBitmap = new Bitmap(width, height);
 
@@ -120,7 +109,7 @@ namespace NullEngine.Rendering
 
                     }
                 }
-                MaterialBitmap.Save(filename1);
+
 
                 var DepthBitmap = new Bitmap(width, height);
 
@@ -136,7 +125,26 @@ namespace NullEngine.Rendering
                         DepthBitmap.SetPixel(width - x - 1, y, pixColor);
                     }
                 }
-                DepthBitmap.Save(filename2);
+
+                if (savebitmap)
+                {
+                    //save rendering into bmp
+                    string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                    string dir = (path + @"\NullEngine");
+
+                    if (!Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+
+                    long time = DateTime.Now.ToFileTime();
+                    string filename1 = dir + @"\MaterialMap" + time + ".bmp";
+                    string filename2 = dir + @"\DepthMap" + time + ".bmp";
+
+                    MaterialBitmap.Save(filename1);
+                    DepthBitmap.Save(filename2);
+                }
+                
                 
             }
             //renderThread.Start();

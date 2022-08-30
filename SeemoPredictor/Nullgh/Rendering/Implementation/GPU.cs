@@ -21,7 +21,7 @@ namespace NullEngine.Rendering.Implementation
 
         public GPU(bool forceCPU)
         {
-            context = Context.Create(builder => builder.Cuda().CPU().EnableAlgorithms().Assertions());
+            context = Context.Create(builder => builder.Cuda().EnableAlgorithms().Assertions());
 
             if (forceCPU)
             {
