@@ -24,14 +24,12 @@ namespace NullEngine.Rendering
 
         private ByteFrameBuffer deviceFrameBuffer;
         private FloatFrameBuffer deviceFrameDistanceBuffer;
-        private ByteFrameBuffer deviceFrameDistance2Buffer;
 
         //where data is stored in cpu
         private byte[] frameBuffer = new byte[0]; //this for depthmap
         private byte[] frameMaterialID2Buffer = new byte[0]; //this is the real Material for map // for saving bmp
         private byte[] frameMaterialIDBuffer = new byte[0]; //important //this is the real Material for map
         private float[] frameDistanceBuffer = new float[0]; //important //this is the real distance for depthmap
-        private byte[] frameDistance2Buffer = new byte[0]; // for what??
 
         private GPU gpu;
         private Camera camera;
@@ -220,20 +218,17 @@ namespace NullEngine.Rendering
                     {
                         deviceFrameBuffer.Dispose();
                         deviceFrameDistanceBuffer.Dispose();
-                        deviceFrameDistance2Buffer.Dispose();
 
                         frameData.Dispose();
                     }
 
                     frameBuffer = new byte[width * height * 3];
                     frameDistanceBuffer = new float[width * height];
-                    frameDistance2Buffer = new byte[width * height * 3];
                     frameMaterialIDBuffer = new byte[width * height];
                     frameMaterialID2Buffer = new byte[width * height * 3];
                     
                     deviceFrameBuffer = new ByteFrameBuffer(gpu, height, width);
                     deviceFrameDistanceBuffer = new FloatFrameBuffer(gpu, height, width);
-                    deviceFrameDistance2Buffer = new ByteFrameBuffer(gpu, height, width);
 
                     frameData = new FrameData(gpu.device, width, height);
                 }
@@ -257,7 +252,6 @@ namespace NullEngine.Rendering
                 deviceFrameBuffer.memoryMaterialID2Buffer.CopyToCPU(frameMaterialID2Buffer);
 
                 deviceFrameDistanceBuffer.memoryDistanceBuffer.CopyToCPU(frameDistanceBuffer);
-                deviceFrameDistance2Buffer.memoryDistance2Buffer.CopyToCPU(frameDistance2Buffer);
 
             }
         }

@@ -186,9 +186,6 @@ namespace NullEngine.Rendering.Implementation
                     frameData.outputBuffer[(pixel * 3) + 1] = second.t;
                     frameData.outputBuffer[(pixel * 3) + 2] = second.t;
                     frameData.depthBuffer[pixel] = second.t;
-                    frameData.outputDistance2Buffer[(pixel * 3)] = second.t;
-                    frameData.outputDistance2Buffer[(pixel * 3) + 1] = second.t;
-                    frameData.outputDistance2Buffer[(pixel * 3) + 2] = second.t;
 
                 }
                 else
@@ -203,9 +200,6 @@ namespace NullEngine.Rendering.Implementation
                     frameData.outputBuffer[(pixel * 3) + 1] = second.t;
                     frameData.outputBuffer[(pixel * 3) + 2] = second.t;
                     frameData.depthBuffer[pixel] = second.t;
-                    frameData.outputDistance2Buffer[(pixel * 3)] = second.t;
-                    frameData.outputDistance2Buffer[(pixel * 3) + 1] = second.t;
-                    frameData.outputDistance2Buffer[(pixel * 3) + 2] = second.t;
                 }
 
             }else if(hit.materialID == 0) // closest material is interior
@@ -220,9 +214,6 @@ namespace NullEngine.Rendering.Implementation
                 frameData.outputBuffer[(pixel * 3) + 1] = hit.t;
                 frameData.outputBuffer[(pixel * 3) + 2] = hit.t;
                 frameData.depthBuffer[pixel] = hit.t;
-                frameData.outputDistance2Buffer[(pixel * 3)] = hit.t;
-                frameData.outputDistance2Buffer[(pixel * 3) + 1] = hit.t;
-                frameData.outputDistance2Buffer[(pixel * 3) + 2] = hit.t;
             }
             else
             {
@@ -236,9 +227,6 @@ namespace NullEngine.Rendering.Implementation
                 frameData.outputBuffer[(pixel * 3) + 1] = hit.t;
                 frameData.outputBuffer[(pixel * 3) + 2] = hit.t;
                 frameData.depthBuffer[pixel] = hit.t;
-                frameData.outputDistance2Buffer[(pixel * 3)] = hit.t;
-                frameData.outputDistance2Buffer[(pixel * 3) + 1] = hit.t;
-                frameData.outputDistance2Buffer[(pixel * 3) + 2] = hit.t;
             }
 
 
@@ -310,10 +298,6 @@ namespace NullEngine.Rendering.Implementation
             output2.writeFrameDistanceBuffer(pixel, distance);
 
             
-            //Distance2
-            Vec3 colorD = UtilityKernels.readFrameBuffer(frameData.outputDistance2Buffer, pixel * 3);
-            colorD = Vec3.reinhard(colorD);
-            output.writeFrameDistance2Buffer(pixel * 3, colorD.x, colorD.y, colorD.z);
         }
 
     }
