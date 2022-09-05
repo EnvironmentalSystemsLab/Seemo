@@ -22,6 +22,8 @@ namespace SeemoPredictor
           : base("ViewAnalyzer", "ViewAnalyzer",
               "ViewAnalyzer",
               "SeEmo", "3|Analyzer")
+
+            //raytracing with cpu + predictor
         {
         }
 
@@ -97,22 +99,10 @@ namespace SeemoPredictor
             // make octree for visibility
             float worldSize = (float)worldbounds.Size.Length * 0.8f;
             PointOctree<SmoFace> octreeEnv = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize)); //includes interior + environment
-            PointOctree<SmoFace> octreeWindow = new PointOctree<SmoFace>(worldSize, worldbounds.Center, (float)(avNodeSize)); //includes interior + glazing
-
+            
             foreach (SmoFace f in faces)
             {
-                if(f.ViewContentType == SmoFace.SmoFaceType.Glazing)
-                {
-                    octreeWindow.Add(f, f.Center);
-                }else if(f.ViewContentType == SmoFace.SmoFaceType.Interior)
-                {
-                    octreeEnv.Add(f, f.Center);
-                    octreeWindow.Add(f, f.Center);
-                }
-                else
-                {
-                    octreeEnv.Add(f, f.Center);
-                }
+                octreeEnv.Add(f, f.Center);
             }
 
 
@@ -182,7 +172,7 @@ namespace SeemoPredictor
                 //    for (int i = 0; i < imageArray.Length; i++)
                 Parallel.For(0, imageArray.Length, i =>
                 {
-                    imageArray[i].ComputeImage(octreeEnv, octreeWindow, maxNodeSize);
+                    imageArray[i].ComputeImage(octreeEnv, maxNodeSize);
                 }); // Parallel.For
             }
             else
@@ -192,7 +182,7 @@ namespace SeemoPredictor
                 //    for (int i = 0; i < imageArray.Length; i++)
                 Parallel.For(0, sphericalImageArray.Length, i =>
                 {
-                    sphericalImageArray[i].ComputeImage(octreeEnv, octreeWindow, maxNodeSize);
+                    sphericalImageArray[i].ComputeImage(octreeEnv, maxNodeSize);
                 }); // Parallel.For
 
                 //spliting images
@@ -421,16 +411,14 @@ namespace SeemoPredictor
                         var privacy = ConsumePrivacy.Predict(sampleDataPrivacy);
                         var framework = directionResult.ViewContentFramework;
                         var SPVEI = directionResult.SPVEI;
-                        //var IPVEI = directionResult.IPVEI;
-
+                        
                         overallRatings.Add(overallRating.OverallRatingB);
                         viewContents.Add(viewContent.ViewContentB);
                         viewAccesses.Add(viewAccess.ViewAccessB);
                         privacys.Add(privacy.PrivacyB);
                         frameworks.Add(framework);
                         SPVEIs.Add(SPVEI);
-                        //IPVEIs.Add(IPVEI);
-
+                        
                         directionResult.PredictedOverallRating = overallRatings[overallRatings.Count - 1];
                         directionResult.PredictedViewContent = viewContents[viewContents.Count - 1];
                         directionResult.PredictedViewAccess = viewAccesses[viewAccesses.Count - 1];
@@ -445,15 +433,13 @@ namespace SeemoPredictor
                         privacys.Add(double.NaN);
                         frameworks.Add(double.NaN);
                         SPVEIs.Add(double.NaN);
-                        //IPVEIs.Add(double.NaN);
-
+                        
                         directionResult.PredictedOverallRating = double.NaN;
                         directionResult.PredictedViewContent = double.NaN;
                         directionResult.PredictedOverallRating = double.NaN;
                         directionResult.PredictedViewContent = double.NaN;
                         directionResult.ViewContentFramework = double.NaN;
                         directionResult.SPVEI = double.NaN;
-                        //directionResult.IPVEI = double.NaN;
                     }
 
 
@@ -508,7 +494,6 @@ namespace SeemoPredictor
             DA.SetDataList(6, privacys);
             DA.SetDataList(7, frameworks);
             DA.SetDataList(8, SPVEIs);
-            //DA.SetDataList(8, IPVEIs);
 
 
         }
