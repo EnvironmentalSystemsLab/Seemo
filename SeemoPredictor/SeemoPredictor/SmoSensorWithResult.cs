@@ -95,8 +95,7 @@ namespace SeemoPredictor
         
         public double ViewContentFramework { get; set; } = 0;
         public double SPVEI { get; set; } = 0;
-        //public double IPVEI { get; set; } = 0;
-
+        
         public double PredictedOverallRating { get; set; } = 0;
         public double PredictedViewContent { get; set; } = 0;
         public double PredictedViewAccess { get; set; } = 0;
@@ -205,14 +204,6 @@ namespace SeemoPredictor
                 {
                     SmoFace.SmoFaceType type = Image.LabelMap[x][y];
                     double dist = Image.DepthMap[x][y];
-                    double windowDist = Image.WindowDepthMap[x][y]; //애네가 000
-                    Point3 windowN = Image.WindowNormals[x][y]; //애네가 000
-                    Point3 ray = Image.ImageRays[x][y];
-
-                    //if(windowDist>0.01 && windowDist < 100)
-                    //{
-                    //    this.WindowAreaSum = this.WindowAreaSum + Math.Pow(Math.Tan(Image.angleStep * Math.PI / 180) * windowDist, 2);
-                    //}
                     
                     switch (type)
                     {
@@ -264,28 +255,6 @@ namespace SeemoPredictor
                     }
 
                     
-                    double CalculatePVEI()
-                    {
-                        double rayPVEI = 0;
-                        // calculate PVEI
-                        Point3 windowNtemp = windowN.Normalized;
-                        windowNtemp = new Point3(windowNtemp.X, windowNtemp.Y, 0);
-                        windowNtemp = Point3.Rotate(windowNtemp, Point3.ZAxis, (float)Math.PI / 2);
-                        Point3 raytemp = new Point3(ray.X, ray.Y, 0);
-
-                        rayPVEI = dist * dist * windowDist * windowDist / (dist - windowDist) / (dist - windowDist); //later multiply tan(angleStep)^4 then, it's Aobserver * Aprojected / (do - dprojected)^2
-                        rayPVEI = rayPVEI * (Point3.Cross(windowNtemp, raytemp).Length) / windowNtemp.Length / raytemp.Length;// multiply sin(alpha)
-                        rayPVEI = rayPVEI * (raytemp.Length / ray.Length); //multiply cosin
-
-                        if (y < a) rayPVEI = rayPVEI * 2.0f / 13.0f;
-                        else if (y > b) rayPVEI = rayPVEI * 2.0f / 13.0f;
-                        else if (x < c || x > d) rayPVEI = rayPVEI * 3.0f / 13.0f;
-                        else rayPVEI = rayPVEI * 6.0f / 13.0f;
-
-                        double pixelLength = Math.Tan(Image.angleStep / 180 * Math.PI);
-                        rayPVEI = rayPVEI * Math.Pow(pixelLength, 4); //it should be 4 but.. to small
-                        return rayPVEI;
-                    }
 
                     if (type == SmoFace.SmoFaceType.Context_Window || type == SmoFace.SmoFaceType.Sidewalk || type == SmoFace.SmoFaceType.Road || type == SmoFace.SmoFaceType.ParkingLot)
                     {
@@ -315,7 +284,7 @@ namespace SeemoPredictor
             
             this.SkyCondition = 1;
 
-            //this.InteriorPtsCountRatio = ((double)(interiorDists.Count)) / zhitSum;
+            this.InteriorPtsCountRatio = ((double)(interiorDists.Count)) / zhitSum;
             this.BuildingPtsCountRatio = ((double)(buildingDists.Count)) / zhitSum;
             this.ContextWindowPtsCountRatio = ((double)(contextWindowDists.Count)) / zhitSum;
             this.EquipmentPtsCountRatio = ((double)(equipmentDists.Count)) / zhitSum;

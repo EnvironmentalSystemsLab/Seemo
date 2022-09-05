@@ -30,10 +30,7 @@ namespace NullEngine.Rendering
         private byte[] frameBuffer = new byte[0]; //this for depthmap
         private byte[] frameMaterialID2Buffer = new byte[0]; //this is the real Material for map // for saving bmp
         private byte[] frameMaterialIDBuffer = new byte[0]; //important //this is the real Material for map
-        private byte[] frameWindowIDBuffer = new byte[0];
         private float[] frameDistanceBuffer = new float[0]; //important //this is the real distance for depthmap
-        private float[] frameWindowDistanceBuffer = new float[0];
-        private float[] frameWindowNormalBuffer = new float[0];
         private byte[] frameDistance2Buffer = new byte[0]; // for what??
 
         private GPU gpu;
@@ -47,12 +44,7 @@ namespace NullEngine.Rendering
         {
 
             gpu = new GPU(forceCPU);
-            //this.scene = new Scene(gpu, "C:/GIT/NullGH/Nullgh/Assets/CubeTest/Scene.json");
-            //this.scene = new Scene(gpu, "../../../../Assets/Sponza/Scene.json");
-            //this.scene = new Scene(gpu, "../../../../Assets/Suzannes/Scene.json");
-            //this.scene = new Scene(gpu, "../../../../Assets/Viewbackground/Scene.json");
-            //this.scene = new Scene(gpu, "C:/GIT/NullGH/Nullgh/Assets/MaterialTest/Scene.json");
-
+            
             this.scene = new Scene(objFilePath, gpu, vertices, triangles, mats);
 
         }
@@ -62,12 +54,7 @@ namespace NullEngine.Rendering
         {
             
             gpu = new GPU(forceCPU);
-            //this.scene = new Scene(gpu, "C:/GIT/NullGH/Nullgh/Assets/CubeTest/Scene.json");
-            //this.scene = new Scene(gpu, "../../../../Assets/Sponza/Scene.json");
-            //this.scene = new Scene(gpu, "../../../../Assets/Suzannes/Scene.json");
-            //this.scene = new Scene(gpu, "../../../../Assets/Viewbackground/Scene.json");
-            //this.scene = new Scene(gpu, "C:/GIT/NullGH/Nullgh/Assets/MaterialTest/Scene.json");
-
+            
             this.scene = new Scene(objFilePath, gpu);
 
         }
@@ -167,32 +154,12 @@ namespace NullEngine.Rendering
                 for (int y = 0; y < image.yres; y++)
                 {
                     byte m = frameMaterialIDBuffer[y * image.xres + x];
-                    byte w = frameWindowIDBuffer[y * image.xres + x];
                     double dist = (double)frameDistanceBuffer[y * image.xres + x];
-                    double dist2 = (double)frameWindowDistanceBuffer[y * image.xres + x];
-                    Point3 fNormal = Vec3.ToPoint3(new Vec3(frameWindowNormalBuffer[(y * image.xres + x) * 3], frameWindowNormalBuffer[(y * image.xres + x) * 3 + 1], frameWindowNormalBuffer[(y * image.xres + x) * 3 + 2]));
                     
 
                     image.Hits[x][y] = Vec3.ToPoint3(camera.GetRay(x, y).a + (camera.GetRay(x, y).b) * (float)dist);
-                    image.WindowHits[x][y] = Vec3.ToPoint3(camera.GetRay(x, y).a + (camera.GetRay(x, y).b) * (float)dist2);
                     image.DepthMap[x][image.yres - y - 1] = dist;
-                    image.WindowDepthMap[x][image.yres - y - 1] = dist2;
-                    image.WindowNormals[x][image.yres - y - 1] = fNormal;
-
-                    switch (w)
-                    {
-                        case 0:
-                            image.WindowLabelMap[x][image.yres - y - 1] = SmoFace.SmoFaceType.Interior;
-                            break;
-                        case 2:
-                            image.WindowLabelMap[x][image.yres - y - 1] = SmoFace.SmoFaceType.Glazing;
-                            break;
-
-                        default:
-                            image.LabelMap[x][image.yres - y - 1] = SmoFace.SmoFaceType._UNSET_;
-                            break;
-                    }
-
+                    
                     switch (m)
                     {
                         case 0:
@@ -243,66 +210,6 @@ namespace NullEngine.Rendering
             return image;
         }
 
-        //eveything below this happens in the render thread
-        //private void RenderThread()
-        //{
-        //    while (run) 
-        //    {
-                
-        //        if(ReadyFrameBuffer())  //dispose previous bufferdata and reset them for new resolution
-        //        {
-        //            RenderToFrameBuffer();  //actual rendereing and copy the data to cpu
-                    
-
-        //            byte[] depth = frameBuffer;
-        //            byte[] materials = frameMaterialIDBuffer;
-        //            byte[] materials2 = frameMaterialID2Buffer;
-        //            float[] distances = frameDistanceBuffer;
-        //            byte[] distances2 = frameDistance2Buffer;
-
-
-        //            //save rendering into bmp
-        //            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        //            string dir = (path + @"\NullEngine");
-
-        //            if (!Directory.Exists(dir))
-        //            {
-        //                Directory.CreateDirectory(dir);
-        //            }
-
-        //            long time = DateTime.Now.ToFileTime();
-        //            string filename1 = dir + @"\RaycastingResult" + time + ".bmp";
-
-        //            var bitmap = new Bitmap(width, height);
-
-        //            for (int x = 0; x < width; x++)
-        //            {
-        //                for (int y = 0; y < height; y++)
-        //                {
-        //                    byte r = materials2[(width * y + x) * 3];
-        //                    byte g = materials2[(width * y + x) * 3 + 1];
-        //                    byte b = materials2[(width * y + x) * 3 + 2];
-        //                    var pixColor = Color.FromArgb(r, g, b);
-
-        //                    bitmap.SetPixel(width - x - 1, height - y - 1, pixColor);
-
-        //                }
-        //            }
-        //            bitmap.Save(filename1);
-        //        }
-        //    }
-
-        //    if (deviceFrameBuffer != null)   //If there are data inside of gpu storage, remove
-        //    {
-        //        deviceFrameBuffer.Dispose();
-        //        deviceFrameDistanceBuffer.Dispose();
-        //        deviceFrameDistance2Buffer.Dispose();
-
-        //        frameData.Dispose();
-        //    }
-        //    gpu.Dispose();
-        //}
-
         private bool ReadyFrameBuffer()
         {
             if((width != 0 && height != 0))
@@ -320,13 +227,10 @@ namespace NullEngine.Rendering
 
                     frameBuffer = new byte[width * height * 3];
                     frameDistanceBuffer = new float[width * height];
-                    frameWindowDistanceBuffer = new float[width * height];
-                    frameWindowNormalBuffer = new float[width * height * 3];
                     frameDistance2Buffer = new byte[width * height * 3];
                     frameMaterialIDBuffer = new byte[width * height];
                     frameMaterialID2Buffer = new byte[width * height * 3];
-                    frameWindowIDBuffer = new byte[width * height];
-
+                    
                     deviceFrameBuffer = new ByteFrameBuffer(gpu, height, width);
                     deviceFrameDistanceBuffer = new FloatFrameBuffer(gpu, height, width);
                     deviceFrameDistance2Buffer = new ByteFrameBuffer(gpu, height, width);
@@ -355,11 +259,6 @@ namespace NullEngine.Rendering
                 deviceFrameDistanceBuffer.memoryDistanceBuffer.CopyToCPU(frameDistanceBuffer);
                 deviceFrameDistance2Buffer.memoryDistance2Buffer.CopyToCPU(frameDistance2Buffer);
 
-                deviceFrameDistanceBuffer.memoryWindowDistanceBuffer.CopyToCPU(frameWindowDistanceBuffer);
-                deviceFrameDistanceBuffer.memoryWindowNormalBuffer.CopyToCPU(frameWindowNormalBuffer);
-
-                deviceFrameBuffer.memoryWindowIDBuffer.CopyToCPU(frameWindowIDBuffer);
-                //cpu side everything is stored in frameBuffer
             }
         }
     }

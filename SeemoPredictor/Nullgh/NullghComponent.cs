@@ -152,15 +152,9 @@ namespace Nullgh
                 for(int i = 0; i < imageArray.Length; i++)
                 {
                     renderer.CameraUpdateAndRender(cameras[i]);
-                    renderer.Start();
+                    renderer.Start(); //here it takes longer than else condition
                     imageArray[i] = renderer.RayTracingToImage(imageArray[i]);
                 }
-
-                ////    for (int i = 0; i < imageArray.Length; i++)
-                //Parallel.For(0, imageArray.Length, i =>
-                //{
-                //    imageArray[i].ComputeImage(octree0, maxNodeSize);
-                //}); // Parallel.For
             }
             else
             {
@@ -171,13 +165,6 @@ namespace Nullgh
                     renderer.Start();
                     sphericalImageArray[i] = renderer.RayTracingToImage(sphericalImageArray[i]);
                 }
-
-                ////    for (int i = 0; i < imageArray.Length; i++)
-                //Parallel.For(0, sphericalImageArray.Length, i =>
-                //{
-                //    sphericalImageArray[i].ComputeImage(octree0, maxNodeSize);
-                //}); // Parallel.For
-
 
 
                 //spliting images
@@ -244,28 +231,6 @@ namespace Nullgh
                     directionResult.Image = imageArray[imgIndex];
                     imgIndex++;
 
-                    /*
-                    // save rendering into bmp ////////// SOMETHING IS NOT WORKING WHEN J>=4
-                    string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                    string dir = (path + @"\NullEngine");
-
-                    if (!Directory.Exists(dir))
-                    {
-                        Directory.CreateDirectory(dir);
-                    }
-
-                    long time = DateTime.Now.ToFileTime();
-                    string filename1 = dir + @"\Mat_Sensor" + i + "_dir" + j + time + ".bmp";
-                    string filename2 = dir + @"\Depth_Sensor" + i + "_dir" + j + time + ".bmp";
-
-                    var MatBitmap = directionResult.Image.GetDepthBitmap();
-                    MatBitmap.Save(filename1);
-
-                    var DepthBitmap = directionResult.Image.GetLabelBitmap();
-                    DepthBitmap.Save(filename2);
-                    */
-
-                    //Save direction result
                     nodeResult.Add(directionResult);
                 }
 

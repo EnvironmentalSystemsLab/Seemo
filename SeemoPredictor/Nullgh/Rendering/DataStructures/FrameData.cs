@@ -22,9 +22,6 @@ namespace NullEngine.Rendering.DataStructures
         public MemoryBuffer1D<int, Stride1D.Dense> outputMaterialIDBuffer;
         public MemoryBuffer1D<float, Stride1D.Dense> outputDistance2Buffer;
 
-        public MemoryBuffer1D<int, Stride1D.Dense> outputWindowIDBuffer;
-        public MemoryBuffer1D<float, Stride1D.Dense> outputWindowDistanceBuffer;
-        public MemoryBuffer1D<float, Stride1D.Dense> outputWindowNormalBuffer;
 
 
         public dFrameData deviceFrameData;
@@ -45,9 +42,6 @@ namespace NullEngine.Rendering.DataStructures
             outputMaterialIDBuffer = device.Allocate1D<int>(width * height );
             outputDistance2Buffer = device.Allocate1D<float>(width * height * 3);
 
-            outputWindowIDBuffer = device.Allocate1D<int>(width * height);
-            outputWindowDistanceBuffer = device.Allocate1D<float>(width * height);
-            outputWindowNormalBuffer = device.Allocate1D<float>(width * height * 3);
 
             deviceFrameData = new dFrameData(this);
         }
@@ -61,9 +55,6 @@ namespace NullEngine.Rendering.DataStructures
             outputMaterialID2Buffer.Dispose();
             outputMaterialIDBuffer.Dispose();
             outputDistance2Buffer.Dispose();
-            outputWindowIDBuffer.Dispose();
-            outputWindowDistanceBuffer.Dispose();
-            outputWindowNormalBuffer.Dispose();
         }
     }
 
@@ -81,10 +72,7 @@ namespace NullEngine.Rendering.DataStructures
         public ArrayView1D<int, Stride1D.Dense> outputMaterialIDBuffer;
         public ArrayView1D<float, Stride1D.Dense> outputDistance2Buffer;
 
-        public ArrayView1D<int, Stride1D.Dense> outputWindowIDBuffer;
-        public ArrayView1D<float, Stride1D.Dense> outputWindowDistanceBuffer;
-        public ArrayView1D<float, Stride1D.Dense> outputWindowNormalBuffer;
-
+        
         public dFrameData(FrameData frameData)
         {
             width = frameData.width;
@@ -99,9 +87,6 @@ namespace NullEngine.Rendering.DataStructures
             outputMaterialIDBuffer = frameData.outputMaterialIDBuffer;
             outputDistance2Buffer = frameData.outputDistance2Buffer;
 
-            outputWindowIDBuffer = frameData.outputWindowIDBuffer;
-            outputWindowDistanceBuffer = frameData.outputWindowDistanceBuffer;
-            outputWindowNormalBuffer = frameData.outputWindowNormalBuffer;
 
 
         }
