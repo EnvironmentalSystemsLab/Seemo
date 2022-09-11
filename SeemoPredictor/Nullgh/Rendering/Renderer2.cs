@@ -26,10 +26,10 @@ namespace NullEngine.Rendering
         private FloatFrameBuffer deviceFrameDistanceBuffer;
 
         //where data is stored in cpu
-        private byte[] frameBuffer = new byte[0]; //this for depthmap
-        private byte[] frameMaterialID2Buffer = new byte[0]; //this is the real Material for map // for saving bmp
-        private byte[] frameMaterialIDBuffer = new byte[0]; //important //this is the real Material for map
-        private float[] frameDistanceBuffer = new float[0]; //important //this is the real distance for depthmap
+        private byte[] frameBuffer = new byte[0]; //this for depthmap rgb
+        private byte[] frameMaterialID2Buffer = new byte[0]; //this for material map rgb
+        private byte[] frameMaterialIDBuffer = new byte[0]; //important //this is for material code
+        private float[] frameDistanceBuffer = new float[0]; //important //this is for distance calculation
 
         private GPU gpu;
         private Camera camera;
