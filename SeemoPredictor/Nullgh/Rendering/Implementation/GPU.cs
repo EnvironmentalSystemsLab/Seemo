@@ -176,7 +176,12 @@ namespace NullEngine.Rendering.Implementation
             {
                 if(second.materialID != 0) //0: interior
                 {
-                    
+                    frameData.outputWindowIDBuffer[pixel] = hit.materialID;
+                    frameData.outputWindowDistanceBuffer[pixel] = hit.t; 
+                    frameData.outputWindowNormalBuffer[(pixel * 3)] = windowN.x;
+                    frameData.outputWindowNormalBuffer[(pixel * 3) + 1] = windowN.y;
+                    frameData.outputWindowNormalBuffer[(pixel * 3) + 2] = windowN.z;
+
                     frameData.outputMaterialIDBuffer[pixel] = second.materialID;
                     frameData.outputMaterialID2Buffer[(pixel * 3)] = second.materialID;
                     frameData.outputMaterialID2Buffer[(pixel * 3) + 1] = second.materialID;
@@ -193,7 +198,12 @@ namespace NullEngine.Rendering.Implementation
                 }
                 else
                 {
-                    
+                    frameData.outputWindowIDBuffer[pixel] = second.materialID;
+                    frameData.outputWindowDistanceBuffer[pixel] = second.t;
+                    frameData.outputWindowNormalBuffer[(pixel * 3)] = 0;
+                    frameData.outputWindowNormalBuffer[(pixel * 3) + 1] = 0;
+                    frameData.outputWindowNormalBuffer[(pixel * 3) + 2] = 0;
+
                     frameData.outputMaterialIDBuffer[pixel] = second.materialID;
                     frameData.outputMaterialID2Buffer[(pixel * 3)] = second.materialID;
                     frameData.outputMaterialID2Buffer[(pixel * 3) + 1] = second.materialID;
@@ -210,7 +220,12 @@ namespace NullEngine.Rendering.Implementation
 
             }else if(hit.materialID == 0) // closest material is interior
             {
-                
+                frameData.outputWindowIDBuffer[pixel] = hit.materialID;
+                frameData.outputWindowDistanceBuffer[pixel] = hit.t;
+                frameData.outputWindowNormalBuffer[(pixel * 3)] = 0;
+                frameData.outputWindowNormalBuffer[(pixel * 3) + 1] = 0;
+                frameData.outputWindowNormalBuffer[(pixel * 3) + 2] = 0;
+
                 frameData.outputMaterialIDBuffer[pixel] = hit.materialID;
                 frameData.outputMaterialID2Buffer[(pixel * 3)] = hit.materialID;
                 frameData.outputMaterialID2Buffer[(pixel * 3) + 1] = hit.materialID;
@@ -226,7 +241,12 @@ namespace NullEngine.Rendering.Implementation
             }
             else
             {
-                
+                frameData.outputWindowIDBuffer[pixel] = unset;
+                frameData.outputWindowDistanceBuffer[pixel] = 0;
+                frameData.outputWindowNormalBuffer[(pixel * 3)] = 0;
+                frameData.outputWindowNormalBuffer[(pixel * 3) + 1] = 0;
+                frameData.outputWindowNormalBuffer[(pixel * 3) + 2] = 0;
+
                 frameData.outputMaterialIDBuffer[pixel] = hit.materialID;
                 frameData.outputMaterialID2Buffer[(pixel * 3)] = hit.materialID;
                 frameData.outputMaterialID2Buffer[(pixel * 3) + 1] = hit.materialID;
@@ -244,6 +264,84 @@ namespace NullEngine.Rendering.Implementation
 
             
 
+            //if(true)
+            //{
+            //    for(int i = 0; i < tlas.meshes.Length; i++)
+            //    {
+            //        dMesh mesh = tlas.meshes[i];
+            //        for(int j = 0; j < mesh.triangleLength; j++)
+            //        {
+            //            mesh.GetTriangle(j, renderData).GetTriangleHit(frameData.rayBuffer[pixel], j, ref temp);
+            //            if (temp.t < hit.t && temp.t > 0)
+            //            {
+            //                int materialID = renderData.rawMaterialID2Buffers[materialIndex];
+            //                if (materialID == 2) // Mat=2 : glazing
+            //                {
+            //                    //창문 친 것은 새로은 창문버퍼에 넣고, 기존의 material buffer는 유지, 근데 창문 앞에 또 뭔가가 나타나면???
+            //                    second.t = hit.t;
+            //                    second.materialID = hit.materialID;
+            //                    hit.t = temp.t;
+            //                    hit.materialID = materialID;
+
+            //                    glazingHit.normal = mesh.GetTriangle(j, renderData).faceNormal();
+            //                }
+            //                else
+            //                {
+            //                    hit.t = temp.t;
+            //                    hit.materialID = materialID;
+            //                }
+            //            }
+                        
+            //            materialIndex++;//if tlas.meshes.Count = 1, materialIndex = j 모든 face를 다 돌기 때문에 face에 해당하는 material id를 불러오는 것
+
+            //            //here is raytracing part, for one ray(frameData,rayBuffer[pixel], test all meshes and all triangles in a mesh
+            //            //save the record to hit and save it to **framedata.outputbuffer**
+            //        }
+            //    }
+            //}
+            ////else
+            ////{
+            ////    tlas.hit(renderData, frameData.rayBuffer[pixel], 0.01f, ref tempHit);
+            ////}
+            //if (hit.materialID == 2)
+            //{
+            //    glazingHit.t = hit.t;
+            //    glazingHit.materialID = hit.materialID;
+
+            //    hit.t = second.t;
+            //    hit.materialID = second.materialID;
+
+            //    frameData.outputWindowIDBuffer[pixel] = glazingHit.materialID; //hum.. let's see if this works
+            //                                                                     //frameData.outputWindowIDBuffer[(pixel * 3) + 1] = glazingHit.materialID;
+            //                                                                     //frameData.outputWindowIDBuffer[(pixel * 3) + 2] = glazingHit.materialID;
+
+            //    if (glazingHit.t < float.MaxValue)
+            //    {
+            //        frameData.outputWindowDistanceBuffer[pixel] = glazingHit.t;
+
+            //        frameData.outputWindowNormalBuffer[(pixel * 3)] = glazingHit.normal.x;
+            //        frameData.outputWindowNormalBuffer[(pixel * 3) + 1] = glazingHit.normal.y;
+            //        frameData.outputWindowNormalBuffer[(pixel * 3) + 2] = glazingHit.normal.z;
+            //    }
+            //}
+
+            //frameData.outputMaterialID2Buffer[(pixel * 3)] = hit.materialID; //hum.. let's see if this works
+            //frameData.outputMaterialID2Buffer[(pixel * 3) + 1] = hit.materialID;
+            //frameData.outputMaterialID2Buffer[(pixel * 3) + 2] = hit.materialID;
+            //frameData.outputMaterialIDBuffer[pixel] = hit.materialID;
+
+            //if (hit.t < float.MaxValue)
+            //{
+            //    frameData.outputBuffer[(pixel * 3)]     = hit.t;
+            //    frameData.outputBuffer[(pixel * 3) + 1] = hit.t;
+            //    frameData.outputBuffer[(pixel * 3) + 2] = hit.t;
+                
+            //    frameData.depthBuffer[pixel] = hit.t;
+
+            //    frameData.outputDistance2Buffer[(pixel * 3)] = hit.t;
+            //    frameData.outputDistance2Buffer[(pixel * 3) + 1] = hit.t;
+            //    frameData.outputDistance2Buffer[(pixel * 3) + 2] = hit.t;
+            //}
         }
 
         public static void GenerateFrame(Index1D pixel, dByteFrameBuffer output, dFloatFrameBuffer output2, dFrameData frameData)
@@ -251,9 +349,11 @@ namespace NullEngine.Rendering.Implementation
             
 
             Vec3 color = UtilityKernels.readFrameBuffer(frameData.outputBuffer, pixel * 3);
+            //color = Vec3.reinhard(color); //can affect to distance measurement output so disabled
             output.writeFrameBuffer(pixel * 3, color.x, color.y, color.z);
 
             Vec3 materialID2 = UtilityKernels.readFrameMaterialID2Buffer(frameData.outputMaterialID2Buffer, pixel * 3); //problem
+            //materialID2 = Vec3.reinhard(materialID2);
             switch(materialID2.x)
             {
                 case 0:
@@ -303,13 +403,26 @@ namespace NullEngine.Rendering.Implementation
                     break;
 
             }
+            //output.writeFrameMaterialID2Buffer(pixel * 3, (int)materialID2.x, (int)materialID2.y, (int)materialID2.z);
+
+            int WindowID = UtilityKernels.readFrameWindowIDBuffer(frameData.outputWindowIDBuffer, pixel); //problem
+            output.writeFrameWindowIDBuffer(pixel, WindowID);
+
+            //add frameData.outputMaterialIDBuffer
             int materialID = UtilityKernels.readFrameMaterialIDBuffer(frameData.outputMaterialIDBuffer, pixel);
             output.writeFrameMaterialIDBuffer(pixel, materialID);
 
+            //add frameData.depthBuffer
             float distance = UtilityKernels.readFrameDistanceBuffer(frameData.depthBuffer, pixel);
             output2.writeFrameDistanceBuffer(pixel, distance);
 
-            
+            float windowDistance = UtilityKernels.readFrameDistanceBuffer(frameData.outputWindowDistanceBuffer, pixel);
+            output2.writeWindowDistanceFrameBuffer(pixel, windowDistance);
+
+            Vec3 colorWN = UtilityKernels.readFrameBuffer(frameData.outputWindowNormalBuffer, pixel * 3);
+            colorWN = Vec3.reinhard(colorWN);
+            output2.writeWindowNormalFrameBuffer(pixel * 3, colorWN.x, colorWN.y, colorWN.z);
+
             //Distance2
             Vec3 colorD = UtilityKernels.readFrameBuffer(frameData.outputDistance2Buffer, pixel * 3);
             colorD = Vec3.reinhard(colorD);
