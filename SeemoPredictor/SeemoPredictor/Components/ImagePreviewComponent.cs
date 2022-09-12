@@ -31,7 +31,7 @@ namespace SeemoPredictor
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("Results", "Res", "Results", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Map", "Map", "0:LabelMap, 1:DepthMap", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Map", "Map", "0:LabelMap, 1:DepthMap, 2:WindowLabel, 3:WindowDepth, 4:WindowNormal", GH_ParamAccess.item);
             pManager.AddIntegerParameter("SensorID", "SensorID", "SensorID", GH_ParamAccess.item);
             pManager.AddIntegerParameter("DirectionID", "DirID", "DirectionID", GH_ParamAccess.item);
            
@@ -76,6 +76,18 @@ namespace SeemoPredictor
             else if(MapType == 1)
             {
                 this.Bitmap = results.Image.GetDepthBitmap();
+            }
+            else if (MapType == 2)
+            {
+                this.Bitmap = results.Image.GetWindowLabelBitmap();
+            }
+            else if (MapType == 3)
+            {
+                this.Bitmap = results.Image.GetWindowDepthBitmap();
+            }
+            else if (MapType == 4)
+            {
+                this.Bitmap = results.Image.GetWindowNormalBitmap();
             }
             else
             {

@@ -72,6 +72,48 @@ namespace SeemoPredictor
             }
         }
 
+        //raycast2 output
+        public double[][] WindowDepthMap { get; set; } //0(nothing was hit), dist to glazing or dist to interior
+        public double[] WindowDepthMapFlat
+        {
+            get
+            {
+                if (WindowDepthMap == null) return null;
+                return WindowDepthMap.SelectMany(a => a).ToArray();
+            }
+        }
+
+        public SmoFace.SmoFaceType[][] WindowLabelMap { get; set; }  //glazing, interior, _unset_
+        public string[] WindowLabelMapFlat
+        {
+            get
+            {
+                if (WindowLabelMap == null) return null;
+                var arr = WindowLabelMap.SelectMany(a => a).ToArray();
+                return arr.Select(a => a.ToString()).ToArray();
+            }
+        }
+        
+        public Point3[][] WindowHits { get; set; } // hitting points to glazing and interior, or (0,0,0)
+        public Point3[] WindowHitsFlat
+        {
+            get
+            {
+                if (WindowHits == null) return null;
+                return WindowHits.SelectMany(a => a).ToArray();
+            }
+        }
+        
+        public Point3[][] WindowNormals { get; set; } //only when it hits glazing. otherwise (0,0,0)
+        public Point3[] WindowNormalsFlat
+        {
+            get
+            {
+                if (WindowNormals == null) return null;
+                return WindowNormals.SelectMany(a => a).ToArray();
+            }
+        }
+        
 
 
         public SmoImage(Point3 pt, Point3 dir, int Resolution, double horizontalViewAngle, double verticalViewAngle) {
@@ -106,6 +148,10 @@ namespace SeemoPredictor
             DepthMap = new double[xres][];
             LabelMap = new SmoFace.SmoFaceType[xres][];
 
+            WindowHits = new Point3[xres][];
+            WindowNormals = new Point3[xres][];
+            WindowDepthMap = new double[xres][];
+            WindowLabelMap = new SmoFace.SmoFaceType[xres][];
 
             for (int i = 0; i < xres; i++) {
                 ImageRays[i] = new Point3[yres];
@@ -114,6 +160,10 @@ namespace SeemoPredictor
                 DepthMap[i] = new double[yres];
                 LabelMap[i] = new SmoFace.SmoFaceType[yres];
 
+                WindowHits[i] = new Point3[yres];
+                WindowNormals[i] = new Point3[yres];
+                WindowDepthMap[i] = new double[yres];
+                WindowLabelMap[i] = new SmoFace.SmoFaceType[yres];
             }
 
 
@@ -191,6 +241,10 @@ namespace SeemoPredictor
                     image.DepthMap[x][y] = sphereImage.DepthMap[sphereX][y];
                     image.LabelMap[x][y] = sphereImage.LabelMap[sphereX][y];
 
+                    image.WindowHits[x][y] = sphereImage.WindowHits[sphereX][y];
+                    image.WindowNormals[x][y] = sphereImage.WindowNormals[sphereX][y];
+                    image.WindowDepthMap[x][y] = sphereImage.WindowDepthMap[sphereX][y];
+                    image.WindowLabelMap[x][y] = sphereImage.WindowLabelMap[sphereX][y];
 
                 }
             }
@@ -200,7 +254,7 @@ namespace SeemoPredictor
         }
 
 
-        public void ComputeImage(PointOctree<SmoFace> octreeEnv,/* PointOctree<SmoFace> octreeWindow, */double max) //compute using gpu
+        public void ComputeImage(PointOctree<SmoFace> octreeEnv, PointOctree<SmoFace> octreeWindow, double max) //compute using gpu
         {
 
             for (int x = 0; x < this.xres; x++)
@@ -228,6 +282,43 @@ namespace SeemoPredictor
                         this.Hits[x][y] = hit;
                     }
 
+                    
+
+                    //generate windowMaps
+                    Point3 hit2;
+                    var face2 = SmoIntersect.IsVisible(octreeWindow, pt, ray, max, out hit2);
+                    double dist2 = Point3.Distance(hit2, pt);
+
+                    if (face2 == null)
+                    {
+                        this.WindowLabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
+                        this.WindowDepthMap[x][y] = 0;
+                        this.WindowHits[x][y] = pt;
+                        this.WindowNormals[x][y] = Point3.Zero;
+
+                    }else if(face2.ViewContentType == SmoFace.SmoFaceType.Glazing)
+                    {
+                        this.WindowLabelMap[x][y] = face2.ViewContentType;
+                        this.WindowDepthMap[x][y] = dist2;
+                        this.WindowHits[x][y] = hit2;
+                        this.WindowNormals[x][y] = face2.Normal;
+
+                    }else if(face2.ViewContentType == SmoFace.SmoFaceType.Interior)
+                    {
+                        this.WindowLabelMap[x][y] = face2.ViewContentType;
+                        this.WindowDepthMap[x][y] = dist2;
+                        this.WindowHits[x][y] = hit2;
+                        this.WindowNormals[x][y] = Point3.Zero;
+                    }
+                    else
+                    {
+                        this.WindowLabelMap[x][y] = SmoFace.SmoFaceType._UNSET_;
+                        this.WindowDepthMap[x][y] = 0;
+                        this.WindowHits[x][y] = pt;
+                        this.WindowNormals[x][y] = Point3.Zero;
+                    }
+
+                    
 
                 }
             }
@@ -273,6 +364,71 @@ namespace SeemoPredictor
             return bitmap;
         }
 
+        public Bitmap GetWindowDepthBitmap()
+        {
+            double min = double.MaxValue;
+            double max = double.MinValue;
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var val = this.WindowDepthMap[x][y];
+                    min = Math.Min(min, val);
+                    max = Math.Max(max, val);
+                }
+            }
+
+
+            var bitmap = new Bitmap(this.xres, this.yres);
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var val = this.WindowDepthMap[x][y];
+                    var remap = ColorGenerator.Remap(val, 0, max, 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
+                    var pixColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
+
+                    bitmap.SetPixel(this.xres - x - 1, this.yres - y - 1, pixColor);
+
+                }
+            }
+
+            return bitmap;
+        }
+
+        public Bitmap GetWindowNormalBitmap()
+        {
+            double min = double.MaxValue;
+            double max = double.MinValue;
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var val = Point3.Dot(-(this.Dir), this.WindowNormals[x][y]);
+                    min = Math.Min(min, val);
+                    max = Math.Max(max, val);
+                }
+            }
+
+
+            var bitmap = new Bitmap(this.xres, this.yres);
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+                    var val = this.WindowNormals[x][y].Length;
+                    var remap = ColorGenerator.Remap(val, 0, Math.Max(Math.Abs(min), Math.Abs(max)), 0, 1);  //original ColorGenerator.Remap(val, min, max, 0, 1)
+                    var pixColor = ColorGenerator.Turbo.ReturnTurboColor(remap);
+
+                    bitmap.SetPixel(this.xres - x - 1, this.yres - y - 1, pixColor);
+
+                }
+            }
+
+            return bitmap;
+        }
 
         public Bitmap GetLabelBitmap()
         {
@@ -299,6 +455,30 @@ namespace SeemoPredictor
             return bitmap;
         }
 
+        public Bitmap GetWindowLabelBitmap()
+        {
+
+            double min = 0;
+            double max = Enum.GetNames(typeof(SmoFace.SmoFaceType)).Length;
+
+            var bitmap = new Bitmap(this.xres, this.yres);
+
+            for (int x = 0; x < this.xres; x++)
+            {
+                for (int y = 0; y < this.yres; y++)
+                {
+
+                    double val = (double)((int)this.WindowLabelMap[x][y]);
+                    var remap = ColorGenerator.Remap(val, min, max, 0, 1);
+                    var pixColor = ColorGenerator.Inferno.ReturnInfernoColor(remap);
+
+                    bitmap.SetPixel(this.xres - x - 1, this.yres - y - 1, pixColor);
+
+                }
+            }
+
+            return bitmap;
+        }
 
     }
 }
