@@ -84,7 +84,7 @@ namespace NullEngine.Rendering.Implementation
             second.t = float.MaxValue;
             second.materialID = unset;
 
-            //Vec3 windowN = new Vec3(0, 0, 0);
+            Vec3 windowN = new Vec3(0, 0, 0);
             int materialIndex = 0;
 
             for (int i = 0; i < tlas.meshes.Length; i++)
@@ -128,7 +128,7 @@ namespace NullEngine.Rendering.Implementation
                                 {
                                     hit.t = temp.t;
                                     hit.materialID = temp.materialID;
-                                    //windowN = mesh.GetTriangle(j, renderData).faceNormal();
+                                    windowN = mesh.GetTriangle(j, renderData).faceNormal();
                                 }
                             }
                             else if (hit.materialID == 0) //closest  material is  intieror wall
@@ -151,7 +151,7 @@ namespace NullEngine.Rendering.Implementation
                                     second.materialID = hit.materialID;
                                     hit.t = temp.t;
                                     hit.materialID = temp.materialID;
-                                    //windowN = mesh.GetTriangle(j, renderData).faceNormal();
+                                    windowN = mesh.GetTriangle(j, renderData).faceNormal();
                                 }
                                 else if (temp.t > hit.t && temp.t < second.t)
                                 {
