@@ -20,6 +20,7 @@ namespace NullEngine.Rendering.DataStructures
         public MemoryBuffer1D<float, Stride1D.Dense> outputBuffer;
         public MemoryBuffer1D<int, Stride1D.Dense> outputMaterialID2Buffer;
         public MemoryBuffer1D<int, Stride1D.Dense> outputMaterialIDBuffer;
+        public MemoryBuffer1D<float, Stride1D.Dense> outputDistance2Buffer;
 
 
 
@@ -39,6 +40,7 @@ namespace NullEngine.Rendering.DataStructures
             outputBuffer = device.Allocate1D<float>(width * height * 3);
             outputMaterialID2Buffer = device.Allocate1D<int>(width * height * 3);
             outputMaterialIDBuffer = device.Allocate1D<int>(width * height );
+            outputDistance2Buffer = device.Allocate1D<float>(width * height * 3);
 
 
             deviceFrameData = new dFrameData(this);
@@ -52,6 +54,7 @@ namespace NullEngine.Rendering.DataStructures
             outputBuffer.Dispose();
             outputMaterialID2Buffer.Dispose();
             outputMaterialIDBuffer.Dispose();
+            outputDistance2Buffer.Dispose();
         }
     }
 
@@ -67,6 +70,7 @@ namespace NullEngine.Rendering.DataStructures
         public ArrayView1D<float, Stride1D.Dense> outputBuffer;
         public ArrayView1D<int, Stride1D.Dense> outputMaterialID2Buffer;
         public ArrayView1D<int, Stride1D.Dense> outputMaterialIDBuffer;
+        public ArrayView1D<float, Stride1D.Dense> outputDistance2Buffer;
 
         
         public dFrameData(FrameData frameData)
@@ -81,6 +85,7 @@ namespace NullEngine.Rendering.DataStructures
             outputBuffer = frameData.outputBuffer;
             outputMaterialID2Buffer = frameData.outputMaterialID2Buffer;
             outputMaterialIDBuffer = frameData.outputMaterialIDBuffer;
+            outputDistance2Buffer = frameData.outputDistance2Buffer;
 
 
 
