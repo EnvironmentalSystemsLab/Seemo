@@ -16,9 +16,9 @@ namespace SeemoPredictor.Components
         /// Initializes a new instance of the ObjExportComponent class.
         /// </summary>
         public ObjExportComponent()
-          : base("ObjExportComponent", "Nickname",
-              "Description",
-              "Category", "Subcategory")
+          : base("ObjExportComponent", "ObjExportComponent",
+              "ObjExportComponent",
+              "SeEmo", "5|Environment")
         {
         }
 

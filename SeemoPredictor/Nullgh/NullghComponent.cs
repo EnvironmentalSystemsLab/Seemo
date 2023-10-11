@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 
+[assembly: GH_Loading(GH_LoadingDemand.ForceDirect)]
+
 namespace Nullgh
 {
     public class NullghComponent : GH_Component
@@ -28,7 +30,7 @@ namespace Nullgh
         public NullghComponent()
           : base("GPURayTracing", "GPURayTracing",
             "GPURayTracing",
-            "SeEmo", "3|Analyzer")
+            "Nullgh", "GPU")
         {
         }
 
