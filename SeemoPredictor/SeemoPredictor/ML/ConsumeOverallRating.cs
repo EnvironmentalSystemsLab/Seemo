@@ -12,8 +12,14 @@ namespace SeemoPredictor
 {
     public class ConsumeOverallRating
     {
-        public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\OverallRating.zip"));
+        public static string assemblyFolder = ""; // it is giving programfiles/rhino6/grasshopper location;;;
+        public static string MLNetModelPath = "";
+
+        //public static string assemblyFolder = System.IO.Path.GetDirectoryName(new System.Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath); // it is giving programfiles/rhino6/grasshopper location;;;
+        //public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\OverallRating.zip"));
+
+        //public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        //public static string MLNetModelPath = Path.Combine(assemblyFolder + "OverallRating.zip");
 
         private static Lazy<PredictionEngine<ModelInput, ModelOutput>> PredictionEngine = new Lazy<PredictionEngine<ModelInput, ModelOutput>>(CreatePredictionEngine);
 
@@ -24,8 +30,11 @@ namespace SeemoPredictor
         // Method for consuming model in your app
 
 
-        public static ModelOutput Predict(ModelInput input)
+        public static ModelOutput Predict(ModelInput input, string assemblyFolderFromGH)
         {
+            assemblyFolder = assemblyFolderFromGH;
+            MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\x64\Debug\net48\OverallRating.zip"));
+
             ModelOutput result = PredictionEngine.Value.Predict(input);
             return result;
         }

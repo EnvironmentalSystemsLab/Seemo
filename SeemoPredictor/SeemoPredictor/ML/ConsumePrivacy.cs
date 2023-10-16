@@ -13,8 +13,11 @@ namespace SeemoPredictor
 {
     public class ConsumePrivacy
     {
-        public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\Privacy.zip"));
+        public static string assemblyFolder = "";
+        public static string MLNetModelPath = "";
+
+        //public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        //public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\Privacy.zip"));
 
         private static Lazy<PredictionEngine<ModelInputPrivacy, ModelOutputPrivacy>> PredictionEngine = new Lazy<PredictionEngine<ModelInputPrivacy, ModelOutputPrivacy>>(CreatePredictionEngine);
 
@@ -25,8 +28,11 @@ namespace SeemoPredictor
         // Method for consuming model in your app
 
 
-        public static ModelOutputPrivacy Predict(ModelInputPrivacy input)
+        public static ModelOutputPrivacy Predict(ModelInputPrivacy input, string assemblyFolderFromGH)
         {
+            assemblyFolder = assemblyFolderFromGH;
+            MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\x64\Debug\net48\Privacy.zip"));
+
             ModelOutputPrivacy result = PredictionEngine.Value.Predict(input);
             return result;
         }

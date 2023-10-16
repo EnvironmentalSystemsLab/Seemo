@@ -35,6 +35,7 @@ namespace SeemoPredictor
             pManager.AddGenericParameter("Sensors", "S", "View Sensors", GH_ParamAccess.list);
             pManager.AddGenericParameter("Faces", "F", "Seemo Faces", GH_ParamAccess.list);
             pManager.AddNumberParameter("Ground Level", "GL", "Z coordinate of Ground Level", GH_ParamAccess.item);
+            pManager.AddTextParameter("SeemoPredictor FilePath", "File Path", "SeemoPredictor Folder Path in the Libraries", GH_ParamAccess.item) ;
             
         }
 
@@ -68,14 +69,15 @@ namespace SeemoPredictor
             List<SmoFace> faces = new List<SmoFace>();
             double glevel = 0;
             Boolean run = false;
+            string assemblyFolderPathGH = "";
 
             if (!DA.GetData(0, ref run))  return; 
             if (run == false)  return; 
 
             DA.GetDataList(1, sensors);
             DA.GetDataList(2, faces);
-            if (!DA.GetData(3, ref glevel))  return; 
-
+            if (!DA.GetData(3, ref glevel))  return;
+            if (!DA.GetData(4, ref assemblyFolderPathGH)) return;
 
             //calculate min, max mode size
             double avNodeSize = 0;
@@ -415,10 +417,10 @@ namespace SeemoPredictor
                     if (directionResult.WindowAreaRatio > 0)
                     {
                         // Make a single prediction on the sample data and print results
-                        var overallRating = ConsumeOverallRating.Predict(sampleDataOverallRating);
-                        var viewContent = ConsumeViewContent.Predict(sampleDataViewContent);
-                        var viewAccess = ConsumeViewAccess.Predict(sampleDataViewAccess);
-                        var privacy = ConsumePrivacy.Predict(sampleDataPrivacy);
+                        var overallRating = ConsumeOverallRating.Predict(sampleDataOverallRating, assemblyFolderPathGH);
+                        var viewContent = ConsumeViewContent.Predict(sampleDataViewContent, assemblyFolderPathGH);
+                        var viewAccess = ConsumeViewAccess.Predict(sampleDataViewAccess, assemblyFolderPathGH);
+                        var privacy = ConsumePrivacy.Predict(sampleDataPrivacy, assemblyFolderPathGH);
                         var framework = directionResult.ViewContentFramework;
                         var SPVEI = directionResult.SPVEI;
                         //var IPVEI = directionResult.IPVEI;

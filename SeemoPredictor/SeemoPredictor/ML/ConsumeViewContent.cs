@@ -14,8 +14,11 @@ namespace SeemoPredictor
 {
     public class ConsumeViewContent
     {
-        public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\ViewContent.zip"));
+        public static string assemblyFolder = "";
+        public static string MLNetModelPath = "";
+
+        //public static string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        //public static string MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\ViewContent.zip"));
 
         private static Lazy<PredictionEngine<ModelInputViewContent, ModelOutputViewContent>> PredictionEngine = new Lazy<PredictionEngine<ModelInputViewContent, ModelOutputViewContent>>(CreatePredictionEngine);
 
@@ -26,8 +29,11 @@ namespace SeemoPredictor
         // Method for consuming model in your app
 
 
-        public static ModelOutputViewContent Predict(ModelInputViewContent input)
+        public static ModelOutputViewContent Predict(ModelInputViewContent input, string assemblyFolderFromGH)
         {
+            assemblyFolder = assemblyFolderFromGH;
+            MLNetModelPath = Path.GetFullPath(Path.Combine(assemblyFolder + @"\x64\Debug\net48\ViewContent.zip"));
+
             ModelOutputViewContent result = PredictionEngine.Value.Predict(input);
             return result;
         }
