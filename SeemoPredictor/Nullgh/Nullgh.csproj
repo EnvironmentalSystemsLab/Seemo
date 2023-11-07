@@ -13,10 +13,10 @@
   <ItemGroup>
     <PackageReference Include="CjClutter.ObjLoader" Version="1.0.0" />
     <PackageReference Include="Grasshopper" Version="7.18.22124.3001" IncludeAssets="compile;build" />
-    <PackageReference Include="ILGPU" Version="1.5.1">
+    <PackageReference Include="ILGPU" Version="1.2.0">
       <IncludeAssets></IncludeAssets>
     </PackageReference>
-    <PackageReference Include="ILGPU.Algorithms" Version="1.5.1">
+    <PackageReference Include="ILGPU.Algorithms" Version="1.2.0">
       <IncludeAssets>compile;build</IncludeAssets>
     </PackageReference>
     <PackageReference Include="RhinoCommon" Version="7.18.22124.3001" />
